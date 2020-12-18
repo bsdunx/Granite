@@ -43,3 +43,7 @@
 [submodule "third_party/khronos/vulkan-headers"]
 	path = third_party/khronos/vulkan-headers
 	url = git://github.com/KhronosGroup/Vulkan-Headers
+[submodule "third_party/bullet3"]
+	path = third_party/bullet3
+	branch = 3.0.7
+	url = https://github.com/bulletphysics/bullet3.git
