@@ -27,6 +27,7 @@
 #include "muglm/muglm_impl.hpp"
 #include "thread_group.hpp"
 #include "task_composer.hpp"
+#include "vulkan_prerotate.hpp"
 
 #include <algorithm>
 
