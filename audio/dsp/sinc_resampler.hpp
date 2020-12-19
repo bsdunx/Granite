@@ -22,15 +22,11 @@
 
 #pragma once
 
+#include <cstdint>
+#include <cstddef>
 #include <vector>
-#include <stdint.h>
-#include <stddef.h>
 
-namespace Granite
-{
-namespace Audio
-{
-namespace DSP
+namespace Granite::Audio::DSP
 {
 
 class SincResampler
@@ -70,6 +66,4 @@ private:
 	void init_table_kaiser(double cutoff, unsigned phase_count, unsigned num_taps, double beta);
 };
 
-}
-}
 }

@@ -23,11 +23,11 @@
 #include "render_context.hpp"
 #include "muglm/matrix_helper.hpp"
 
-using namespace std;
 using namespace Vulkan;
 
 namespace Granite
 {
+
 void RenderContext::set_camera(const Camera &camera_)
 {
 	set_camera(camera_.get_projection(), camera_.get_view());

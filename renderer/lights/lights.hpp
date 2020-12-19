@@ -28,6 +28,7 @@
 
 namespace Granite
 {
+
 class PositionalLight : public AbstractRenderable
 {
 public:
@@ -164,4 +165,5 @@ private:
 
 vec2 spot_light_z_range(const RenderContext &context, const mat4 &model);
 vec2 point_light_z_range(const RenderContext &context, const vec3 &pos, float radius);
+
 }

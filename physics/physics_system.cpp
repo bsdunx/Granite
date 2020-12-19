@@ -26,8 +26,6 @@
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 
-using namespace std;
-
 namespace Granite
 {
 static const float PHYSICS_TICK = 1.0f / 300.0f;
@@ -162,18 +160,18 @@ RaycastResult PhysicsSystem::query_closest_hit_ray(const vec3 &from, const vec3 
 		result.world_normal.z = cb.m_hitNormalWorld.z();
 		result.t = cb.m_closestHitFraction * t;
 
-		//LOGI("Ray hit: %f, %f, %f\n", result.world_pos.x, result.world_pos.y, result.world_pos.z);
+		LOGI("Ray hit: %f, %f, %f\n", result.world_pos.x, result.world_pos.y, result.world_pos.z);
 	}
 	return result;
 }
 
 PhysicsSystem::PhysicsSystem()
 {
-	collision_config = make_unique<btDefaultCollisionConfiguration>();
-	dispatcher = make_unique<btCollisionDispatcher>(collision_config.get());
-	broadphase = make_unique<btDbvtBroadphase>();
-	solver = make_unique<btSequentialImpulseConstraintSolver>();
-	world = make_unique<btDiscreteDynamicsWorld>(dispatcher.get(), broadphase.get(),
+	collision_config = std::make_unique<btDefaultCollisionConfiguration>();
+	dispatcher = std::make_unique<btCollisionDispatcher>(collision_config.get());
+	broadphase = std::make_unique<btDbvtBroadphase>();
+	solver = std::make_unique<btSequentialImpulseConstraintSolver>();
+	world = std::make_unique<btDiscreteDynamicsWorld>(dispatcher.get(), broadphase.get(),
 	                                             solver.get(), collision_config.get());
 
 	world->setGravity(btVector3(0.0f, -9.81f, 0.0f));
@@ -186,7 +184,10 @@ PhysicsSystem::PhysicsSystem()
 void PhysicsSystem::set_scene(Scene *scene_)
 {
 	scene = scene_;
-	forces = &scene->get_entity_pool().get_component_group<PhysicsComponent, ForceComponent>();
+	
+	forces = std::reference_wrapper<const ComponentGroupVector<PhysicsComponent, ForceComponent>>(
+		scene->get_entity_pool().get_component_group<PhysicsComponent, ForceComponent>()
+	);
 }
 
 struct KinematicCharacter::Impl : btKinematicCharacterController
@@ -272,7 +273,7 @@ void KinematicCharacter::jump(const vec3 &v)
 
 KinematicCharacter::KinematicCharacter(KinematicCharacter &&other) noexcept
 {
-	*this = move(other);
+	*this = std::move(other);
 }
 
 KinematicCharacter::KinematicCharacter()
@@ -306,7 +307,7 @@ void PhysicsSystem::iterate(double frame_time)
 	// System which applies forces to objects every iteration.
 	if (forces)
 	{
-		for (auto &force : *forces)
+		for (auto &force : forces->get())
 		{
 			auto *handle = get_component<PhysicsComponent>(force)->handle;
 			auto *body = btRigidBody::upcast(handle->bt_object);
@@ -844,7 +845,7 @@ struct TriggerContactResultCallback : btCollisionWorld::ContactResultCallback
 	}
 };
 
-bool PhysicsSystem::get_overlapping_objects(PhysicsHandle *handle, vector<PhysicsHandle *> &other,
+bool PhysicsSystem::get_overlapping_objects(PhysicsHandle *handle, std::vector<PhysicsHandle *> &other,
                                             OverlapMethod method)
 {
 	other.clear();

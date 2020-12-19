@@ -28,7 +28,7 @@
 #include "dsp/tone_filter_stream.hpp"
 #include "dsp/tone_filter.hpp"
 #include "muglm/muglm_impl.hpp"
-#include <string.h>
+#include <cstring>
 #include <dsp/dsp.hpp>
 
 using namespace Granite;

@@ -22,16 +22,14 @@
 
 #pragma once
 
-#include <math.h>
-#include <stdint.h>
 #include "simd_headers.hpp"
 
-namespace Granite
+#include <cmath>
+#include <cstdint>
+
+namespace Granite::Audio::DSP
 {
-namespace Audio
-{
-namespace DSP
-{
+
 static inline void accumulate_channel(float * __restrict output, const float * __restrict input, float gain, size_t count) noexcept
 {
 #ifdef __ARM_NEON
@@ -271,6 +269,4 @@ void create_parametric_eq_filter(float *coeffs, unsigned num_coeffs,
 double sinc(double val);
 double kaiser_window_function(double index, double beta);
 
-}
-}
 }

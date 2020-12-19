@@ -29,14 +29,13 @@
 #include <queue>
 
 using namespace Granite;
-using namespace std;
 
 struct FSHandler;
 
 struct FilesystemHandler : LooperHandler
 {
-	FilesystemHandler(unique_ptr<Socket> socket_, FilesystemBackend &backend_)
-		: LooperHandler(move(socket_)), backend(backend_)
+	FilesystemHandler(std::unique_ptr<Socket> socket_, FilesystemBackend &backend_)
+		: LooperHandler(std::move(socket_)), backend(backend_)
 	{
 	}
 
@@ -67,10 +66,10 @@ struct NotificationSystem : EventHandler
 			auto &fs = proto.second;
 			if (fs->get_notification_fd() >= 0)
 			{
-				auto socket = unique_ptr<Socket>(new Socket(fs->get_notification_fd(), false));
-				auto handler = unique_ptr<FilesystemHandler>(new FilesystemHandler(move(socket), *fs));
+				auto socket = std::unique_ptr<Socket>(new Socket(fs->get_notification_fd(), false));
+				auto handler = std::unique_ptr<FilesystemHandler>(new FilesystemHandler(move(socket), *fs));
 				auto *ptr = handler.get();
-				looper.register_handler(EVENT_IN, move(handler));
+				looper.register_handler(EVENT_IN, std::move(handler));
 				protocols[proto.first] = ptr;
 			}
 		}
@@ -80,10 +79,10 @@ struct NotificationSystem : EventHandler
 	{
 		if (fs.get_backend().get_notification_fd() >= 0)
 		{
-			auto socket = unique_ptr<Socket>(new Socket(fs.get_backend().get_notification_fd(), false));
-			auto handler = unique_ptr<FilesystemHandler>(new FilesystemHandler(move(socket), fs.get_backend()));
+			auto socket = std::unique_ptr<Socket>(new Socket(fs.get_backend().get_notification_fd(), false));
+			auto handler = std::unique_ptr<FilesystemHandler>(new FilesystemHandler(move(socket), fs.get_backend()));
 			auto *ptr = handler.get();
-			looper.register_handler(EVENT_IN, move(handler));
+			looper.register_handler(EVENT_IN, std::move(handler));
 			protocols[fs.get_protocol()] = ptr;
 		}
 		return true;
@@ -95,7 +94,7 @@ struct NotificationSystem : EventHandler
 			proto.second->uninstall_all_notifications(handler);
 	}
 
-	FileNotifyHandle install_notification(FSHandler *handler, const string &protocol, const string &path)
+	FileNotifyHandle install_notification(FSHandler *handler, const std::string &protocol, const std::string &path)
 	{
 		auto *proto = protocols[protocol];
 		if (!proto)
@@ -104,7 +103,7 @@ struct NotificationSystem : EventHandler
 		return proto->install_notification(path, handler);
 	}
 
-	void uninstall_notification(FSHandler *handler, const string &protocol, FileNotifyHandle handle)
+	void uninstall_notification(FSHandler *handler, const std::string &protocol, FileNotifyHandle handle)
 	{
 		auto *proto = protocols[protocol];
 		if (!proto)
@@ -119,7 +118,7 @@ struct NotificationSystem : EventHandler
 
 struct FSHandler : LooperHandler
 {
-	FSHandler(NotificationSystem &notify_system_, unique_ptr<Socket> socket_)
+	FSHandler(NotificationSystem &notify_system_, std::unique_ptr<Socket> socket_)
 		: LooperHandler(move(socket_)), notify_system(notify_system_)
 	{
 		reply_builder.begin(4);
@@ -276,7 +275,7 @@ struct FSHandler : LooperHandler
 		return (ret > 0) || (ret == Socket::ErrorWouldBlock);
 	}
 
-	bool begin_write_file(Looper &looper, const string &arg)
+	bool begin_write_file(Looper &looper, const std::string &arg)
 	{
 		file = Global::filesystem()->open(arg, FileMode::WriteOnly);
 		if (!file)
@@ -298,7 +297,7 @@ struct FSHandler : LooperHandler
 		return true;
 	}
 
-	bool begin_read_file(const string &arg)
+	bool begin_read_file(const std::string &arg)
 	{
 		file = Global::filesystem()->open(arg);
 		mapped = nullptr;
@@ -322,7 +321,7 @@ struct FSHandler : LooperHandler
 		return true;
 	}
 
-	void write_string_list(const vector<ListEntry> &list)
+	void write_string_list(const std::vector<ListEntry> &list)
 	{
 		reply_builder.begin();
 		reply_builder.add_u32(NETFS_BEGIN_CHUNK_REPLY);
@@ -349,7 +348,7 @@ struct FSHandler : LooperHandler
 		command_writer.start(reply_builder.get_buffer());
 	}
 
-	bool begin_stat(const string &arg)
+	bool begin_stat(const std::string &arg)
 	{
 		FileStat s;
 		reply_builder.begin();
@@ -382,14 +381,14 @@ struct FSHandler : LooperHandler
 		return true;
 	}
 
-	bool begin_list(const string &arg)
+	bool begin_list(const std::string &arg)
 	{
 		auto list = Global::filesystem()->list(arg);
 		write_string_list(list);
 		return true;
 	}
 
-	bool begin_walk(const string &arg)
+	bool begin_walk(const std::string &arg)
 	{
 		auto list = Global::filesystem()->walk(arg);
 		write_string_list(list);
@@ -673,7 +672,7 @@ struct FSHandler : LooperHandler
 	std::queue<NotificationReply> reply_queue;
 	std::string protocol;
 
-	unique_ptr<File> file;
+	std::unique_ptr<File> file;
 	void *mapped = nullptr;
 
 	bool is_notify_fs = false;
@@ -720,7 +719,7 @@ struct ListenerHandler : TCPListener
 	{
 		auto client = accept();
 		if (client)
-			looper.register_handler(EVENT_IN, unique_ptr<FSHandler>(new FSHandler(notify_system, move(client))));
+			looper.register_handler(EVENT_IN, std::unique_ptr<FSHandler>(new FSHandler(notify_system, move(client))));
 		return true;
 	}
 
@@ -730,9 +729,9 @@ struct ListenerHandler : TCPListener
 int main()
 {
 	Looper looper;
-	auto notify = unique_ptr<NotificationSystem>(new NotificationSystem(looper));
-	auto listener = unique_ptr<LooperHandler>(new ListenerHandler(*notify, 7070));
+	auto notify = std::unique_ptr<NotificationSystem>(new NotificationSystem(looper));
+	auto listener = std::unique_ptr<LooperHandler>(new ListenerHandler(*notify, 7070));
 
-	looper.register_handler(EVENT_IN, move(listener));
+	looper.register_handler(EVENT_IN, std::move(listener));
 	while (looper.wait(-1) >= 0);
 }

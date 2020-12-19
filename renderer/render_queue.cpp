@@ -22,22 +22,23 @@
 
 #include "render_queue.hpp"
 #include "render_context.hpp"
+
+#include <cassert>
 #include <cstring>
 #include <iterator>
 #include <algorithm>
-#include <assert.h>
 
-using namespace std;
 using namespace Vulkan;
 using namespace Util;
 
 namespace Granite
 {
+
 void RenderQueue::sort()
 {
 	for (auto &queue : queues)
 	{
-		stable_sort(begin(queue), end(queue), [](const RenderQueueData &a, const RenderQueueData &b) {
+		std::stable_sort(std::begin(queue), std::end(queue), [](const RenderQueueData &a, const RenderQueueData &b) {
 			return a.sorting_key < b.sorting_key;
 		});
 	}
@@ -48,7 +49,7 @@ void RenderQueue::combine_render_info(const RenderQueue &queue)
 	for (unsigned i = 0; i < ecast(Queue::Count); i++)
 	{
 		auto e = static_cast<Queue>(i);
-		queues[i].insert(end(queues[i]), begin(queue.get_queue_data(e)), end(queue.get_queue_data(e)));
+		queues[i].insert(std::end(queues[i]), std::begin(queue.get_queue_data(e)), std::end(queue.get_queue_data(e)));
 	}
 }
 
@@ -232,4 +233,5 @@ uint64_t RenderInfo::get_sort_key(const RenderContext &context, Queue queue_type
 	float z = dot(context.get_render_parameters().camera_front, center - context.get_render_parameters().camera_position);
 	return get_sprite_sort_key(queue_type, pipeline_hash, draw_hash, z, layer);
 }
+
 }

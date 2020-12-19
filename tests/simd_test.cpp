@@ -4,8 +4,9 @@
 #include "logging.hpp"
 #include "transforms.hpp"
 #include "frustum.hpp"
-#include <assert.h>
-#include <string.h>
+
+#include <cassert>
+#include <cstring>
 
 using namespace Granite;
 

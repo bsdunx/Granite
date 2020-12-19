@@ -32,10 +32,9 @@
 #include "thread_id.hpp"
 #endif
 
-using namespace std;
-
 namespace Vulkan
 {
+
 bool Texture::init_texture()
 {
 	if (!path.empty())
@@ -66,7 +65,7 @@ void Texture::update(std::unique_ptr<Granite::File> file)
 #if defined(GRANITE_VULKAN_MT) && defined(VULKAN_DEBUG)
 		LOGI("Loading texture in thread index: %u\n", get_current_thread_index());
 #endif
-		unique_ptr<Granite::File> updated_file{f};
+		std::unique_ptr<Granite::File> updated_file{f};
 		auto size = updated_file->get_size();
 		void *mapped = updated_file->map();
 		if (size && mapped)
@@ -87,7 +86,7 @@ void Texture::update(std::unique_ptr<Granite::File> file)
 #ifdef GRANITE_VULKAN_MT
 	auto &workers = *Granite::Global::thread_group();
 	// Workaround, cannot copy the lambda because of owning a unique_ptr.
-	auto task = workers.create_task(move(work));
+	auto task = workers.create_task(std::move(work));
 	task->flush();
 #else
 	work();
@@ -176,7 +175,7 @@ void Texture::update_gtx(const Granite::SceneFormats::MemoryMappedTexture &mappe
 	replace_image(image);
 }
 
-void Texture::update_gtx(unique_ptr<Granite::File> file, void *mapped)
+void Texture::update_gtx(std::unique_ptr<Granite::File> file, void *mapped)
 {
 	Granite::SceneFormats::MemoryMappedTexture mapped_file;
 	if (!mapped_file.map_read(move(file), mapped))
@@ -214,9 +213,9 @@ void Texture::unload()
 
 void Texture::replace_image(ImageHandle handle_)
 {
-	auto old = this->handle.write_object(move(handle_));
+	auto old = this->handle.write_object(std::move(handle_));
 	if (old)
-		device->keep_handle_alive(move(old));
+		device->keep_handle_alive(std::move(old));
 
 	if (enable_notification)
 		device->get_texture_manager().notify_updated_texture(path, *this);

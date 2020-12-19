@@ -25,10 +25,12 @@
 #include "scene.hpp"
 #include "render_context.hpp"
 #include "renderer.hpp"
+
 #include <vector>
 
 namespace Granite
 {
+
 class DeferredLights : public PerFrameRefreshable
 {
 public:
@@ -55,4 +57,5 @@ private:
 
 	void refresh(const RenderContext &context, TaskComposer &composer) override;
 };
+
 }

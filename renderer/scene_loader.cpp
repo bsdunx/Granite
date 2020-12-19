@@ -28,7 +28,6 @@
 #include "enum_cast.hpp"
 #include "ground.hpp"
 
-using namespace std;
 using namespace rapidjson;
 using namespace Util;
 
@@ -37,13 +36,13 @@ namespace Granite
 
 SceneLoader::SceneLoader()
 {
-	scene = make_unique<Scene>();
-	animation_system = make_unique<AnimationSystem>();
+	scene = std::make_unique<Scene>();
+	animation_system = std::make_unique<AnimationSystem>();
 }
 
-unique_ptr<AnimationSystem> SceneLoader::consume_animation_system()
+std::unique_ptr<AnimationSystem> SceneLoader::consume_animation_system()
 {
-	return move(animation_system);
+	return std::move(animation_system);
 }
 
 AnimationSystem &SceneLoader::get_animation_system()
@@ -60,9 +59,9 @@ Scene::NodeHandle SceneLoader::load_scene_to_root_node(const std::string &path)
 	}
 	else
 	{
-		string json;
+		std::string json;
 		if (!Global::filesystem()->read_file_to_string(path, json))
-			throw runtime_error("Failed to load GLTF file.");
+			throw std::runtime_error("Failed to load GLTF file.");
 		return parse_scene_format(path, json);
 	}
 }
@@ -182,7 +181,7 @@ Scene::NodeHandle SceneLoader::build_tree_for_subscene(const SubsceneData &subsc
 
 void SceneLoader::load_animation(const std::string &path, SceneFormats::Animation &animation)
 {
-	string str;
+	std::string str;
 	if (!Global::filesystem()->read_file_to_string(path, str))
 	{
 		LOGE("Failed to load file: %s\n", path.c_str());
@@ -192,11 +191,11 @@ void SceneLoader::load_animation(const std::string &path, SceneFormats::Animatio
 	Document doc;
 	doc.Parse(str);
 	if (doc.HasParseError())
-		throw logic_error("Failed to parse.");
+		throw std::logic_error("Failed to parse.");
 
 	auto &timestamps = doc["timestamps"];
 
-	vector<float> timestamp_values;
+	std::vector<float> timestamp_values;
 	for (auto itr = timestamps.Begin(); itr != timestamps.End(); ++itr)
 		timestamp_values.push_back(itr->GetFloat());
 
@@ -217,9 +216,9 @@ void SceneLoader::load_animation(const std::string &path, SceneFormats::Animatio
 		}
 
 		channel.type = SceneFormats::AnimationChannel::Type::Rotation;
-		channel.spherical = move(slerp);
+		channel.spherical = std::move(slerp);
 		channel.timestamps = timestamp_values;
-		animation.channels.push_back(move(channel));
+		animation.channels.push_back(std::move(channel));
 	}
 
 	if (doc.HasMember("translation"))
@@ -236,9 +235,9 @@ void SceneLoader::load_animation(const std::string &path, SceneFormats::Animatio
 		}
 
 		channel.type = SceneFormats::AnimationChannel::Type::Translation;
-		channel.linear = move(linear);
+		channel.linear = std::move(linear);
 		channel.timestamps = timestamp_values;
-		animation.channels.push_back(move(channel));
+		animation.channels.push_back(std::move(channel));
 	}
 
 	if (doc.HasMember("scale"))
@@ -255,9 +254,9 @@ void SceneLoader::load_animation(const std::string &path, SceneFormats::Animatio
 		}
 
 		channel.type = SceneFormats::AnimationChannel::Type::Scale;
-		channel.linear = move(linear);
+		channel.linear = std::move(linear);
 		channel.timestamps = timestamp_values;
-		animation.channels.push_back(move(channel));
+		animation.channels.push_back(std::move(channel));
 	}
 
 	animation.update_length();
@@ -266,7 +265,7 @@ void SceneLoader::load_animation(const std::string &path, SceneFormats::Animatio
 Scene::NodeHandle SceneLoader::parse_gltf(const std::string &path)
 {
 	SubsceneData subscene;
-	subscene.parser = make_unique<GLTF::Parser>(path);
+	subscene.parser = std::make_unique<GLTF::Parser>(path);
 
 	for (auto &mesh : subscene.parser->get_meshes())
 		subscene.meshes.push_back(create_imported_mesh(mesh, subscene.parser->get_materials().data()));
@@ -316,7 +315,7 @@ Scene::NodeHandle SceneLoader::parse_scene_format(const std::string &path, const
 	doc.Parse(json);
 
 	if (doc.HasParseError())
-		throw logic_error("Failed to parse.");
+		throw std::logic_error("Failed to parse.");
 
 	auto &scenes = doc["scenes"];
 	for (auto itr = scenes.MemberBegin(); itr != scenes.MemberEnd(); ++itr)
@@ -355,7 +354,7 @@ Scene::NodeHandle SceneLoader::parse_scene_format(const std::string &path, const
 		}
 	}
 
-	vector<Scene::NodeHandle> hierarchy;
+	std::vector<Scene::NodeHandle> hierarchy;
 
 	auto &nodes = doc["nodes"];
 	for (auto itr = nodes.Begin(); itr != nodes.End(); ++itr)
@@ -365,7 +364,7 @@ Scene::NodeHandle SceneLoader::parse_scene_format(const std::string &path, const
 
 		auto scene_itr = has_scene ? subscenes.find(elem["scene"].GetString()) : end(subscenes);
 		if (has_scene && scene_itr == end(subscenes))
-			throw logic_error("Scene does not exist.");
+			throw std::logic_error("Scene does not exist.");
 
 		vec3 stride = vec3(0.0f);
 		uvec3 instance_size = uvec3(1);
@@ -462,7 +461,7 @@ Scene::NodeHandle SceneLoader::parse_scene_format(const std::string &path, const
 				channel.timestamps.push_back(0.75f * time_for_rotation);
 				channel.timestamps.push_back(1.00f * time_for_rotation);
 
-				track.channels.push_back(move(channel));
+				track.channels.push_back(std::move(channel));
 			}
 			else if (animation.HasMember("animationData"))
 			{
@@ -472,7 +471,7 @@ Scene::NodeHandle SceneLoader::parse_scene_format(const std::string &path, const
 
 			track.update_length();
 
-			auto ident = to_string(index);
+			auto ident = std::to_string(index);
 			AnimationID animation_id = 0;
 
 			if (!track.channels.empty())
@@ -496,7 +495,7 @@ Scene::NodeHandle SceneLoader::parse_scene_format(const std::string &path, const
 				{
 					for (auto &channel : track.channels)
 						if (channel.type == SceneFormats::AnimationChannel::Type::Translation)
-							throw logic_error("Cannot use per-instance translation.");
+							throw std::logic_error("Cannot use per-instance translation.");
 
 					for (auto &child : root->get_children())
 					{
@@ -565,13 +564,13 @@ Scene::NodeHandle SceneLoader::parse_scene_format(const std::string &path, const
 					cylinder->set_xz_scale(box["cylinderScale"].GetFloat());
 				}
 				else
-					throw logic_error("Unsupported skybox projection.");
+					throw std::logic_error("Unsupported skybox projection.");
 			}
 			else
-				throw logic_error("Skybox projection must be specified.");
+				throw std::logic_error("Skybox projection must be specified.");
 
-			string reflection;
-			string irradiance;
+			std::string reflection;
+			std::string irradiance;
 
 			if (box.HasMember("reflection"))
 				reflection = Path::relpath(path, box["reflection"].GetString());
@@ -656,7 +655,7 @@ Scene::NodeHandle SceneLoader::parse_scene_format(const std::string &path, const
 		if (terrain.HasMember("patchData"))
 		{
 			auto patch_path = Path::relpath(path, terrain["patchData"].GetString());
-			string patch_json;
+			std::string patch_json;
 			if (Global::filesystem()->read_file_to_string(patch_path, patch_json))
 			{
 				Document patch_doc;

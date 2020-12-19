@@ -22,12 +22,14 @@
 
 #pragma once
 
-#include <stdint.h>
 #include "hash.hpp"
 #include "intrusive_hash_map.hpp"
 
+#include <cstdint>
+
 namespace Vulkan
 {
+
 class Device;
 
 class Cookie
@@ -58,4 +60,5 @@ public:
 protected:
 	bool internal_sync = false;
 };
+
 }

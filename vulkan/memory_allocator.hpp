@@ -29,10 +29,11 @@
 #include "logging.hpp"
 #include "bitops.hpp"
 #include "enum_cast.hpp"
-#include <assert.h>
+
+#include <cassert>
+#include <cstddef>
+#include <cstdint>
 #include <memory>
-#include <stddef.h>
-#include <stdint.h>
 #include <vector>
 
 #ifdef GRANITE_VULKAN_MT

@@ -24,12 +24,14 @@
 
 #include "enum_cast.hpp"
 #include "event.hpp"
-#include <stdint.h>
 #include "math.hpp"
+
+#include <cstdint>
 #include <limits>
 
 namespace Granite
 {
+
 enum class JoypadKey
 {
 	Left,
@@ -699,6 +701,5 @@ private:
 	uint8_t btn_mask;
 	bool mouse_active;
 };
-
 
 }

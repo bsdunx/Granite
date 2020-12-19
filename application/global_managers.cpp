@@ -28,6 +28,7 @@
 #include "ui_manager.hpp"
 #include "common_renderer_data.hpp"
 #include "message_queue.hpp"
+
 #include <thread>
 
 #ifdef HAVE_GRANITE_AUDIO

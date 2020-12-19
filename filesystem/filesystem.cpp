@@ -26,10 +26,9 @@
 #include "path.hpp"
 #include "logging.hpp"
 #include "string_helpers.hpp"
-#include <stdlib.h>
-#include <algorithm>
 
-using namespace std;
+#include <cstdlib>
+#include <algorithm>
 
 namespace Granite
 {
@@ -122,40 +121,40 @@ StdioFile::~StdioFile()
 	}
 }
 
-vector<ListEntry> FilesystemBackend::walk(const std::string &path)
+std::vector<ListEntry> FilesystemBackend::walk(const std::string &path)
 {
 	auto entries = list(path);
-	vector<ListEntry> final_entries;
+	std::vector<ListEntry> final_entries;
 	for (auto &e : entries)
 	{
 		if (e.type == PathType::Directory)
 		{
 			auto subentries = walk(e.path);
-			final_entries.push_back(move(e));
+			final_entries.push_back(std::move(e));
 			for (auto &sub : subentries)
-				final_entries.push_back(move(sub));
+				final_entries.push_back(std::move(sub));
 		}
 		else if (e.type == PathType::File)
-			final_entries.push_back(move(e));
+			final_entries.push_back(std::move(e));
 	}
 	return final_entries;
 }
 
 Filesystem::Filesystem()
 {
-	register_protocol("file", unique_ptr<FilesystemBackend>(new OSFilesystem(".")));
-	register_protocol("memory", unique_ptr<FilesystemBackend>(new ScratchFilesystem));
+	register_protocol("file", std::unique_ptr<FilesystemBackend>(new OSFilesystem(".")));
+	register_protocol("memory", std::unique_ptr<FilesystemBackend>(new ScratchFilesystem));
 
 #ifdef ANDROID
-	register_protocol("assets", unique_ptr<FilesystemBackend>(new NetworkFilesystem));
-	register_protocol("builtin", unique_ptr<FilesystemBackend>(new NetworkFilesystem));
-	register_protocol("cache", unique_ptr<FilesystemBackend>(new NetworkFilesystem));
+	register_protocol("assets", std::unique_ptr<FilesystemBackend>(new NetworkFilesystem));
+	register_protocol("builtin", std::unique_ptr<FilesystemBackend>(new NetworkFilesystem));
+	register_protocol("cache", std::unique_ptr<FilesystemBackend>(new NetworkFilesystem));
 #else
 	if (getenv("GRANITE_USE_NETFS"))
 	{
-		register_protocol("assets", unique_ptr<FilesystemBackend>(new NetworkFilesystem));
-		register_protocol("builtin", unique_ptr<FilesystemBackend>(new NetworkFilesystem));
-		register_protocol("cache", unique_ptr<FilesystemBackend>(new NetworkFilesystem));
+		register_protocol("assets", std::unique_ptr<FilesystemBackend>(new NetworkFilesystem));
+		register_protocol("builtin", std::unique_ptr<FilesystemBackend>(new NetworkFilesystem));
+		register_protocol("cache", std::unique_ptr<FilesystemBackend>(new NetworkFilesystem));
 	}
 	else
 	{
@@ -165,7 +164,7 @@ Filesystem::Filesystem()
 			asset_dir = GRANITE_DEFAULT_ASSET_DIRECTORY;
 #endif
 		if (asset_dir)
-			register_protocol("builtin", unique_ptr<FilesystemBackend>(new OSFilesystem(asset_dir)));
+			register_protocol("builtin", std::unique_ptr<FilesystemBackend>(new OSFilesystem(asset_dir)));
 
 		const char *builtin_dir = getenv("GRANITE_DEFAULT_BUILTIN_DIRECTORY");
 #ifdef GRANITE_DEFAULT_BUILTIN_DIRECTORY
@@ -173,7 +172,7 @@ Filesystem::Filesystem()
 			builtin_dir = GRANITE_DEFAULT_BUILTIN_DIRECTORY;
 #endif
 		if (builtin_dir)
-			register_protocol("builtin", unique_ptr<FilesystemBackend>(new OSFilesystem(builtin_dir)));
+			register_protocol("builtin", std::unique_ptr<FilesystemBackend>(new OSFilesystem(builtin_dir)));
 
 		const char *cache_dir = getenv("GRANITE_DEFAULT_CACHE_DIRECTORY");
 #ifdef GRANITE_DEFAULT_CACHE_DIRECTORY
@@ -181,7 +180,7 @@ Filesystem::Filesystem()
 			cache_dir = GRANITE_DEFAULT_CACHE_DIRECTORY;
 #endif
 		if (cache_dir)
-			register_protocol("cache", unique_ptr<FilesystemBackend>(new OSFilesystem(cache_dir)));
+			register_protocol("cache", std::unique_ptr<FilesystemBackend>(new OSFilesystem(cache_dir)));
 	}
 #endif
 }
@@ -238,10 +237,10 @@ bool Filesystem::read_file_to_string(const std::string &path, std::string &str)
 	if (!mapped)
 		return false;
 
-	str = string(mapped, mapped + size);
+	str = std::string(mapped, mapped + size);
 
 	// Remove DOS EOL.
-	str.erase(remove_if(begin(str), end(str), [](char c) { return c == '\r'; }), end(str));
+	str.erase(std::remove_if(std::begin(str), std::end(str), [](char c) { return c == '\r'; }), std::end(str));
 
 	return true;
 }

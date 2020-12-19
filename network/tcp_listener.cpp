@@ -25,6 +25,7 @@
 #ifdef _WIN32
 namespace Granite
 {
+
 SocketGlobal::SocketGlobal()
 {
 }
@@ -44,21 +45,23 @@ TCPListener::TCPListener(uint16_t port)
 {
 	throw std::runtime_error("Unimplemented feature on Windows.");
 }
+
 }
+
 #else
-#include <string>
+
+#include <cerrno>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <signal.h>
-
-using namespace std;
+#include <string>
 
 namespace Granite
 {
+
 SocketGlobal::SocketGlobal()
 {
 }
@@ -69,7 +72,7 @@ SocketGlobal &SocketGlobal::get()
 	return global;
 }
 
-unique_ptr<Socket> TCPListener::accept()
+std::unique_ptr<Socket> TCPListener::accept()
 {
 	sockaddr_storage their;
 	socklen_t their_size = sizeof(their);
@@ -83,7 +86,7 @@ unique_ptr<Socket> TCPListener::accept()
 		return {};
 	}
 
-	return unique_ptr<Socket>(new Socket(new_fd));
+	return std::unique_ptr<Socket>(new Socket(new_fd));
 }
 
 TCPListener::TCPListener(uint16_t port)
@@ -99,7 +102,7 @@ TCPListener::TCPListener(uint16_t port)
 
 	int res = getaddrinfo(nullptr, std::to_string(port).c_str(), &hints, &servinfo);
 	if (res < 0)
-		throw runtime_error("getaddrinfo");
+		throw std::runtime_error("getaddrinfo");
 
 	int fd = -1;
 
@@ -132,15 +135,16 @@ TCPListener::TCPListener(uint16_t port)
 	freeaddrinfo(servinfo);
 
 	if (!walk)
-		throw runtime_error("bind");
+		throw std::runtime_error("bind");
 
 	if (listen(fd, 64) < 0)
 	{
 		close(fd);
-		throw runtime_error("listen");
+		throw std::runtime_error("listen");
 	}
 
-	socket = unique_ptr<Socket>(new Socket(fd));
+	socket = std::unique_ptr<Socket>(new Socket(fd));
 }
+
 }
 #endif

@@ -29,11 +29,11 @@
 #include "render_parameters.hpp"
 #include "global_managers.hpp"
 #include "common_renderer_data.hpp"
-#include <string.h>
+
+#include <cstring>
 
 using namespace Vulkan;
 using namespace Util;
-using namespace std;
 
 namespace Granite
 {
@@ -219,9 +219,9 @@ void Renderer::set_mesh_renderer_options(RendererOptionFlags flags)
 		set_mesh_renderer_options_internal(flags);
 }
 
-vector<pair<string, int>> Renderer::build_defines_from_renderer_options(RendererType type, RendererOptionFlags flags)
+std::vector<std::pair<std::string, int>> Renderer::build_defines_from_renderer_options(RendererType type, RendererOptionFlags flags)
 {
-	vector<pair<string, int>> global_defines;
+	std::vector<std::pair<std::string, int>> global_defines;
 	if (flags & SHADOW_ENABLE_BIT)
 		global_defines.emplace_back("SHADOWS", 1);
 	if (flags & SHADOW_CASCADE_ENABLE_BIT)
@@ -656,7 +656,7 @@ void DeferredLightRenderer::render_light(Vulkan::CommandBuffer &cmd, const Rende
 	auto &light = *context.get_lighting_parameters();
 	auto &subgroup = device.get_device_features().subgroup_properties;
 
-	vector<pair<string, int>> defines;
+	std::vector<std::pair<std::string, int>> defines;
 	if (light.shadows && light.shadows->get_create_info().layers > 1)
 	{
 		defines.emplace_back("SHADOW_CASCADES", 1);
@@ -763,7 +763,7 @@ void DeferredLightRenderer::render_light(Vulkan::CommandBuffer &cmd, const Rende
 			vec2(1.0f / cmd.get_viewport().width, 1.0f / cmd.get_viewport().height),
 		};
 
-		vector<pair<string, int>> cluster_defines;
+		std::vector<std::pair<std::string, int>> cluster_defines;
 		if (light.cluster->get_spot_light_shadows() ||
 		    light.cluster->get_cluster_shadow_map_bindless_set())
 		{

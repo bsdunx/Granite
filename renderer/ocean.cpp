@@ -27,10 +27,9 @@
 #include "render_context.hpp"
 #include "render_graph.hpp"
 #include "muglm/matrix_helper.hpp"
-#include <random>
 #include "timer.hpp"
 
-using namespace std;
+#include <random>
 
 namespace Granite
 {
@@ -116,7 +115,7 @@ void Ocean::on_device_created(const Vulkan::DeviceCreatedEvent &e)
 	Util::Timer timer;
 	timer.start();
 
-	auto cache = make_shared<GLFFT::ProgramCache>();
+	auto cache = std::make_shared<GLFFT::ProgramCache>();
 
 	height_fft.reset(new GLFFT::FFT(&fft_iface,
 	                                config.fft_resolution, config.fft_resolution,
@@ -887,7 +886,7 @@ void Ocean::get_render_info(const RenderContext &,
 	}
 }
 
-void Ocean::build_border(vector<vec3> &positions, vector<uint16_t> &indices, ivec2 base,
+void Ocean::build_border(std::vector<vec3> &positions, std::vector<uint16_t> &indices, ivec2 base,
                          ivec2 dx, ivec2 dy)
 {
 	unsigned base_index = unsigned(positions.size());
@@ -903,7 +902,7 @@ void Ocean::build_border(vector<vec3> &positions, vector<uint16_t> &indices, ive
 	indices.push_back(0xffffu);
 }
 
-void Ocean::build_corner(vector<vec3> &positions, vector<uint16_t> &indices,
+void Ocean::build_corner(std::vector<vec3> &positions, std::vector<uint16_t> &indices,
                          ivec2 base, ivec2 dx, ivec2 dy)
 {
 	unsigned base_index = unsigned(positions.size());
@@ -917,7 +916,7 @@ void Ocean::build_corner(vector<vec3> &positions, vector<uint16_t> &indices,
 	positions.push_back(vec3(ivec3(base + dx + dy, 0)));
 }
 
-void Ocean::build_fill_edge(vector<vec3> &positions, vector<uint16_t> &indices,
+void Ocean::build_fill_edge(std::vector<vec3> &positions, std::vector<uint16_t> &indices,
                             vec2 base_outer, vec2 end_outer,
                             ivec2 base_inner, ivec2 delta, ivec2 corner_delta)
 {
@@ -949,9 +948,9 @@ void Ocean::build_fill_edge(vector<vec3> &positions, vector<uint16_t> &indices,
 void Ocean::build_lod(Vulkan::Device &device, unsigned size, unsigned stride)
 {
 	unsigned size_1 = size + 1;
-	vector<OceanVertex> vertices;
+	std::vector<OceanVertex> vertices;
 	vertices.reserve(size_1 * size_1);
-	vector<uint16_t> indices;
+	std::vector<uint16_t> indices;
 	indices.reserve(size * (2 * size_1 + 1));
 
 	unsigned half_size = config.grid_resolution >> 1;
@@ -1004,7 +1003,7 @@ void Ocean::build_lod(Vulkan::Device &device, unsigned size, unsigned stride)
 	{
 		// Workaround driver bug with primitive restart + 16-bit indices + indirect on some versions.
 		// Pad to 32-bit indices to work around this.
-		vector<uint32_t> padded_indices;
+		std::vector<uint32_t> padded_indices;
 		padded_indices.reserve(indices.size());
 		for (auto &i : indices)
 			padded_indices.push_back(i == 0xffffu ? 0xffffffffu : i);
@@ -1034,8 +1033,8 @@ void Ocean::build_buffers(Vulkan::Device &device)
 	}
 
 	// Build a border mesh.
-	vector<vec3> positions;
-	vector<uint16_t> indices;
+	std::vector<vec3> positions;
+	std::vector<uint16_t> indices;
 
 	int outer_delta = int(config.grid_count * config.grid_resolution) >> 3;
 	int inner_delta = config.grid_resolution >> 1;
@@ -1137,7 +1136,7 @@ void Ocean::build_buffers(Vulkan::Device &device)
 	{
 		// Workaround driver bug with primitive restart + 16-bit indices + indirect on some versions.
 		// Pad to 32-bit indices to work around this.
-		vector<uint32_t> padded_indices;
+		std::vector<uint32_t> padded_indices;
 		padded_indices.reserve(indices.size());
 		for (auto &i : indices)
 			padded_indices.push_back(i == 0xffffu ? 0xffffffffu : i);
@@ -1210,8 +1209,8 @@ static void downsample_distribution(vec2 *output, const vec2 *input,
 static void generate_distribution(vec2 *output, const vec2 &mod, unsigned Nx, unsigned Nz,
                                   float amplitude, float max_l, const vec2 &wind_dir, float L)
 {
-	normal_distribution<float> normal_dist(0.0f, 1.0f);
-	default_random_engine engine;
+	std::normal_distribution<float> normal_dist(0.0f, 1.0f);
+	std::default_random_engine engine;
 
 	for (unsigned z = 0; z < Nz; z++)
 	{
@@ -1238,9 +1237,9 @@ void Ocean::init_distributions(Vulkan::Device &device)
 	auto displacement_distribution = height_distribution;
 	auto normal_distribution = height_distribution;
 
-	vector<vec2> init_height(square(config.fft_resolution));
-	vector<vec2> init_displacement(square(config.fft_resolution >> config.displacement_downsample));
-	vector<vec2> init_normal(square(config.fft_resolution));
+	std::vector<vec2> init_height(square(config.fft_resolution));
+	std::vector<vec2> init_displacement(square(config.fft_resolution >> config.displacement_downsample));
+	std::vector<vec2> init_normal(square(config.fft_resolution));
 
 	generate_distribution(init_height.data(),
 	                      vec2(2.0f * pi<float>()) / heightmap_world_size(),

@@ -1,22 +1,22 @@
 #include "audio_mixer.hpp"
 #include "timer.hpp"
 #include "vorbis_stream.hpp"
-#include <chrono>
-#include <thread>
-#include <cmath>
 #include "logging.hpp"
 #include "global_managers.hpp"
 #include "filesystem.hpp"
 #include "os_filesystem.hpp"
 
+#include <chrono>
+#include <thread>
+#include <cmath>
+
 using namespace Granite;
 using namespace Granite::Audio;
-using namespace std;
 
 int main()
 {
 	Global::init();
-	Global::filesystem()->register_protocol("assets", make_unique<OSFilesystem>(ASSET_DIRECTORY));
+	Global::filesystem()->register_protocol("assets", std::make_unique<OSFilesystem>(ASSET_DIRECTORY));
 
 	auto *stream = create_vorbis_stream("assets://test.ogg");
 	Global::audio_backend()->start();

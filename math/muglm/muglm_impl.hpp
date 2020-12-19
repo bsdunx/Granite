@@ -23,10 +23,12 @@
 #pragma once
 
 #include "muglm.hpp"
+
 #include <cmath>
 
 namespace muglm
 {
+
 #define MUGLM_IMPL_SWIZZLE(ret_type, self_type, swiz, ...) template <typename T> t##ret_type<T> t##self_type<T>::swiz() const { return t##ret_type<T>(__VA_ARGS__); }
 
 // vec2

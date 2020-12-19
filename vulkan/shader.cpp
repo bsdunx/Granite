@@ -28,12 +28,12 @@
 #include "filesystem.hpp"
 #endif
 
-using namespace std;
 using namespace spirv_cross;
 using namespace Util;
 
 namespace Vulkan
 {
+
 PipelineLayout::PipelineLayout(Hash hash, Device *device_, const CombinedResourceLayout &layout_)
 	: IntrusiveHashMapEnabled<PipelineLayout>(hash)
 	, device(device_)
@@ -255,29 +255,29 @@ const char *Shader::stage_to_name(ShaderStage stage)
 	}
 }
 
-static bool get_stock_sampler(StockSampler &sampler, const string &name)
+static bool get_stock_sampler(StockSampler &sampler, const std::string &name)
 {
-	if (name.find("NearestClamp") != string::npos)
+	if (name.find("NearestClamp") != std::string::npos)
 		sampler = StockSampler::NearestClamp;
-	else if (name.find("LinearClamp") != string::npos)
+	else if (name.find("LinearClamp") != std::string::npos)
 		sampler = StockSampler::LinearClamp;
-	else if (name.find("TrilinearClamp") != string::npos)
+	else if (name.find("TrilinearClamp") != std::string::npos)
 		sampler = StockSampler::TrilinearClamp;
-	else if (name.find("NearestWrap") != string::npos)
+	else if (name.find("NearestWrap") != std::string::npos)
 		sampler = StockSampler::NearestWrap;
-	else if (name.find("LinearWrap") != string::npos)
+	else if (name.find("LinearWrap") != std::string::npos)
 		sampler = StockSampler::LinearWrap;
-	else if (name.find("TrilinearWrap") != string::npos)
+	else if (name.find("TrilinearWrap") != std::string::npos)
 		sampler = StockSampler::TrilinearWrap;
-	else if (name.find("NearestShadow") != string::npos)
+	else if (name.find("NearestShadow") != std::string::npos)
 		sampler = StockSampler::NearestShadow;
-	else if (name.find("LinearShadow") != string::npos)
+	else if (name.find("LinearShadow") != std::string::npos)
 		sampler = StockSampler::LinearShadow;
-	else if (name.find("LinearYUV420P") != string::npos)
+	else if (name.find("LinearYUV420P") != std::string::npos)
 		sampler = StockSampler::LinearYUV420P;
-	else if (name.find("LinearYUV422P") != string::npos)
+	else if (name.find("LinearYUV422P") != std::string::npos)
 		sampler = StockSampler::LinearYUV422P;
-	else if (name.find("LinearYUV444P") != string::npos)
+	else if (name.find("LinearYUV444P") != std::string::npos)
 		sampler = StockSampler::LinearYUV444P;
 	else
 		return false;
@@ -368,7 +368,7 @@ Shader::Shader(Hash hash, Device *device_, const uint32_t *data, size_t size)
 		if (compiler.get_type(type.image.type).basetype == SPIRType::BaseType::Float)
 			layout.sets[set].fp_mask |= 1u << binding;
 
-		const string &name = image.name;
+		const std::string &name = image.name;
 		StockSampler sampler;
 		if (type.image.dim != spv::DimBuffer && get_stock_sampler(sampler, name))
 		{
@@ -419,7 +419,7 @@ Shader::Shader(Hash hash, Device *device_, const uint32_t *data, size_t size)
 		auto binding = compiler.get_decoration(image.id, spv::DecorationBinding);
 		layout.sets[set].sampler_mask |= 1u << binding;
 
-		const string &name = image.name;
+		const std::string &name = image.name;
 		StockSampler sampler;
 		if (get_stock_sampler(sampler, name))
 		{
@@ -564,4 +564,5 @@ Program::~Program()
 		destroy_pipeline(pipe.get());
 #endif
 }
+
 }

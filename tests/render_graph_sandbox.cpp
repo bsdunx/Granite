@@ -24,7 +24,7 @@
 #include "render_graph.hpp"
 #include "os_filesystem.hpp"
 #include "task_composer.hpp"
-#include <string.h>
+#include <cstring>
 
 using namespace Granite;
 using namespace Vulkan;

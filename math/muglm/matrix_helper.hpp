@@ -26,6 +26,7 @@
 
 namespace muglm
 {
+
 mat4 mat4_cast(const quat &q);
 mat3 mat3_cast(const quat &q);
 mat4 translate(const vec3 &v);
@@ -38,4 +39,5 @@ mat4 perspective(float fovy, float aspect, float near, float far);
 mat4 ortho(float left, float right, float bottom, float top, float near, float far);
 
 void decompose(const mat4 &m, vec3 &scale, quat &rot, vec3 &trans);
+
 }

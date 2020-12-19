@@ -31,7 +31,7 @@
 #include "application_events.hpp"
 #include "render_graph.hpp"
 #include "simd.hpp"
-#include <string.h>
+#include <cstring>
 
 using namespace Vulkan;
 using namespace Util;

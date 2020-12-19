@@ -23,11 +23,11 @@
 #include "os_filesystem.hpp"
 #include "path.hpp"
 #include "logging.hpp"
-#include <stdexcept>
+
 #include <sys/stat.h>
 #include <sys/types.h>
 
-using namespace std;
+#include <stdexcept>
 
 namespace Granite
 {
@@ -203,9 +203,9 @@ string OSFilesystem::get_filesystem_path(const string &path)
 	return Path::join(base, path);
 }
 
-unique_ptr<File> OSFilesystem::open(const std::string &path, FileMode mode)
+std::unique_ptr<File> OSFilesystem::open(const std::string &path, FileMode mode)
 {
-	return unique_ptr<File>(MappedFile::open(Path::join(base, path), mode));
+	return std::unique_ptr<File>(MappedFile::open(Path::join(base, path), mode));
 }
 
 void OSFilesystem::poll_notifications()
@@ -293,7 +293,7 @@ void OSFilesystem::kick_async(Handler &handler)
 	}
 }
 
-FileNotifyHandle OSFilesystem::install_notification(const string &path, function<void(const FileNotifyInfo &)> func)
+FileNotifyHandle OSFilesystem::install_notification(const std::string &path, function<void(const FileNotifyInfo &)> func)
 {
 	FileStat s = {};
 	if (!stat(path, s))
@@ -328,19 +328,19 @@ FileNotifyHandle OSFilesystem::install_notification(const string &path, function
 	handle_id++;
 	Handler handler;
 	handler.path = protocol + "://" + path;
-	handler.func = move(func);
+	handler.func = std::move(func);
 	handler.handle = handle;
 	handler.event = event;
 	auto &h = handlers[handle_id];
-	h = move(handler);
+	h = std::move(handler);
 	kick_async(h);
 
 	return handle_id;
 }
 
-vector<ListEntry> OSFilesystem::list(const string &path)
+std::vector<ListEntry> OSFilesystem::list(const std::string &path)
 {
-	vector<ListEntry> entries;
+	std::vector<ListEntry> entries;
 	WIN32_FIND_DATAW result;
 	auto joined = Path::to_utf16(Path::join(base, path));
 
@@ -359,7 +359,7 @@ vector<ListEntry> OSFilesystem::list(const string &path)
 			entry.type = PathType::Special;
 
 		entry.path = Path::join(path, Path::to_utf8(result.cFileName));
-		entries.push_back(move(entry));
+		entries.push_back(std::move(entry));
 	} while (FindNextFileW(handle, &result));
 
 	CloseHandle(handle);

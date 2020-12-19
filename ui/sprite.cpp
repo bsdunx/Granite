@@ -23,7 +23,7 @@
 #include "sprite.hpp"
 #include "device.hpp"
 #include "render_context.hpp"
-#include <string.h>
+#include <cstring>
 
 using namespace Util;
 

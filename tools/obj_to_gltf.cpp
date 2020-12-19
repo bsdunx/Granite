@@ -25,7 +25,6 @@
 #include "cli_parser.hpp"
 #include "obj.hpp"
 
-using namespace std;
 using namespace Util;
 using namespace Granite;
 
@@ -38,8 +37,8 @@ int main(int argc, char *argv[])
 {
 	struct Arguments
 	{
-		string input;
-		string output;
+		std::string input;
+		std::string output;
 		float scale = 1.0f;
 	} args;
 
@@ -48,7 +47,7 @@ int main(int argc, char *argv[])
 	cbs.add("--scale", [&](CLIParser &parser) { args.scale = parser.next_double(); });
 	cbs.add("--help", [](CLIParser &parser) { print_help(); parser.end(); });
 	cbs.default_handler = [&](const char *arg) { args.input = arg; };
-	CLIParser cli_parser(move(cbs), argc - 1, argv + 1);
+	CLIParser cli_parser(std::move(cbs), argc - 1, argv + 1);
 	if (!cli_parser.parse())
 		return 1;
 	else if (cli_parser.is_ended_state())
@@ -67,7 +66,7 @@ int main(int argc, char *argv[])
 	info.meshes = parser.get_meshes();
 	SceneFormats::ExportOptions options;
 
-	vector<SceneFormats::Node> nodes = parser.get_nodes();
+	std::vector<SceneFormats::Node> nodes = parser.get_nodes();
 	nodes.front().transform.scale = vec3(args.scale);
 	info.nodes = nodes;
 

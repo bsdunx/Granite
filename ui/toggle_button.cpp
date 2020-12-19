@@ -24,12 +24,9 @@
 #include "ui_manager.hpp"
 #include "widget.hpp"
 
-using namespace std;
+namespace Granite::UI
+{
 
-namespace Granite
-{
-namespace UI
-{
 void ToggleButton::set_text(std::string text_)
 {
 	text = move(text_);
@@ -77,5 +74,5 @@ float ToggleButton::render(FlatRenderer &renderer, float layer, vec2 offset, vec
 	                     alignment);
 	return layer;
 }
-}
+
 }

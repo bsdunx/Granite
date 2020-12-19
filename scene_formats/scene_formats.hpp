@@ -22,18 +22,18 @@
 
 #pragma once
 
-#include <vector>
-#include <unordered_set>
-#include <stdint.h>
 #include "mesh.hpp"
 #include "enum_cast.hpp"
 #include "transforms.hpp"
 #include "array_view.hpp"
 
-namespace Granite
+#include <cstdint>
+#include <vector>
+#include <unordered_set>
+
+namespace Granite::SceneFormats
 {
-namespace SceneFormats
-{
+
 struct NodeTransform
 {
 	vec3 scale = vec3(1.0f, 1.0f, 1.0f);
@@ -281,5 +281,5 @@ bool extract_collision_mesh(CollisionMesh &collision_mesh, const Mesh &mesh);
 void mesh_deduplicate_vertices(Mesh &mesh);
 Mesh mesh_optimize_index_buffer(const Mesh &mesh, bool stripify);
 std::unordered_set<uint32_t> build_used_nodes_in_scene(const SceneNodes &scene, const std::vector<Node> &nodes);
-}
+
 }

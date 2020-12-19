@@ -22,10 +22,9 @@
 
 #include "animation_system.hpp"
 
-using namespace std;
-
 namespace Granite
 {
+
 template <typename T, typename Sampler>
 static void resample_channel(T *resampled, size_t count, const SceneFormats::AnimationChannel &channel, const Sampler &sampler, float inv_frame_rate)
 {
@@ -98,7 +97,7 @@ void AnimationUnrolled::animate(Transform *const *transforms, unsigned num_trans
 
 	float sample = offset_time * frame_rate;
 	float low_sample = muglm::floor(sample);
-	int lo = clamp(int(low_sample), 0, int(num_samples) - 1);
+	int lo = muglm::clamp(int(low_sample), 0, int(num_samples) - 1);
 	int hi = muglm::min(lo + 1, int(num_samples) - 1);
 	float l = sample - low_sample;
 
@@ -148,13 +147,13 @@ AnimationUnrolled::AnimationUnrolled(const SceneFormats::Animation &animation, f
 		if (skinning)
 		{
 			if (!c.joint)
-				throw logic_error("Skinned animation must target joints.");
+				throw std::logic_error("Skinned animation must target joints.");
 			index = c.joint_index;
 		}
 		else
 		{
 			if (c.joint)
-				throw logic_error("Non-skinned animation cannot target joints.");
+				throw std::logic_error("Non-skinned animation cannot target joints.");
 			index = find_or_allocate_index(c.node_index);
 		}
 
@@ -195,7 +194,7 @@ AnimationUnrolled::AnimationUnrolled(const SceneFormats::Animation &animation, f
 	}
 }
 
-AnimationID AnimationSystem::get_animation_id_from_name(const string &name) const
+AnimationID AnimationSystem::get_animation_id_from_name(const std::string &name) const
 {
 	Util::Hasher hasher;
 	hasher.string(name);
@@ -212,7 +211,7 @@ AnimationID AnimationSystem::register_animation(const std::string &name, Animati
 	Util::Hasher hasher;
 	hasher.string(name);
 
-	id = animation_pool.emplace(move(animation));
+	id = animation_pool.emplace(std::move(animation));
 	animation_map.emplace_replace(hasher.get(), id);
 	return id;
 }
@@ -388,14 +387,14 @@ AnimationStateID AnimationSystem::start_animation_multi(Scene::NodeHandle *nodes
 		target_nodes.push_back(nodes[index].get());
 	}
 
-	auto id = animation_state_pool.emplace(*animation, move(target_transforms), move(target_nodes), start_time);
+	auto id = animation_state_pool.emplace(*animation, std::move(target_transforms), std::move(target_nodes), start_time);
 	auto *state = &animation_state_pool.get(id);
 	state->id = id;
 	active_animation.insert_front(state);
 	return id;
 }
 
-void AnimationSystem::set_completion_callback(AnimationStateID id, function<void()> cb)
+void AnimationSystem::set_completion_callback(AnimationStateID id, std::function<void()> cb)
 {
 	auto *state = animation_state_pool.maybe_get(id);
 	if (state)

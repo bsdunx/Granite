@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <stddef.h>
+#include <cstddef>
 #include <utility>
 #include <memory>
 #include <atomic>

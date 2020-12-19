@@ -22,7 +22,7 @@
 
 #include "logging.hpp"
 #include "memory_mapped_texture.hpp"
-#include <string.h>
+#include <cstring>
 #include <vector>
 #include <utility>
 

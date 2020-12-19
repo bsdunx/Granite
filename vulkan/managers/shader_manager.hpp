@@ -24,11 +24,7 @@
 
 #include "shader.hpp"
 #include "vulkan_common.hpp"
-#include <memory>
-#include <unordered_map>
-#include <unordered_set>
-#include <string>
-#include <vector>
+
 #ifdef GRANITE_VULKAN_SHADER_MANAGER_RUNTIME_COMPILER
 #include "compiler.hpp"
 #endif
@@ -38,12 +34,20 @@
 #include "read_write_lock.hpp"
 #endif
 
+#include <memory>
+#include <unordered_map>
+#include <unordered_set>
+#include <string>
+#include <vector>
+
 namespace Vulkan
 {
+
 using PrecomputedShaderCache = VulkanCacheReadWrite<Util::IntrusivePODWrapper<Util::Hash>>;
 
 class ShaderManager;
 class Device;
+
 class ShaderTemplate : public Util::IntrusiveHashMapEnabled<ShaderTemplate>
 {
 public:
@@ -188,4 +192,5 @@ private:
 	void recompile(const Granite::FileNotifyInfo &info);
 #endif
 };
+
 }

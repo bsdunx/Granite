@@ -26,8 +26,10 @@
 
 namespace Granite
 {
+
 class RenderGraph;
 class TemporalJitter;
+
 enum class PostAAType
 {
 	FXAA,
@@ -54,4 +56,5 @@ bool setup_after_post_chain_antialiasing(PostAAType type, RenderGraph &graph, Te
                                          const std::string &output);
 
 PostAAType string_to_post_antialiasing_type(const char *type);
+
 }

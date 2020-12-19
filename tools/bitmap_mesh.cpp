@@ -26,7 +26,7 @@
 #include "texture_files.hpp"
 #include "cli_parser.hpp"
 #include "gltf_export.hpp"
-#include <string.h>
+#include <cstring>
 
 using namespace Granite;
 using namespace Util;

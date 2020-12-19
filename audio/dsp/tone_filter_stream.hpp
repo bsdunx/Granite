@@ -24,13 +24,9 @@
 
 #include "audio_mixer.hpp"
 
-namespace Granite
+namespace Granite::Audio::DSP
 {
-namespace Audio
-{
-namespace DSP
-{
+
 MixerStream *create_tone_filter_stream(MixerStream *source, float tuning_rate = 440.0f);
-}
-}
+
 }

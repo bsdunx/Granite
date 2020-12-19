@@ -19,12 +19,19 @@
 #pragma once
 
 #include "glfft_interface.hpp"
+
 #include <functional>
 
 namespace GLFFT
 {
-namespace Internal
+
+int cli_main(Context *context, int argc, char *argv[]);
+
+}
+
+namespace GLFFT::Internal
 {
+
 struct TestSuiteArguments
 {
 	unsigned test_id_min = 0;
@@ -38,7 +45,5 @@ struct TestSuiteArguments
 };
 
 void run_test_suite(Context *context, const TestSuiteArguments &args);
-} // namespace Internal
 
-int cli_main(Context *context, int argc, char *argv[]);
-} // namespace GLFFT
+}

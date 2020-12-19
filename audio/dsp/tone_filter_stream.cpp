@@ -23,14 +23,12 @@
 #include "tone_filter_stream.hpp"
 #include "tone_filter.hpp"
 #include "dsp.hpp"
-#include <string.h>
 
-namespace Granite
+#include <cstring>
+
+namespace Granite::Audio::DSP
 {
-namespace Audio
-{
-namespace DSP
-{
+
 struct ToneFilterStream : MixerStream
 {
 	~ToneFilterStream() override
@@ -123,7 +121,5 @@ MixerStream *create_tone_filter_stream(MixerStream *source, float tuning_rate)
 	else
 		return filt;
 }
-}
-}
-}
 
+}

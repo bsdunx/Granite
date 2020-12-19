@@ -22,6 +22,7 @@
 
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -32,11 +33,10 @@
 #include <audioclient.h>
 #include <audiopolicy.h>
 #include <mmdeviceapi.h>
+
 #include "audio_interface.hpp"
 #include "dsp/dsp.hpp"
 #include "logging.hpp"
-
-using namespace std;
 
 static const size_t MAX_NUM_FRAMES = 256;
 
@@ -45,10 +45,9 @@ const static GUID _KSDATAFORMAT_SUBTYPE_IEEE_FLOAT = {
 	0x00000003, 0x0000, 0x0010, {0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71}
 };
 
-namespace Granite
+namespace Granite::Audio
 {
-namespace Audio
-{
+
 struct WASAPIBackend : Backend
 {
 	WASAPIBackend(BackendCallback &callback)
@@ -294,11 +293,11 @@ void WASAPIBackend::thread_runner() noexcept
 		{
 			// Sleep for some appropriate time,
 			// although we might be woken up by the main thread wanting to kill us.
-			auto now = chrono::high_resolution_clock::now();
-			now += chrono::microseconds(padding_to_wait_period_us(padding));
+			auto now = std::chrono::high_resolution_clock::now();
+			now += std::chrono::microseconds(padding_to_wait_period_us(padding));
 
 			{
-				unique_lock<mutex> holder{ lock };
+				std::unique_lock<std::mutex> holder{ lock };
 				cond.wait_until(holder, now, [this]() {
 					return dead.load(std::memory_order_relaxed);
 				});
@@ -379,6 +378,6 @@ Backend *create_wasapi_backend(BackendCallback &callback, float sample_rate, uns
 	}
 	return backend;
 }
-}
+
 }
 

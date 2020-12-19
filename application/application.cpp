@@ -28,7 +28,6 @@
 #include "audio_mixer.hpp"
 #endif
 
-using namespace std;
 using namespace Vulkan;
 
 namespace Granite
@@ -39,7 +38,7 @@ Application::Application()
 
 bool Application::init_wsi(std::unique_ptr<WSIPlatform> new_platform)
 {
-	platform = move(new_platform);
+	platform = std::move(new_platform);
 	application_wsi.set_platform(platform.get());
 	if (!platform->has_external_swapchain() &&
 	    !application_wsi.init(Global::thread_group()->get_num_threads() + 1,

@@ -21,12 +21,15 @@
  */
 
 #pragma once
+
 #include "../filesystem.hpp"
-#include <unordered_map>
 #include <android/asset_manager_jni.h>
+
+#include <unordered_map>
 
 namespace Granite
 {
+
 class AssetFile : public File
 {
 public:
@@ -64,4 +67,5 @@ private:
 	std::string base;
 	AAssetManager *mgr;
 };
+
 }

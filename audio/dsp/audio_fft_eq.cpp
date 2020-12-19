@@ -25,17 +25,15 @@
 #include "fft.h"
 #include "logging.hpp"
 #include "bitops.hpp"
+
+#include <cstring>
 #include <vector>
 #include <complex>
-#include <string.h>
 #include <algorithm>
 
-namespace Granite
+namespace Granite::Audio::DSP
 {
-namespace Audio
-{
-namespace DSP
-{
+
 // Need to make sure we get aligned data for muFFT, so have to use raw alloc/free.
 class FFTEq : public MixerStream
 {
@@ -222,6 +220,5 @@ MixerStream *create_fft_eq_stream(MixerStream *source,
 	else
 		return fft;
 }
-}
-}
+
 }

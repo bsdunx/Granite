@@ -22,11 +22,11 @@
 
 #pragma once
 
+#include <cstddef>
+#include <cassert>
 #include <atomic>
 #include <vector>
 #include <utility>
-#include <stddef.h>
-#include <assert.h>
 #include <memory>
 #include <mutex>
 #include <condition_variable>

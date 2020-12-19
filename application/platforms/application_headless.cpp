@@ -24,15 +24,10 @@
 #include "application_events.hpp"
 #include "application_wsi.hpp"
 #include "vulkan_headers.hpp"
-#include <thread>
-#include <mutex>
-#include <condition_variable>
 #include "stb_image_write.h"
 #include "cli_parser.hpp"
 #include "os_filesystem.hpp"
 #include "rapidjson_wrapper.hpp"
-#include <limits.h>
-#include <cmath>
 #include "dynamic_library.hpp"
 #include "hw_counters/hw_counter_interface.h"
 #include "thread_group.hpp"
@@ -42,19 +37,25 @@
 #include "audio_mixer.hpp"
 #endif
 
-using namespace rapidjson;
+#include <limits.h>
+#include <cmath>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
 
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <shellapi.h>
 #endif
 
-using namespace std;
+using namespace rapidjson;
 using namespace Vulkan;
 using namespace Util;
 
 namespace Granite
 {
+
 class FrameWorker
 {
 public:
@@ -62,13 +63,13 @@ public:
 	~FrameWorker();
 
 	void wait();
-	void set_work(function<void ()> work);
+	void set_work(std::function<void ()> work);
 
 private:
-	thread thr;
-	condition_variable cond;
-	mutex cond_lock;
-	function<void ()> func;
+	std::thread thr;
+	std::condition_variable cond;
+	std::mutex cond_lock;
+	std::function<void ()> func;
 	bool working = false;
 	bool dead = false;
 
@@ -77,22 +78,22 @@ private:
 
 FrameWorker::FrameWorker()
 {
-	thr = thread(&FrameWorker::thread_loop, this);
+	thr = std::thread(&FrameWorker::thread_loop, this);
 }
 
 void FrameWorker::wait()
 {
-	unique_lock<mutex> u{cond_lock};
+	std::unique_lock<std::mutex> u{cond_lock};
 	cond.wait(u, [this]() -> bool {
 		return !working;
 	});
 }
 
-void FrameWorker::set_work(function<void()> work)
+void FrameWorker::set_work(std::function<void()> work)
 {
 	wait();
-	func = move(work);
-	unique_lock<mutex> u{cond_lock};
+	func = std::move(work);
+	std::unique_lock<std::mutex> u{cond_lock};
 	working = true;
 	cond.notify_one();
 }
@@ -102,7 +103,7 @@ void FrameWorker::thread_loop()
 	for (;;)
 	{
 		{
-			unique_lock<mutex> u{cond_lock};
+			std::unique_lock<std::mutex> u{cond_lock};
 			cond.wait(u, [this]() -> bool {
 				return working || dead;
 			});
@@ -114,7 +115,7 @@ void FrameWorker::thread_loop()
 		if (func)
 			func();
 
-		lock_guard<mutex> holder{cond_lock};
+		std::lock_guard<std::mutex> holder{cond_lock};
 		working = false;
 		cond.notify_one();
 	}
@@ -123,7 +124,7 @@ void FrameWorker::thread_loop()
 FrameWorker::~FrameWorker()
 {
 	{
-		lock_guard<mutex> holder{cond_lock};
+		std::lock_guard<std::mutex> holder{cond_lock};
 		dead = true;
 		cond.notify_one();
 	}
@@ -177,12 +178,12 @@ public:
 		get_input_tracker().dispatch_current_state(get_frame_timer().get_frame_time());
 	}
 
-	void enable_png_readback(string base_path)
+	void enable_png_readback(std::string base_path)
 	{
 		png_readback = base_path;
 	}
 
-	vector<const char *> get_instance_extensions() override
+	std::vector<const char *> get_instance_extensions() override
 	{
 		return {};
 	}
@@ -248,7 +249,7 @@ public:
 		app = app_;
 
 		auto &wsi = app->get_wsi();
-		auto context = make_unique<Context>();
+		auto context = std::make_unique<Context>();
 		context->set_num_thread_indices(Global::thread_group()->get_num_threads() + 1);
 		if (!context->init_instance_and_device(nullptr, 0, nullptr, 0))
 			return false;
@@ -272,7 +273,7 @@ public:
 			swapchain_images.push_back(device.create_image(info, nullptr));
 			readback_buffers.push_back(device.create_buffer(readback, nullptr));
 			acquire_semaphore.push_back(Semaphore(nullptr));
-			worker_threads.push_back(make_unique<FrameWorker>());
+			worker_threads.push_back(std::make_unique<FrameWorker>());
 			readback_fence.push_back({});
 		}
 
@@ -430,14 +431,14 @@ private:
 	unsigned max_frames = UINT_MAX;
 	unsigned frame_index = 0;
 	double time_step = 0.01;
-	string png_readback;
+	std::string png_readback;
 	enum { SwapchainImages = 4 };
 
-	vector<ImageHandle> swapchain_images;
-	vector<BufferHandle> readback_buffers;
-	vector<Semaphore> acquire_semaphore;
-	vector<Fence> readback_fence;
-	vector<unique_ptr<FrameWorker>> worker_threads;
+	std::vector<ImageHandle> swapchain_images;
+	std::vector<BufferHandle> readback_buffers;
+	std::vector<Semaphore> acquire_semaphore;
+	std::vector<Fence> readback_fence;
+	std::vector<std::unique_ptr<FrameWorker>> worker_threads;
 	std::function<void (unsigned)> next_readback_cb;
 
 	void dump_frame(unsigned frame, unsigned index)
@@ -487,19 +488,19 @@ int application_main_headless(Application *(*create_application)(int, char **), 
 
 	struct Args
 	{
-		string png_path;
-		string png_reference_path;
-		string stat;
-		string assets;
-		string cache;
-		string builtin;
-		string hw_counter_lib;
+		std::string png_path;
+		std::string png_reference_path;
+		std::string stat;
+		std::string assets;
+		std::string cache;
+		std::string builtin;
+		std::string hw_counter_lib;
 		unsigned max_frames = UINT_MAX;
 		unsigned width = 1280;
 		unsigned height = 720;
 		double time_step = 0.01;
 		double sample_rate = 44100.0;
-		string audio_output;
+		std::string audio_output;
 		bool audio_dump = false;
 	} args;
 
@@ -531,7 +532,7 @@ int application_main_headless(Application *(*create_application)(int, char **), 
 	});
 	cbs.default_handler = [&](const char *arg) { filtered_argv.push_back(const_cast<char *>(arg)); };
 	cbs.error_handler = [&]() { print_help(); };
-	CLIParser parser(move(cbs), argc - 1, argv + 1);
+	CLIParser parser(std::move(cbs), argc - 1, argv + 1);
 	parser.ignore_unknown_arguments();
 	if (!parser.parse())
 		return 1;
@@ -543,11 +544,11 @@ int application_main_headless(Application *(*create_application)(int, char **), 
 	Granite::Global::init(Granite::Global::MANAGER_FEATURE_ALL_BITS & ~Granite::Global::MANAGER_FEATURE_AUDIO_BIT);
 
 	if (!args.assets.empty())
-		Global::filesystem()->register_protocol("assets", make_unique<OSFilesystem>(args.assets));
+		Global::filesystem()->register_protocol("assets", std::make_unique<OSFilesystem>(args.assets));
 	if (!args.builtin.empty())
-		Global::filesystem()->register_protocol("builtin", make_unique<OSFilesystem>(args.builtin));
+		Global::filesystem()->register_protocol("builtin", std::make_unique<OSFilesystem>(args.builtin));
 	if (!args.cache.empty())
-		Global::filesystem()->register_protocol("cache", make_unique<OSFilesystem>(args.cache));
+		Global::filesystem()->register_protocol("cache", std::make_unique<OSFilesystem>(args.cache));
 
 #ifdef HAVE_GRANITE_AUDIO
 	Audio::DumpBackend *audio_dumper = nullptr;
@@ -569,12 +570,12 @@ int application_main_headless(Application *(*create_application)(int, char **), 
 	}
 #endif
 
-	auto app = unique_ptr<Application>(
+	auto app = std::unique_ptr<Application>(
 			create_application(int(filtered_argv.size() - 1), filtered_argv.data()));
 
 	if (app)
 	{
-		auto platform = make_unique<WSIPlatformHeadless>();
+		auto platform = std::make_unique<WSIPlatformHeadless>();
 		if (!platform->init(args.width, args.height))
 			return 1;
 
@@ -696,4 +697,5 @@ int application_main_headless(Application *(*create_application)(int, char **), 
 	else
 		return 1;
 }
+
 }

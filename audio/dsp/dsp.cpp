@@ -22,17 +22,15 @@
 
 #include "dsp.hpp"
 #include "fft.h"
-#include <assert.h>
-#include <math.h>
-#include <complex>
 #include "muglm/muglm_impl.hpp"
 
-namespace Granite
+#include <cassert>
+#include <cmath>
+#include <complex>
+
+namespace Granite::Audio::DSP
 {
-namespace Audio
-{
-namespace DSP
-{
+
 float gain_to_db(float gain)
 {
 	return 20.0f * log10f(gain);
@@ -148,6 +146,5 @@ double kaiser_window_function(double index, double beta)
 {
 	return besseli0(beta * sqrt(1.0 - index * index));
 }
-}
-}
+
 }

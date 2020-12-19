@@ -24,7 +24,7 @@
 #include "device.hpp"
 #include "format.hpp"
 #include "thread_id.hpp"
-#include <string.h>
+#include <cstring>
 
 //#define FULL_BACKTRACE_CHECKPOINTS
 #ifdef FULL_BACKTRACE_CHECKPOINTS
@@ -34,11 +34,11 @@
 #include <sstream>
 #endif
 
-using namespace std;
 using namespace Util;
 
 namespace Vulkan
 {
+
 CommandBuffer::CommandBuffer(Device *device_, VkCommandBuffer cmd_, VkPipelineCache cache, Type type_)
     : device(device_)
     , table(device_->get_device_table())
@@ -396,9 +396,9 @@ void CommandBuffer::generate_mipmap(const Image &image)
 	for (unsigned i = 1; i < create_info.levels; i++)
 	{
 		VkOffset3D src_size = size;
-		size.x = max(size.x >> 1, 1);
-		size.y = max(size.y >> 1, 1);
-		size.z = max(size.z >> 1, 1);
+		size.x = std::max(size.x >> 1, 1);
+		size.y = std::max(size.y >> 1, 1);
+		size.z = std::max(size.z >> 1, 1);
 
 		blit_image(image, image,
 		           origin, size, origin, src_size, i, i - 1, 0, 0, create_info.layers, VK_FILTER_LINEAR);
@@ -483,10 +483,10 @@ void CommandBuffer::begin_graphics()
 void CommandBuffer::init_viewport_scissor(const RenderPassInfo &info, const Framebuffer *fb)
 {
 	VkRect2D rect = info.render_area;
-	rect.offset.x = min(fb->get_width(), uint32_t(rect.offset.x));
-	rect.offset.y = min(fb->get_height(), uint32_t(rect.offset.y));
-	rect.extent.width = min(fb->get_width() - rect.offset.x, rect.extent.width);
-	rect.extent.height = min(fb->get_height() - rect.offset.y, rect.extent.height);
+	rect.offset.x = std::min(fb->get_width(), uint32_t(rect.offset.x));
+	rect.offset.y = std::min(fb->get_height(), uint32_t(rect.offset.y));
+	rect.extent.width = std::min(fb->get_width() - rect.offset.x, rect.extent.width);
+	rect.extent.height = std::min(fb->get_height() - rect.offset.y, rect.extent.height);
 
 	viewport = { 0.0f, 0.0f, float(fb->get_width()), float(fb->get_height()), 0.0f, 1.0f };
 	scissor = rect;
@@ -1448,9 +1448,9 @@ void *CommandBuffer::update_image(const Image &image, const VkOffset3D &offset, 
                                   const VkImageSubresourceLayers &subresource)
 {
 	auto &create_info = image.get_create_info();
-	uint32_t width = max(image.get_width() >> subresource.mipLevel, 1u);
-	uint32_t height = max(image.get_height() >> subresource.mipLevel, 1u);
-	uint32_t depth = max(image.get_depth() >> subresource.mipLevel, 1u);
+	uint32_t width = std::max(image.get_width() >> subresource.mipLevel, 1u);
+	uint32_t height = std::max(image.get_height() >> subresource.mipLevel, 1u);
+	uint32_t depth = std::max(image.get_depth() >> subresource.mipLevel, 1u);
 
 	if (!row_length)
 		row_length = width;
@@ -2580,4 +2580,5 @@ void CommandBufferDeleter::operator()(Vulkan::CommandBuffer *cmd)
 {
 	cmd->device->handle_pool.command_buffers.free(cmd);
 }
+
 }

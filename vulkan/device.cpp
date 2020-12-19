@@ -26,9 +26,10 @@
 #include "type_to_string.hpp"
 #include "quirks.hpp"
 #include "timer.hpp"
+
 #include <algorithm>
-#include <string.h>
-#include <stdlib.h>
+#include <cstring>
+#include <cstdlib>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -60,7 +61,6 @@ static unsigned get_thread_index()
 }
 #endif
 
-using namespace std;
 using namespace Util;
 
 namespace Vulkan
@@ -214,7 +214,7 @@ LinearHostImageHandle Device::create_linear_host_image(const LinearHostImageCrea
 	else
 		gpu_image->set_layout(Layout::General);
 
-	return LinearHostImageHandle(handle_pool.linear_images.allocate(this, move(gpu_image), move(cpu_image), info.stages));
+	return LinearHostImageHandle(handle_pool.linear_images.allocate(this, std::move(gpu_image), std::move(cpu_image), info.stages));
 }
 
 void *Device::map_linear_host_image(const LinearHostImage &image, MemoryAccessFlags access)
@@ -540,9 +540,9 @@ static inline char to_hex(uint8_t v)
 		return char('a' + (v - 10));
 }
 
-string Device::get_pipeline_cache_string() const
+std::string Device::get_pipeline_cache_string() const
 {
-	string res;
+	std::string res;
 	res.reserve(sizeof(gpu_props.pipelineCacheUUID) * 2);
 
 	for (auto &c : gpu_props.pipelineCacheUUID)
@@ -926,7 +926,7 @@ static void request_block(Device &device, BufferBlock &block, VkDeviceSize size,
 	if (block.offset == 0)
 	{
 		if (block.size == pool.get_block_size())
-			pool.recycle_block(move(block));
+			pool.recycle_block(std::move(block));
 	}
 	else
 	{
@@ -995,7 +995,7 @@ void Device::submit(CommandBufferHandle &cmd, Fence *fence, unsigned semaphore_c
 	cmd->end_debug_channel();
 
 	LOCK();
-	submit_nolock(move(cmd), fence, semaphore_count, semaphores);
+	submit_nolock(std::move(cmd), fence, semaphore_count, semaphores);
 }
 
 void Device::submit_discard_nolock(CommandBufferHandle &cmd)
@@ -1052,7 +1052,7 @@ void Device::submit_nolock(CommandBufferHandle cmd, Fence *fence, unsigned semap
 	}
 
 	cmd->end();
-	submissions.push_back(move(cmd));
+	submissions.push_back(std::move(cmd));
 
 	InternalFence signalled_fence;
 
@@ -1212,7 +1212,7 @@ void Device::submit_empty_inner(CommandBuffer::Type type, InternalFence *fence,
 	// Add external wait semaphores.
 	SmallVector<VkSemaphore> waits;
 	SmallVector<uint64_t> waits_count;
-	auto stages = move(data.wait_stages);
+	auto stages = std::move(data.wait_stages);
 
 	for (auto &semaphore : data.wait_semaphores)
 	{
@@ -1469,7 +1469,7 @@ void Device::submit_queue(CommandBuffer::Type type, InternalFence *fence,
 	SmallVector<uint64_t> signal_counts[2];
 
 	// Add external wait semaphores.
-	wait_stages[0] = move(data.wait_stages);
+	wait_stages[0] = std::move(data.wait_stages);
 
 	for (auto &semaphore : data.wait_semaphores)
 	{
@@ -1996,7 +1996,7 @@ CommandBufferHandle Device::request_secondary_command_buffer_for_thread(unsigned
 
 void Device::set_acquire_semaphore(unsigned index, Semaphore acquire)
 {
-	wsi.acquire = move(acquire);
+	wsi.acquire = std::move(acquire);
 	wsi.index = index;
 	wsi.touched = false;
 	wsi.consumed = false;
@@ -2010,7 +2010,7 @@ void Device::set_acquire_semaphore(unsigned index, Semaphore acquire)
 
 Semaphore Device::consume_release_semaphore()
 {
-	auto ret = move(wsi.release);
+	auto ret = std::move(wsi.release);
 	wsi.release.reset();
 	return ret;
 }
@@ -2098,12 +2098,12 @@ void Device::init_frame_contexts(unsigned count)
 
 	for (unsigned i = 0; i < count; i++)
 	{
-		auto frame = unique_ptr<PerFrame>(new PerFrame(this, i));
+		auto frame = std::unique_ptr<PerFrame>(new PerFrame(this, i));
 		per_frame.emplace_back(move(frame));
 	}
 }
 
-void Device::init_external_swapchain(const vector<ImageHandle> &swapchain_images)
+void Device::init_external_swapchain(const std::vector<ImageHandle> &swapchain_images)
 {
 	DRAIN_FRAME_LOCK();
 	wsi.swapchain.clear();
@@ -2123,7 +2123,7 @@ void Device::init_external_swapchain(const vector<ImageHandle> &swapchain_images
 	}
 }
 
-void Device::init_swapchain(const vector<VkImage> &swapchain_images, unsigned width, unsigned height, VkFormat format)
+void Device::init_swapchain(const std::vector<VkImage> &swapchain_images, unsigned width, unsigned height, VkFormat format)
 {
 	DRAIN_FRAME_LOCK();
 	wsi.swapchain.clear();
@@ -2190,7 +2190,7 @@ Device::PerFrame::PerFrame(Device *device_, unsigned frame_index_)
 void Device::keep_handle_alive(ImageHandle handle)
 {
 	LOCK();
-	frame().keep_alive_images.push_back(move(handle));
+	frame().keep_alive_images.push_back(std::move(handle));
 }
 
 void Device::free_memory_nolock(const DeviceAllocation &alloc)
@@ -2670,7 +2670,7 @@ void Device::register_time_interval_nolock(std::string tid, QueryPoolHandle star
 		if (start_ts->is_signalled() && end_ts->is_signalled())
 			VK_ASSERT(end_ts->get_timestamp_ticks() >= start_ts->get_timestamp_ticks());
 #endif
-		frame().timestamp_intervals.push_back({ std::move(tid), move(start_ts), move(end_ts), timestamp_tag, std::move(extra) });
+		frame().timestamp_intervals.push_back({ std::move(tid), std::move(start_ts), std::move(end_ts), timestamp_tag, std::move(extra) });
 	}
 }
 
@@ -2803,13 +2803,13 @@ void Device::PerFrame::begin()
 		alloc.free_immediate(managers.memory);
 
 	for (auto &block : vbo_blocks)
-		managers.vbo.recycle_block(move(block));
+		managers.vbo.recycle_block(std::move(block));
 	for (auto &block : ibo_blocks)
-		managers.ibo.recycle_block(move(block));
+		managers.ibo.recycle_block(std::move(block));
 	for (auto &block : ubo_blocks)
-		managers.ubo.recycle_block(move(block));
+		managers.ubo.recycle_block(std::move(block));
 	for (auto &block : staging_blocks)
-		managers.staging.recycle_block(move(block));
+		managers.staging.recycle_block(std::move(block));
 	vbo_blocks.clear();
 	ibo_blocks.clear();
 	ubo_blocks.clear();
@@ -3097,7 +3097,7 @@ public:
 	VkImageView unorm_view = VK_NULL_HANDLE;
 	VkImageView srgb_view = VK_NULL_HANDLE;
 	VkImageViewType default_view_type = VK_IMAGE_VIEW_TYPE_MAX_ENUM;
-	vector<VkImageView> rt_views;
+	std::vector<VkImageView> rt_views;
 	DeviceAllocation allocation;
 	DeviceAllocator *allocator = nullptr;
 	bool owned = true;
@@ -4547,7 +4547,7 @@ uint64_t Device::allocate_cookie()
 {
 	// Reserve lower bits for "special purposes".
 #ifdef GRANITE_VULKAN_MT
-	return cookie.fetch_add(16, memory_order_relaxed) + 16;
+	return cookie.fetch_add(16, std::memory_order_relaxed) + 16;
 #else
 	cookie += 16;
 	return cookie;
@@ -4765,21 +4765,21 @@ void Device::report_checkpoints()
 
 	uint32_t graphics_count;
 	table->vkGetQueueCheckpointDataNV(graphics_queue, &graphics_count, nullptr);
-	vector<VkCheckpointDataNV> graphics_data(graphics_count);
+	std::vector<VkCheckpointDataNV> graphics_data(graphics_count);
 	for (auto &g : graphics_data)
 		g.sType = VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV;
 	table->vkGetQueueCheckpointDataNV(graphics_queue, &graphics_count, graphics_data.data());
 
 	uint32_t compute_count;
 	table->vkGetQueueCheckpointDataNV(compute_queue, &compute_count, nullptr);
-	vector<VkCheckpointDataNV> compute_data(compute_count);
+	std::vector<VkCheckpointDataNV> compute_data(compute_count);
 	for (auto &g : compute_data)
 		g.sType = VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV;
 	table->vkGetQueueCheckpointDataNV(compute_queue, &compute_count, compute_data.data());
 
 	uint32_t transfer_count;
 	table->vkGetQueueCheckpointDataNV(transfer_queue, &transfer_count, nullptr);
-	vector<VkCheckpointDataNV> transfer_data(compute_count);
+	std::vector<VkCheckpointDataNV> transfer_data(compute_count);
 	for (auto &g : transfer_data)
 		g.sType = VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV;
 	table->vkGetQueueCheckpointDataNV(transfer_queue, &transfer_count, transfer_data.data());

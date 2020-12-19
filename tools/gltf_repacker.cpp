@@ -28,9 +28,8 @@
 
 using namespace Granite;
 using namespace Util;
-using namespace std;
 
-static SceneFormats::TextureCompressionFamily string_to_compression(const string &fmt)
+static SceneFormats::TextureCompressionFamily string_to_compression(const std::string &fmt)
 {
 	if (fmt == "bc")
 		return SceneFormats::TextureCompressionFamily::BC;
@@ -73,14 +72,14 @@ int main(int argc, char *argv[])
 
 	struct Arguments
 	{
-		string input;
-		string output;
+		std::string input;
+		std::string output;
 	} args;
 
 	SceneFormats::ExportOptions options;
 	float scale = 1.0f;
-	string extra_lights;
-	string extra_cameras;
+	std::string extra_lights;
+	std::string extra_cameras;
 	bool animate_cameras = false;
 	bool flip_tangent_w = false;
 	bool renormalize_normals = false;
@@ -128,7 +127,7 @@ int main(int argc, char *argv[])
 	cbs.add("--threads", [&](CLIParser &parser) { options.threads = parser.next_uint(); });
 	cbs.add("--help", [](CLIParser &parser) { print_help(); parser.end(); });
 	cbs.default_handler = [&](const char *arg) { args.input = arg; };
-	CLIParser cli_parser(move(cbs), argc - 1, argv + 1);
+	CLIParser cli_parser(std::move(cbs), argc - 1, argv + 1);
 	if (!cli_parser.parse())
 		return 1;
 	else if (cli_parser.is_ended_state())
@@ -141,7 +140,7 @@ int main(int argc, char *argv[])
 	}
 
 	GLTF::Parser parser(args.input);
-	vector<SceneFormats::Node> nodes;
+	std::vector<SceneFormats::Node> nodes;
 
 	SceneFormats::SceneInformation info;
 	info.animations = parser.get_animations();
@@ -174,7 +173,7 @@ int main(int argc, char *argv[])
 		nodes.push_back(root);
 	}
 
-	vector<SceneFormats::Mesh> meshes;
+	std::vector<SceneFormats::Mesh> meshes;
 	if (renormalize_normals || flip_tangent_w)
 	{
 		meshes = parser.get_meshes();
@@ -192,13 +191,13 @@ int main(int argc, char *argv[])
 		info.meshes = meshes;
 	}
 
-	vector<SceneFormats::CameraInfo> cameras;
-	vector<SceneFormats::Animation> animations;
+	std::vector<SceneFormats::CameraInfo> cameras;
+	std::vector<SceneFormats::Animation> animations;
 	if (!extra_cameras.empty())
 	{
 		cameras = parser.get_cameras();
 
-		string json;
+		std::string json;
 		if (!Global::filesystem()->read_file_to_string(extra_cameras, json))
 		{
 			LOGE("Failed to read config file for lights.\n");
@@ -252,7 +251,7 @@ int main(int argc, char *argv[])
 			}
 
 			animation.name = "Camera";
-			animations.push_back(move(animation));
+			animations.push_back(std::move(animation));
 			custom_nodes.node_indices.push_back(camera.node_index);
 			nodes.push_back({});
 			info.animations = animations;
@@ -291,12 +290,12 @@ int main(int argc, char *argv[])
 		info.cameras = cameras;
 	}
 
-	vector<SceneFormats::LightInfo> lights;
+	std::vector<SceneFormats::LightInfo> lights;
 	if (!extra_lights.empty())
 	{
 		lights = parser.get_lights();
 
-		string json;
+		std::string json;
 		if (!Global::filesystem()->read_file_to_string(extra_lights, json))
 		{
 			LOGE("Failed to read config file for lights.\n");

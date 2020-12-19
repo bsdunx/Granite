@@ -25,15 +25,15 @@
 #include "temporal.hpp"
 #include "muglm/matrix_helper.hpp"
 #include "muglm/muglm_impl.hpp"
-#include <string.h>
 
-using namespace std;
+#include <cstring>
 
 namespace Granite
 {
+
 void setup_smaa_postprocess(RenderGraph &graph, TemporalJitter &jitter,
-                            const string &input, const string &input_depth,
-                            const string &output, SMAAPreset preset)
+                            const std::string &input, const std::string &input_depth,
+                            const std::string &output, SMAAPreset preset)
 {
 	bool t2x_enable = preset == SMAAPreset::Ultra_T2X;
 	unsigned smaa_quality = 0;
@@ -113,7 +113,7 @@ void setup_smaa_postprocess(RenderGraph &graph, TemporalJitter &jitter,
 	if (masked_edge)
 		smaa_weight.set_depth_stencil_input("smaa-mask");
 
-	smaa_blend.add_color_output(t2x_enable ? string("smaa-sample") : output, smaa_output);
+	smaa_blend.add_color_output(t2x_enable ? std::string("smaa-sample") : output, smaa_output);
 	auto &blend_input_res = smaa_blend.add_texture_input(input);
 	auto &blend_weight_res = smaa_blend.add_texture_input("smaa-weights");
 
@@ -247,4 +247,5 @@ void setup_smaa_postprocess(RenderGraph &graph, TemporalJitter &jitter,
 		});
 	}
 }
+
 }

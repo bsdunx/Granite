@@ -20,14 +20,14 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <cstring>
-#include <algorithm>
 #include "path.hpp"
 #include "shader_manager.hpp"
 #include "device.hpp"
 #include "rapidjson_wrapper.hpp"
 
-using namespace std;
+#include <cstring>
+#include <algorithm>
+
 using namespace Util;
 
 #ifdef GRANITE_VULKAN_MT
@@ -38,6 +38,7 @@ using namespace Util;
 
 namespace Vulkan
 {
+
 ShaderTemplate::ShaderTemplate(Device *device_, const std::string &shader_path,
                                PrecomputedShaderCache &cache_,
                                Util::Hash path_hash_,
@@ -52,7 +53,7 @@ ShaderTemplate::ShaderTemplate(Device *device_, const std::string &shader_path,
 bool ShaderTemplate::init()
 {
 #ifdef GRANITE_VULKAN_SHADER_MANAGER_RUNTIME_COMPILER
-	compiler = make_unique<Granite::GLSLCompiler>();
+	compiler = std::make_unique<Granite::GLSLCompiler>();
 	if (device->get_device_features().supports_vulkan_11_device)
 		compiler->set_target(Granite::Target::Vulkan11);
 	if (!compiler->set_source_from_file(path))
@@ -145,7 +146,7 @@ void ShaderTemplate::recompile_variant(Variant &variant)
 void ShaderTemplate::recompile()
 {
 	// Recompile all variants.
-	auto newcompiler = make_unique<Granite::GLSLCompiler>();
+	auto newcompiler = std::make_unique<Granite::GLSLCompiler>();
 	if (device->get_device_features().supports_vulkan_11_device)
 		newcompiler->set_target(Granite::Target::Vulkan11);
 	if (!newcompiler->set_source_from_file(path))
@@ -468,7 +469,7 @@ bool ShaderManager::get_shader_hash_by_variant_hash(Hash variant_hash, Hash &sha
 	return shader_cache.find_and_consume_pod(variant_hash, shader_hash);
 }
 
-void ShaderManager::add_include_directory(const string &path)
+void ShaderManager::add_include_directory(const std::string &path)
 {
 	if (find(begin(include_directories), end(include_directories), path) == end(include_directories))
 		include_directories.push_back(path);
@@ -482,11 +483,11 @@ void ShaderManager::promote_read_write_caches_to_read_only()
 #endif
 }
 
-bool ShaderManager::load_shader_cache(const string &path)
+bool ShaderManager::load_shader_cache(const std::string &path)
 {
 	using namespace rapidjson;
 
-	string json;
+	std::string json;
 	if (!Granite::Global::filesystem()->read_file_to_string(path, json))
 		return false;
 
@@ -509,7 +510,7 @@ bool ShaderManager::load_shader_cache(const string &path)
 	return true;
 }
 
-bool ShaderManager::save_shader_cache(const string &path)
+bool ShaderManager::save_shader_cache(const std::string &path)
 {
 	using namespace rapidjson;
 	Document doc;
@@ -552,4 +553,5 @@ bool ShaderManager::save_shader_cache(const string &path)
 	LOGI("Saved shader manager cache to %s.\n", path.c_str());
 	return true;
 }
+
 }

@@ -22,9 +22,9 @@
 
 #pragma once
 
+#include <cstddef>
 #include <memory>
 #include <string>
-#include <stddef.h>
 
 namespace Granite
 {

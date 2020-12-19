@@ -30,10 +30,10 @@
 #include "thread_group.hpp"
 #include "utils/image_utils.hpp"
 //#include "ocean.hpp"
-#include <float.h>
+
+#include <cfloat>
 #include <stdexcept>
 
-using namespace std;
 using namespace Vulkan;
 
 namespace Granite
@@ -46,7 +46,7 @@ static vec3 light_direction()
 
 void SceneViewerApplication::read_quirks(const std::string &path)
 {
-	string json;
+	std::string json;
 	if (!Global::filesystem()->read_file_to_string(path, json))
 	{
 		LOGE("Failed to read quirks file. Assuming defaults.\n");
@@ -82,7 +82,7 @@ void SceneViewerApplication::read_quirks(const std::string &path)
 
 void SceneViewerApplication::read_config(const std::string &path)
 {
-	string json;
+	std::string json;
 	if (!Global::filesystem()->read_file_to_string(path, json))
 	{
 		LOGE("Failed to read config file. Assuming defaults.\n");
@@ -100,7 +100,7 @@ void SceneViewerApplication::read_config(const std::string &path)
 		else if (strcmp(renderer, "deferred") == 0)
 			config.renderer_type = RendererType::GeneralDeferred;
 		else
-			throw invalid_argument("Invalid renderer option.");
+			throw std::invalid_argument("Invalid renderer option.");
 	}
 
 	if (doc.HasMember("msaa"))
@@ -261,7 +261,7 @@ SceneViewerApplication::SceneViewerApplication(const std::string &path, const st
 
 	if (config.clustered_lights_shadows || config.clustered_lights)
 	{
-		cluster = make_unique<LightClusterer>();
+		cluster = std::make_unique<LightClusterer>();
 		auto entity = scene_loader.get_scene().create_entity();
 		auto *refresh = entity->allocate_component<PerFrameUpdateComponent>();
 		refresh->refresh = cluster.get();
@@ -299,7 +299,7 @@ SceneViewerApplication::SceneViewerApplication(const std::string &path, const st
 
 	if (config.volumetric_fog)
 	{
-		volumetric_fog = make_unique<VolumetricFog>();
+		volumetric_fog = std::make_unique<VolumetricFog>();
 		volumetric_fog->set_resolution(160, 92, 64);
 		volumetric_fog->set_z_range(80.0f);
 		lighting.volumetric_fog = volumetric_fog.get();
@@ -589,7 +589,7 @@ void SceneViewerApplication::capture_environment_probe()
 	save_image_buffer_to_gtx(device, buffer, "cache://environment.gtx");
 }
 
-static inline string tagcat(const std::string &a, const std::string &b)
+static inline std::string tagcat(const std::string &a, const std::string &b)
 {
 	return a + "-" + b;
 }

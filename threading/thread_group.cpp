@@ -21,8 +21,6 @@
  */
 
 #include "thread_group.hpp"
-#include <assert.h>
-#include <stdexcept>
 #include "logging.hpp"
 #include "global_managers.hpp"
 #include "thread_id.hpp"
@@ -30,13 +28,12 @@
 #include "timeline_trace_file.hpp"
 #include "thread_name.hpp"
 
-using namespace std;
+#include <cassert>
+#include <stdexcept>
 
-namespace Granite
+namespace Granite::Internal
 {
 
-namespace Internal
-{
 void TaskDeps::notify_dependees()
 {
 	if (signal)
@@ -47,7 +44,7 @@ void TaskDeps::notify_dependees()
 	pending.clear();
 
 	{
-		lock_guard<mutex> holder{cond_lock};
+		std::lock_guard<std::mutex> holder{cond_lock};
 		done = true;
 		cond.notify_one();
 	}
@@ -77,7 +74,11 @@ void TaskDeps::dependency_satisfied()
 		}
 	}
 }
+
 }
+
+namespace Granite
+{
 
 TaskGroup::TaskGroup(ThreadGroup *group_)
 		: group(group_)
@@ -87,7 +88,7 @@ TaskGroup::TaskGroup(ThreadGroup *group_)
 void TaskGroup::flush()
 {
 	if (flushed)
-		throw logic_error("Cannot flush more than once.");
+		throw std::logic_error("Cannot flush more than once.");
 
 	flushed = true;
 	deps->dependency_satisfied();
@@ -108,7 +109,7 @@ void TaskGroup::wait()
 	if (!flushed)
 		flush();
 
-	unique_lock<mutex> holder{deps->cond_lock};
+	std::unique_lock<std::mutex> holder{deps->cond_lock};
 	deps->cond.wait(holder, [this]() {
 		return deps->done;
 	});
@@ -146,7 +147,7 @@ Util::TimelineTraceFile *ThreadGroup::get_timeline_trace_file()
 void ThreadGroup::start(unsigned num_threads)
 {
 	if (active)
-		throw logic_error("Cannot start a thread group which has already started.");
+		throw std::logic_error("Cannot start a thread group which has already started.");
 
 	dead = false;
 	active = true;
@@ -169,7 +170,7 @@ void ThreadGroup::start(unsigned num_threads)
 	unsigned self_index = 1;
 	for (auto &t : thread_group)
 	{
-		t = make_unique<thread>([this, ctx, self_index]() {
+		t = std::make_unique<std::thread>([this, ctx, self_index]() {
 			refresh_global_timeline_trace_file();
 			set_worker_thread_name(self_index - 1);
 			Global::set_thread_context(*ctx);
@@ -188,18 +189,18 @@ void ThreadGroup::submit(TaskGroupHandle &group)
 void ThreadGroup::add_dependency(TaskGroup &dependee, TaskGroup &dependency)
 {
 	if (dependency.flushed)
-		throw logic_error("Cannot wait for task group which has been flushed.");
+		throw std::logic_error("Cannot wait for task group which has been flushed.");
 	if (dependee.flushed)
-		throw logic_error("Cannot add dependency to task group which has been flushed.");
+		throw std::logic_error("Cannot add dependency to task group which has been flushed.");
 
 	dependency.deps->pending.push_back(dependee.deps);
-	dependee.deps->dependency_count.fetch_add(1, memory_order_relaxed);
+	dependee.deps->dependency_count.fetch_add(1, std::memory_order_relaxed);
 }
 
 void ThreadGroup::move_to_ready_tasks(const std::vector<Internal::Task *> &list)
 {
-	lock_guard<mutex> holder{cond_lock};
-	total_tasks.fetch_add(list.size(), memory_order_relaxed);
+	std::lock_guard<std::mutex> holder{cond_lock};
+	total_tasks.fetch_add(list.size(), std::memory_order_relaxed);
 
 	for (auto &t : list)
 		ready_tasks.push(t);
@@ -232,14 +233,14 @@ void ThreadGroup::free_task_deps(Internal::TaskDeps *deps)
 
 void TaskSignal::signal_increment()
 {
-	lock_guard<mutex> holder{lock};
+	std::lock_guard<std::mutex> holder{lock};
 	counter++;
 	cond.notify_all();
 }
 
 void TaskSignal::wait_until_at_least(uint64_t count)
 {
-	unique_lock<mutex> holder{lock};
+	std::unique_lock<std::mutex> holder{lock};
 	cond.wait(holder, [&]() -> bool {
 		return counter >= count;
 	});
@@ -252,7 +253,7 @@ TaskGroupHandle ThreadGroup::create_task(std::function<void()> func)
 	group->deps = Internal::TaskDepsHandle(task_deps_pool.allocate(this));
 
 	group->deps->pending_tasks.push_back(task_pool.allocate(group->deps, move(func)));
-	group->deps->count.store(1, memory_order_relaxed);
+	group->deps->count.store(1, std::memory_order_relaxed);
 	return group;
 }
 
@@ -260,7 +261,7 @@ TaskGroupHandle ThreadGroup::create_task()
 {
 	TaskGroupHandle group(task_group_pool.allocate(this));
 	group->deps = Internal::TaskDepsHandle(task_deps_pool.allocate(this));
-	group->deps->count.store(0, memory_order_relaxed);
+	group->deps->count.store(0, std::memory_order_relaxed);
 	return group;
 }
 
@@ -287,23 +288,23 @@ void TaskGroup::set_desc(const char *desc)
 void ThreadGroup::enqueue_task(TaskGroup &group, std::function<void()> func)
 {
 	if (group.flushed)
-		throw logic_error("Cannot enqueue work to a flushed task group.");
+		throw std::logic_error("Cannot enqueue work to a flushed task group.");
 
 	group.deps->pending_tasks.push_back(task_pool.allocate(group.deps, move(func)));
-	group.deps->count.fetch_add(1, memory_order_relaxed);
+	group.deps->count.fetch_add(1, std::memory_order_relaxed);
 }
 
 void ThreadGroup::wait_idle()
 {
-	unique_lock<mutex> holder{wait_cond_lock};
+	std::unique_lock<std::mutex> holder{wait_cond_lock};
 	wait_cond.wait(holder, [&]() {
-		return total_tasks.load(memory_order_relaxed) == completed_tasks.load(memory_order_relaxed);
+		return total_tasks.load(std::memory_order_relaxed) == completed_tasks.load(std::memory_order_relaxed);
 	});
 }
 
 bool ThreadGroup::is_idle()
 {
-	return total_tasks.load(memory_order_acquire) == completed_tasks.load(memory_order_acquire);
+	return total_tasks.load(std::memory_order_acquire) == completed_tasks.load(std::memory_order_acquire);
 }
 
 void ThreadGroup::thread_looper(unsigned index)
@@ -319,7 +320,7 @@ void ThreadGroup::thread_looper(unsigned index)
 		Internal::Task *task = nullptr;
 
 		{
-			unique_lock<mutex> holder{cond_lock};
+			std::unique_lock<std::mutex> holder{cond_lock};
 			cond.wait(holder, [&]() {
 				return dead || !ready_tasks.empty();
 			});
@@ -345,12 +346,12 @@ void ThreadGroup::thread_looper(unsigned index)
 		task_pool.free(task);
 
 		{
-			auto completed = completed_tasks.fetch_add(1, memory_order_relaxed) + 1;
+			auto completed = completed_tasks.fetch_add(1, std::memory_order_relaxed) + 1;
 			//LOGI("Task completed (%u / %u)!\n", completed, total_tasks.load(memory_order_relaxed));
 
-			if (completed == total_tasks.load(memory_order_relaxed))
+			if (completed == total_tasks.load(std::memory_order_relaxed))
 			{
-				lock_guard<mutex> holder{wait_cond_lock};
+				std::lock_guard<std::mutex> holder{wait_cond_lock};
 				wait_cond.notify_one();
 			}
 		}
@@ -379,7 +380,7 @@ void ThreadGroup::stop()
 	wait_idle();
 
 	{
-		lock_guard<mutex> holder{cond_lock};
+		std::lock_guard<std::mutex> holder{cond_lock};
 		dead = true;
 		cond.notify_all();
 	}

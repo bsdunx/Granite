@@ -22,14 +22,12 @@
 
 #include "widget.hpp"
 #include "flat_renderer.hpp"
+
 #include <algorithm>
 
-using namespace std;
+namespace Granite::UI
+{
 
-namespace Granite
-{
-namespace UI
-{
 float Widget::render_children(FlatRenderer &renderer, float layer, vec2 offset)
 {
 	float minimum_layer = layer;
@@ -89,11 +87,11 @@ void Widget::add_child(Util::IntrusivePtr<Widget> widget)
 
 Util::IntrusivePtr<Widget> Widget::remove_child(const Widget &widget)
 {
-	auto itr = find_if(begin(children), end(children), [&](const Child &c) -> bool {
+	auto itr = std::find_if(std::begin(children), std::end(children), [&](const Child &c) -> bool {
 		return c.widget.get() == &widget;
 	});
 
-	if (itr == end(children))
+	if (itr == std::end(children))
 		return {};
 
 	auto res = itr->widget;
@@ -138,5 +136,5 @@ void Widget::reconfigure_geometry_to_canvas(vec2 offset, vec2 size)
 	for (auto &child : children)
 		child.widget->reconfigure_geometry_to_canvas(child.offset + offset, child.size);
 }
-}
+
 }

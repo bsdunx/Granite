@@ -23,8 +23,9 @@
 #include "message_queue.hpp"
 #include "aligned_alloc.hpp"
 #include "logging.hpp"
+
+#include <cstdlib>
 #include <algorithm>
-#include <stdlib.h>
 
 namespace Util
 {

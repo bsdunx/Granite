@@ -33,6 +33,7 @@
 
 namespace Granite
 {
+
 class LightClusterer : public RenderPassCreator, public EventHandler, public PerFrameRefreshable
 {
 public:
@@ -305,4 +306,5 @@ private:
 
 	const Renderer &get_shadow_renderer() const;
 };
+
 }

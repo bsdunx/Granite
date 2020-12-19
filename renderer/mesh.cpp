@@ -24,7 +24,7 @@
 #include "shader_suite.hpp"
 #include "render_context.hpp"
 #include "renderer.hpp"
-#include <string.h>
+#include <cstring>
 
 using namespace Util;
 using namespace Vulkan;

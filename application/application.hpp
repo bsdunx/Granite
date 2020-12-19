@@ -21,6 +21,7 @@
  */
 
 #pragma once
+
 #include "wsi.hpp"
 #include "application_wsi_events.hpp"
 #include "input.hpp"
@@ -28,6 +29,7 @@
 
 namespace Granite
 {
+
 class Application
 {
 public:
@@ -89,4 +91,5 @@ extern Application *application_create(int argc, char *argv[]);
 // Call this to ensure application-main is linked in correctly without having to mess around
 // with -Wl,--whole-archive.
 void application_dummy();
+
 }

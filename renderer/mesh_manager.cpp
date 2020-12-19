@@ -23,9 +23,8 @@
 #include "mesh_manager.hpp"
 #include "gltf.hpp"
 #include "mesh_util.hpp"
-#include <stdexcept>
 
-using namespace std;
+#include <stdexcept>
 
 namespace Granite
 {
@@ -53,7 +52,7 @@ MeshManager::MeshGroup *MeshManager::register_mesh(
 
 	GLTF::Parser parser(path);
 	if (parser.get_scenes().empty())
-		throw logic_error("No scenes in glTF.");
+		throw std::logic_error("No scenes in glTF.");
 
 	auto &scene = parser.get_scenes().front();
 	group->top_level_nodes = scene.node_indices;
@@ -75,20 +74,20 @@ MeshManager::MeshGroup *MeshManager::register_mesh(
 
 static std::vector<Scene::NodeHandle> create_nodes(Scene &scene, const std::vector<Granite::SceneFormats::Node> &nodes)
 {
-	vector<Scene::NodeHandle> scene_nodes(nodes.size());
+	std::vector<Scene::NodeHandle> scene_nodes(nodes.size());
 
 	for (size_t i = 0; i < nodes.size(); i++)
 	{
 		auto &node_info = nodes[i];
 		if (node_info.has_skin)
-			throw logic_error("Skinning not yet supported for MeshManager.");
+			throw std::logic_error("Skinning not yet supported for MeshManager.");
 
 		auto node = scene.create_node();
 		node->transform.translation = node_info.transform.translation;
 		node->transform.rotation = node_info.transform.rotation;
 		node->transform.scale = node_info.transform.scale;
 		node->invalidate_cached_transform();
-		scene_nodes[i] = move(node);
+		scene_nodes[i] = std::move(node);
 	}
 
 	for (size_t i = 0; i < nodes.size(); i++)

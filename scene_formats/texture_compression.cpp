@@ -23,6 +23,7 @@
 #include "texture_compression.hpp"
 #include "texture_files.hpp"
 #include "format.hpp"
+
 #include <vector>
 
 #ifdef HAVE_ISPC
@@ -36,13 +37,12 @@
 #include "rgtc_compressor.hpp"
 #define RGTC_DEBUG
 
-using namespace std;
-
 namespace Granite
 {
+
 using namespace SceneFormats;
 
-VkFormat string_to_format(const string &s)
+VkFormat string_to_format(const std::string &s)
 {
 	if (s == "bc6h")
 		return VK_FORMAT_BC6H_UFLOAT_BLOCK;
@@ -140,10 +140,10 @@ static unsigned output_format_to_input_stride(VkFormat format)
 }
 #endif
 
-struct CompressorState : enable_shared_from_this<CompressorState>
+struct CompressorState : std::enable_shared_from_this<CompressorState>
 {
-	shared_ptr<MemoryMappedTexture> input;
-	shared_ptr<MemoryMappedTexture> output;
+	std::shared_ptr<MemoryMappedTexture> input;
+	std::shared_ptr<MemoryMappedTexture> output;
 
 #ifdef HAVE_ISPC
 	bc6h_enc_settings bc6 = {};
@@ -166,7 +166,7 @@ struct CompressorState : enable_shared_from_this<CompressorState>
 	void enqueue_compression_copy_16bit(TaskGroupHandle &group, const CompressorArguments &, unsigned layer, unsigned level);
 
 	double total_error[4] = {};
-	mutex lock;
+	std::mutex lock;
 	TaskSignal *signal = nullptr;
 };
 
@@ -557,7 +557,7 @@ void CompressorState::enqueue_compression_block_rgtc(TaskGroupHandle &group, con
 						for (int i = 0; i < 16; i++)
 							error += double((decoded_red[i] - padded_red[i]) * (decoded_red[i] - padded_red[i])) / (width * height);
 
-						lock_guard<mutex> l{lock};
+						std::lock_guard<std::mutex> l{lock};
 						total_error[0] += error;
 					}
 #endif
@@ -583,7 +583,7 @@ void CompressorState::enqueue_compression_block_rgtc(TaskGroupHandle &group, con
 						for (int i = 0; i < 16; i++)
 							error_green += double((decoded_green[i] - padded_green[i]) * (decoded_green[i] - padded_green[i])) / (width * height);
 
-						lock_guard<mutex> l{lock};
+						std::lock_guard<std::mutex> l{lock};
 						total_error[0] += error_red;
 						total_error[1] += error_green;
 					}
@@ -753,7 +753,7 @@ void CompressorState::enqueue_compression_block_astc(TaskGroupHandle &compressio
 		astcenc_image image;
 	};
 
-	auto state = make_shared<CodecState>();
+	auto state = std::make_shared<CodecState>();
 	unsigned flags = 0;
 
 	astcenc_profile profile;
@@ -871,7 +871,7 @@ void CompressorState::enqueue_compression_block_astc(TaskGroupHandle &compressio
 	{
 		for (int x = 0; x < padded_width; x++)
 		{
-			int cx = clamp(x - padding_pixels, 0, width - 1);
+			int cx = muglm::clamp(x - padding_pixels, 0, width - 1);
 			if (input_format == VK_FORMAT_R16G16B16A16_SFLOAT)
 			{
 				auto *src = input->get_layout().data_opaque(cx, y, layer, level);
@@ -1048,10 +1048,10 @@ void CompressorState::enqueue_compression(ThreadGroup &group, const CompressorAr
 	write_task->set_fence_counter_signal(signal);
 }
 
-bool compress_texture(ThreadGroup &group, const CompressorArguments &args, const shared_ptr<MemoryMappedTexture> &input,
+bool compress_texture(ThreadGroup &group, const CompressorArguments &args, const std::shared_ptr<MemoryMappedTexture> &input,
                       TaskGroupHandle &dep, TaskSignal *signal)
 {
-	auto output = make_shared<CompressorState>();
+	auto output = std::make_shared<CompressorState>();
 	output->input = input;
 	output->signal = signal;
 
@@ -1068,7 +1068,7 @@ bool compress_texture(ThreadGroup &group, const CompressorArguments &args, const
 	}
 
 	auto setup_task = group.create_task([&group, output, args]() {
-		output->output = make_shared<MemoryMappedTexture>();
+		output->output = std::make_shared<MemoryMappedTexture>();
 		auto &layout = output->input->get_layout();
 
 		output->setup(args);

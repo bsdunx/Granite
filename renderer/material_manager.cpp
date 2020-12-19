@@ -22,11 +22,11 @@
 
 #include "material_manager.hpp"
 #include "application_wsi_events.hpp"
-#include <string.h>
 #include "rapidjson_wrapper.hpp"
 #include "scene_formats.hpp"
 
-using namespace std;
+#include <cstring>
+
 using namespace Vulkan;
 using namespace rapidjson;
 using namespace Util;
@@ -34,11 +34,12 @@ using namespace Granite::SceneFormats;
 
 namespace Granite
 {
+
 MaterialFile::MaterialFile(const std::string &path_)
 	: VolatileSource(path_)
 {
 	if (!init())
-		throw runtime_error("Failed to load material file.");
+		throw std::runtime_error("Failed to load material file.");
 
 	EVENT_MANAGER_REGISTER_LATCH(MaterialFile, on_device_created, on_device_destroyed, DeviceCreatedEvent);
 }
@@ -77,7 +78,7 @@ void MaterialFile::update(std::unique_ptr<File> file)
 
 	try
 	{
-		string json(static_cast<const char *>(data), static_cast<const char *>(data) + size);
+		std::string json(static_cast<const char *>(data), static_cast<const char *>(data) + size);
 
 		Document doc;
 		doc.Parse(json);

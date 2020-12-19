@@ -21,13 +21,17 @@
  */
 
 #pragma once
+
 #include "../filesystem.hpp"
-#include <unordered_map>
+
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#include <unordered_map>
+
 namespace Granite
 {
+
 class MappedFile : public File
 {
 public:
@@ -79,4 +83,5 @@ private:
 	FileNotifyHandle handle_id = 0;
 	void kick_async(Handler &handler);
 };
+
 }

@@ -22,25 +22,26 @@
 
 #pragma once
 
-#include <vector>
-#include <memory>
+#define TONE_DEBUG
+
 #include "audio_mixer.hpp"
 
-#define TONE_DEBUG
-#include <string.h>
 #include "event.hpp"
+
+#include <cstring>
+#include <vector>
+#include <memory>
 
 namespace Util
 {
+
 class LockFreeMessageQueue;
+
 }
 
-namespace Granite
+namespace Granite::Audio::DSP
 {
-namespace Audio
-{
-namespace DSP
-{
+
 class ToneFilter
 {
 public:
@@ -108,6 +109,5 @@ private:
 	float *payload = nullptr;
 	unsigned count = 0;
 };
-}
-}
+
 }

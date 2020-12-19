@@ -24,7 +24,7 @@
 #include "stb_image.h"
 #include "filesystem.hpp"
 #include "muglm/muglm_impl.hpp"
-#include <string.h>
+#include <cstring>
 
 namespace Granite
 {

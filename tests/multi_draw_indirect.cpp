@@ -25,7 +25,7 @@
 #include "device.hpp"
 #include "os_filesystem.hpp"
 #include "muglm/muglm_impl.hpp"
-#include <string.h>
+#include <cstring>
 
 using namespace Granite;
 using namespace Vulkan;

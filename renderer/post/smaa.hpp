@@ -21,11 +21,14 @@
  */
 
 #pragma once
+
 #include "render_graph.hpp"
 
 namespace Granite
 {
+
 class TemporalJitter;
+
 enum class SMAAPreset
 {
 	Low,
@@ -38,4 +41,5 @@ enum class SMAAPreset
 void setup_smaa_postprocess(RenderGraph &graph, TemporalJitter &jitter,
                             const std::string &input, const std::string &input_depth,
                             const std::string &output, SMAAPreset preset);
+
 }

@@ -23,14 +23,15 @@
 #include "input.hpp"
 #include "ui_manager.hpp"
 #include "event.hpp"
+
+#include <cstring>
 #include <algorithm>
-#include <string.h>
 
 using namespace Util;
-using namespace std;
 
 namespace Granite
 {
+
 static inline Hash hash(unsigned code)
 {
 	Hasher h;
@@ -168,11 +169,11 @@ void InputTracker::dispatch_touch_gesture()
 void InputTracker::on_touch_move(unsigned id, float x, float y)
 {
 	auto &pointers = touch.pointers;
-	auto itr = find_if(begin(pointers), begin(pointers) + touch.active_pointers, [id](const TouchState::Pointer &pointer) {
+	auto itr = std::find_if(std::begin(pointers), std::begin(pointers) + touch.active_pointers, [id](const TouchState::Pointer &pointer) {
 		return pointer.id == id;
 	});
 
-	if (itr == end(pointers))
+	if (itr == std::end(pointers))
 	{
 		LOGE("Could not find pointer!\n");
 		return;
@@ -185,17 +186,17 @@ void InputTracker::on_touch_move(unsigned id, float x, float y)
 void InputTracker::on_touch_up(unsigned id, float x, float y)
 {
 	auto &pointers = touch.pointers;
-	auto itr = find_if(begin(pointers), begin(pointers) + touch.active_pointers, [id](const TouchState::Pointer &pointer) {
+	auto itr = std::find_if(std::begin(pointers), std::begin(pointers) + touch.active_pointers, [id](const TouchState::Pointer &pointer) {
 		return pointer.id == id;
 	});
 
-	if (itr == end(pointers))
+	if (itr == std::end(pointers))
 	{
 		LOGE("Could not find pointer!\n");
 		return;
 	}
 
-	auto index = itr - begin(pointers);
+	auto index = itr - std::begin(pointers);
 
 	TouchUpEvent event(itr->id, x, y, itr->start_x, itr->start_y, touch.width, touch.height);
 
@@ -334,9 +335,9 @@ void InputTracker::mouse_move_event_relative(double x, double y)
 	{
 		last_mouse_x += x;
 		last_mouse_y += y;
-		last_mouse_x = clamp(last_mouse_x, mouse_relative_range_x,
+		last_mouse_x = muglm::clamp(last_mouse_x, mouse_relative_range_x,
 		                     mouse_relative_range_x + mouse_relative_range_width);
-		last_mouse_y = clamp(last_mouse_y, mouse_relative_range_y,
+		last_mouse_y = muglm::clamp(last_mouse_y, mouse_relative_range_y,
 		                     mouse_relative_range_y + mouse_relative_range_height);
 		MouseMoveEvent event(x, y, last_mouse_x, last_mouse_y, key_state, mouse_button_state);
 

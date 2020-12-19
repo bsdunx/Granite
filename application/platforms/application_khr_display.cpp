@@ -28,10 +28,11 @@
 #include "application_events.hpp"
 #include "application_wsi.hpp"
 #include "vulkan_headers.hpp"
-#include <string.h>
+
 #include <signal.h>
 
-using namespace std;
+#include <cstring>
+
 using namespace Vulkan;
 
 namespace Granite
@@ -153,7 +154,7 @@ public:
 		get_input_tracker().dispatch_current_state(get_frame_timer().get_frame_time());
 	}
 
-	vector<const char *> get_instance_extensions() override
+	std::vector<const char *> get_instance_extensions() override
 	{
 #ifdef KHR_DISPLAY_ACQUIRE_XLIB
 		return { "VK_KHR_surface", "VK_KHR_display", "VK_EXT_acquire_xlib_display" };
@@ -337,13 +338,14 @@ static void signal_handler(int)
 
 namespace Granite
 {
+
 int application_main(Application *(*create_application)(int, char **), int argc, char *argv[])
 {
 	Global::init();
-	auto app = unique_ptr<Granite::Application>(create_application(argc, argv));
+	auto app = std::unique_ptr<Granite::Application>(create_application(argc, argv));
 	if (app)
 	{
-		auto platform = make_unique<Granite::WSIPlatformDisplay>();
+		auto platform = std::make_unique<Granite::WSIPlatformDisplay>();
 		if (!platform->init(1280, 720))
 			return 1;
 		if (!app->init_wsi(move(platform)))
@@ -360,4 +362,5 @@ int application_main(Application *(*create_application)(int, char **), int argc,
 	else
 		return 1;
 }
+
 }

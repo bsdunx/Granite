@@ -24,11 +24,13 @@
 #include "timeline_trace_file.hpp"
 #include "thread_name.hpp"
 #include "timer.hpp"
-#include <string.h>
-#include <stdio.h>
+
+#include <cstring>
+#include <cstdio>
 
 namespace Util
 {
+
 static thread_local char trace_tid[32];
 static thread_local TimelineTraceFile *trace_file;
 

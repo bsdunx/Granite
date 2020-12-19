@@ -2,7 +2,7 @@
 #include "smaa/SearchTex.h"
 #include "logging.hpp"
 #include "memory_mapped_texture.hpp"
-#include <string.h>
+#include <cstring>
 
 using namespace Granite;
 using namespace Granite::SceneFormats;

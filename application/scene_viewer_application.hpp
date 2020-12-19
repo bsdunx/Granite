@@ -155,4 +155,5 @@ private:
 	RenderTextureResource *ssao_output = nullptr;
 	RenderTextureResource *shadows = nullptr;
 };
+
 }

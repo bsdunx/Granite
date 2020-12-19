@@ -24,12 +24,9 @@
 #include "ui_manager.hpp"
 #include "widget.hpp"
 
-using namespace std;
+namespace Granite::UI
+{
 
-namespace Granite
-{
-namespace UI
-{
 void ClickButton::set_text(std::string text_)
 {
 	text = move(text_);
@@ -75,5 +72,5 @@ float ClickButton::render(FlatRenderer &renderer, float layer, vec2 offset, vec2
 	                     color * vec4(1.0f, 1.0f, 1.0f, click_held ? 0.25f : 1.0f), alignment);
 	return layer;
 }
-}
+
 }

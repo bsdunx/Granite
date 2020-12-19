@@ -21,13 +21,15 @@
  */
 
 #pragma once
-#include <stdio.h>
+
+#include <cstdio>
 
 #ifdef GRANITE_LOGGING_QUEUE
 #include "global_managers.hpp"
 #include "message_queue.hpp"
-#include <string.h>
-#include <stdarg.h>
+
+#include <cstring>
+#include <cstdarg>
 
 namespace Util
 {

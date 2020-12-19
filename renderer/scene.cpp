@@ -25,9 +25,8 @@
 #include "lights/lights.hpp"
 #include "simd.hpp"
 #include "task_composer.hpp"
-#include <float.h>
 
-using namespace std;
+#include <cfloat>
 
 namespace Granite
 {
@@ -576,7 +575,7 @@ void Scene::update_transform_listener_components()
 	{
 		CameraComponent *cam;
 		CachedTransformComponent *transform;
-		tie(cam, transform) = c;
+		std::tie(cam, transform) = c;
 		cam->camera.set_transform(transform->transform->world_transform);
 	}
 
@@ -585,7 +584,7 @@ void Scene::update_transform_listener_components()
 	{
 		DirectionalLightComponent *l;
 		CachedTransformComponent *transform;
-		tie(l, transform) = light;
+		std::tie(l, transform) = light;
 
 		// v = [0, 0, 1, 0].
 		l->direction = normalize(transform->transform->world_transform[2].xyz());
@@ -601,7 +600,7 @@ void Scene::update_cached_transforms_range(size_t begin_range, size_t end_range)
 		BoundedComponent *aabb;
 		RenderInfoComponent *cached_transform;
 		CachedSpatialTransformTimestampComponent *timestamp;
-		tie(aabb, cached_transform, timestamp) = s;
+		std::tie(aabb, cached_transform, timestamp) = s;
 
 		if (timestamp->last_timestamp != *timestamp->current_timestamp)
 		{
@@ -647,7 +646,7 @@ Scene::NodeHandle Scene::create_skinned_node(const SceneFormats::Skin &skin)
 {
 	auto node = create_node();
 
-	vector<NodeHandle> bones;
+	std::vector<NodeHandle> bones;
 	bones.reserve(skin.joint_transforms.size());
 
 	for (size_t i = 0; i < skin.joint_transforms.size(); i++)

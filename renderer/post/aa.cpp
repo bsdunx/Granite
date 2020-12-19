@@ -24,10 +24,12 @@
 #include "temporal.hpp"
 #include "fxaa.hpp"
 #include "smaa.hpp"
-#include <string.h>
+
+#include <cstring>
 
 namespace Granite
 {
+
 bool setup_before_post_chain_antialiasing(PostAAType type, RenderGraph &graph, TemporalJitter &jitter,
                                           const std::string &input, const std::string &input_depth,
                                           const std::string &output)
@@ -142,4 +144,5 @@ PostAAType string_to_post_antialiasing_type(const char *type)
 		return PostAAType::None;
 	}
 }
+
 }

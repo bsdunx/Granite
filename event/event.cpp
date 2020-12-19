@@ -22,9 +22,7 @@
 
 #include "event.hpp"
 #include <algorithm>
-#include <assert.h>
-
-using namespace std;
+#include <cassert>
 
 namespace Granite
 {
@@ -124,7 +122,7 @@ void EventManager::unregister_handler(EventHandler *handler)
 		});
 
 		if (itr != end(event_type.handlers) && event_type.dispatching)
-			throw logic_error("Unregistering handlers while dispatching events.");
+			throw std::logic_error("Unregistering handlers while dispatching events.");
 
 		if (itr != end(event_type.handlers))
 			event_type.handlers.erase(itr, end(event_type.handlers));
@@ -175,7 +173,7 @@ void EventManager::unregister_latch_handler(const LatchHandler &handler)
 		});
 
 		if (itr != end(event_type.handlers) && event_type.dispatching)
-			throw logic_error("Unregistering handlers while dispatching events.");
+			throw std::logic_error("Unregistering handlers while dispatching events.");
 
 		if (itr != end(event_type.handlers))
 			event_type.handlers.erase(itr, end(event_type.handlers));
@@ -188,10 +186,10 @@ void EventManager::dequeue_latched(uint64_t cookie)
 	{
 		auto &queued_events = event_type.queued_events;
 		if (event_type.enqueueing)
-			throw logic_error("Dequeueing latched while queueing events.");
+			throw std::logic_error("Dequeueing latched while queueing events.");
 		event_type.enqueueing = true;
 
-		auto itr = remove_if(begin(queued_events), end(queued_events), [&](const unique_ptr<Event> &event) {
+		auto itr = std::remove_if(begin(queued_events), end(queued_events), [&](const std::unique_ptr<Event> &event) {
 			bool signal = event->get_cookie() == cookie;
 			if (signal)
 				dispatch_down_event(event_type, *event);
@@ -207,7 +205,7 @@ void EventManager::dequeue_all_latched(EventType type)
 {
 	auto &event_type = latched_events[type];
 	if (event_type.enqueueing)
-		throw logic_error("Dequeueing latched while queueing events.");
+		throw std::logic_error("Dequeueing latched while queueing events.");
 
 	event_type.enqueueing = true;
 	for (auto &event : event_type.queued_events)

@@ -21,16 +21,19 @@
  */
 
 #pragma once
+
+#include "event.hpp"
+
+#include <cstdio>
 #include <vector>
 #include <string>
 #include <memory>
 #include <unordered_map>
-#include "event.hpp"
 #include <functional>
-#include <stdio.h>
 
 namespace Granite
 {
+
 class File
 {
 public:

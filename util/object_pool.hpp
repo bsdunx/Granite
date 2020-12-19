@@ -22,17 +22,21 @@
 
 #pragma once
 
+#include <cstdlib>
 #include <memory>
 #include <mutex>
 #include <vector>
 #include <algorithm>
-#include <stdlib.h>
+
 #include "aligned_alloc.hpp"
 
-//#define OBJECT_POOL_DEBUG
+#ifdef WANT_OBJECT_POOL_DEBUG
+#define OBJECT_POOL_DEBUG
+#endif
 
 namespace Util
 {
+
 template<typename T>
 class ObjectPool
 {
@@ -129,4 +133,5 @@ public:
 private:
 	std::mutex lock;
 };
+
 }

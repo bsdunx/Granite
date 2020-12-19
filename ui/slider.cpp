@@ -24,15 +24,13 @@
 #include "ui_manager.hpp"
 #include "widget.hpp"
 
-using namespace std;
-
 namespace Granite
 {
 namespace UI
 {
-void Slider::set_text(string text_)
+void Slider::set_text(std::string text_)
 {
-	text = move(text_);
+	text = std::move(text_);
 }
 
 void Slider::reconfigure()
@@ -46,7 +44,7 @@ void Slider::reconfigure()
 	if (label_enable)
 		minimum = font.get_text_geometry(text.c_str());
 	if (value_enable)
-		minimum_value = font.get_text_geometry(to_string(value).c_str());
+		minimum_value = font.get_text_geometry(std::to_string(value).c_str());
 
 	geometry.minimum = minimum + 2.0f * geometry.margin;
 
@@ -85,7 +83,7 @@ void Slider::set_range(float minimum, float maximum)
 
 void Slider::set_value(float new_value)
 {
-	new_value = clamp(new_value, value_minimum, value_maximum);
+	new_value = muglm::clamp(new_value, value_minimum, value_maximum);
 	normalized_value = (new_value - value_minimum) / (value_maximum - value_minimum);
 	geometry_changed();
 
@@ -98,7 +96,7 @@ void Slider::reconfigure_to_canvas(vec2, vec2 canvas_size)
 	auto &ui = *Global::ui_manager();
 	auto &font = ui.get_font(FontSize::Small);
 	vec2 minimum = font.get_text_geometry(text.c_str());
-	vec2 minimum_value = font.get_text_geometry(to_string(value).c_str());
+	vec2 minimum_value = font.get_text_geometry(std::to_string(value).c_str());
 
 	label_offset = vec2(geometry.margin);
 	label_size = vec2(0.0f);
@@ -150,9 +148,9 @@ Widget *Slider::on_mouse_button_pressed(vec2 offset)
 		return nullptr;
 
 	if (orientation == Orientation::Horizontal)
-		normalized_value = clamp((offset.x - slider_offset.x) / slider_size.x, 0.0f, 1.0f);
+		normalized_value = muglm::clamp((offset.x - slider_offset.x) / slider_size.x, 0.0f, 1.0f);
 	else
-		normalized_value = 1.0f - clamp((offset.y - slider_offset.y) / slider_size.y, 0.0f, 1.0f);
+		normalized_value = 1.0f - muglm::clamp((offset.y - slider_offset.y) / slider_size.y, 0.0f, 1.0f);
 
 	value = mix(value_minimum, value_maximum, normalized_value);
 	drag_size = size;
@@ -175,9 +173,9 @@ void Slider::on_mouse_button_move(vec2 offset)
 	offset += drag_base;
 
 	if (orientation == Orientation::Horizontal)
-		normalized_value = clamp((offset.x - slider_offset.x) / slider_size.x, 0.0f, 1.0f);
+		normalized_value = muglm::clamp((offset.x - slider_offset.x) / slider_size.x, 0.0f, 1.0f);
 	else
-		normalized_value = 1.0f - clamp((offset.y - slider_offset.y) / slider_size.y, 0.0f, 1.0f);
+		normalized_value = 1.0f - muglm::clamp((offset.y - slider_offset.y) / slider_size.y, 0.0f, 1.0f);
 
 	value = mix(value_minimum, value_maximum, normalized_value);
 	geometry_changed();
@@ -222,7 +220,7 @@ float Slider::render(FlatRenderer &renderer, float layer, vec2 offset, vec2)
 
 	if (value_enable)
 	{
-		renderer.render_text(font, to_string(value).c_str(),
+		renderer.render_text(font, std::to_string(value).c_str(),
 		                     vec3(offset + value_offset, layer), value_size,
 		                     color, Font::Alignment::Center);
 	}

@@ -38,7 +38,7 @@ using namespace Granite;
 struct PhysicsSandboxApplication : Application, EventHandler
 {
 	PhysicsSandboxApplication(const std::string &gltf_path_)
-		: renderer(RendererType::GeneralForward), gltf_path(gltf_path_)
+		: renderer(RendererType::GeneralForward, nullptr), gltf_path(gltf_path_)
 	{
 		camera.set_position(vec3(0.0f, 2.0f, 8.0f));
 		cube = Util::make_handle<CubeMesh>();
@@ -470,7 +470,7 @@ struct PhysicsSandboxApplication : Application, EventHandler
 		}
 
 		Global::physics()->iterate(frame_time);
-		scene.update_transform_free_and_cached_transforms();
+		scene.update_all_transforms();
 
 		lighting.directional.direction = normalize(vec3(1.0f, 0.5f, 1.0f));
 		lighting.directional.color = vec3(1.0f, 0.8f, 0.6f);
@@ -486,9 +486,9 @@ struct PhysicsSandboxApplication : Application, EventHandler
 		rp.clear_color[0].float32[2] = 0.03f;
 		cmd->begin_render_pass(rp);
 
-		renderer.begin();
-		renderer.push_renderables(context, visible);
-		renderer.flush(*cmd, context, 0);
+		renderer.begin(queue);
+		queue.push_renderables(context, visible);
+		renderer.flush(*cmd, queue, context, 0);
 
 		cmd->end_render_pass();
 
@@ -508,6 +508,7 @@ struct PhysicsSandboxApplication : Application, EventHandler
 	LightingParameters lighting;
 	VisibilityList visible;
 	Renderer renderer;
+	RenderQueue queue;
 	std::string gltf_path;
 
 	AbstractRenderableHandle gltf_mesh;
@@ -519,6 +520,7 @@ struct PhysicsSandboxApplication : Application, EventHandler
 
 namespace Granite
 {
+
 Application *application_create(int argc, char **argv)
 {
 	application_dummy();
@@ -534,4 +536,5 @@ Application *application_create(int argc, char **argv)
 		return nullptr;
 	}
 }
+
 }

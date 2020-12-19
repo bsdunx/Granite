@@ -22,12 +22,12 @@
 
 #include "query_pool.hpp"
 #include "device.hpp"
-#include <utility>
 
-using namespace std;
+#include <utility>
 
 namespace Vulkan
 {
+
 static const char *storage_to_str(VkPerformanceCounterStorageKHR storage)
 {
 	switch (storage)
@@ -267,11 +267,11 @@ bool PerformanceQueryPool::init_counters(const std::vector<std::string> &counter
 
 	for (auto &name : counter_names)
 	{
-		auto itr = find_if(begin(counter_descriptions), end(counter_descriptions), [&](const VkPerformanceCounterDescriptionKHR &desc) {
+		auto itr = std::find_if(std::begin(counter_descriptions), std::end(counter_descriptions), [&](const VkPerformanceCounterDescriptionKHR &desc) {
 			return name == desc.name;
 		});
 
-		if (itr != end(counter_descriptions))
+		if (itr != std::end(counter_descriptions))
 		{
 			LOGI("Found counter %s: %s\n", itr->name, itr->description);
 			active_indices.push_back(itr - begin(counter_descriptions));
@@ -372,7 +372,7 @@ void QueryPool::add_pool()
 	if (device->get_device_features().host_query_reset_features.hostQueryReset)
 		table.vkResetQueryPoolEXT(device->get_device(), pool.pool, 0, pool.size);
 
-	pools.push_back(move(pool));
+	pools.push_back(std::move(pool));
 }
 
 QueryPoolHandle QueryPool::write_timestamp(VkCommandBuffer cmd, VkPipelineStageFlagBits stage)
@@ -442,13 +442,13 @@ double TimestampInterval::get_time_per_iteration() const
 		return 0.0;
 }
 
-const string &TimestampInterval::get_tag() const
+const std::string &TimestampInterval::get_tag() const
 {
 	return tag;
 }
 
-TimestampInterval::TimestampInterval(string tag_)
-	: tag(move(tag_))
+TimestampInterval::TimestampInterval(std::string tag_)
+	: tag(std::move(tag_))
 {
 }
 
@@ -478,4 +478,5 @@ void TimestampIntervalManager::log_simple()
 		}
 	}
 }
+
 }

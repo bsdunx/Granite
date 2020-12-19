@@ -24,12 +24,12 @@
 #include "vulkan_headers.hpp"
 #include "filesystem.hpp"
 #include "mesh.hpp"
-#include <unordered_map>
-#include <algorithm>
 #include "rapidjson_wrapper.hpp"
 #include "muglm/matrix_helper.hpp"
 
-using namespace std;
+#include <unordered_map>
+#include <algorithm>
+
 using namespace rapidjson;
 using namespace Granite;
 using namespace Util;
@@ -37,18 +37,18 @@ using namespace Util;
 namespace GLTF
 {
 
-Parser::Buffer Parser::read_buffer(const string &path, uint64_t length)
+Parser::Buffer Parser::read_buffer(const std::string &path, uint64_t length)
 {
 	auto file = Global::filesystem()->open(path);
 	if (!file)
-		throw runtime_error("Failed to open GLTF buffer.");
+		throw std::runtime_error("Failed to open GLTF buffer.");
 
 	if (file->get_size() != length)
-		throw runtime_error("Size mismatch of buffer.");
+		throw std::runtime_error("Size mismatch of buffer.");
 
 	void *mapped = file->map();
 	if (!mapped)
-		throw runtime_error("Failed to map file.");
+		throw std::runtime_error("Failed to map file.");
 
 	Buffer buf(length);
 	memcpy(buf.data(), mapped, length);
@@ -123,17 +123,17 @@ Parser::Buffer Parser::read_base64(const char *data, uint64_t length)
 
 Parser::Parser(const std::string &path)
 {
-	string json;
+	std::string json;
 
 	{
 		auto file = Global::filesystem()->open(path, FileMode::ReadOnly);
 		if (!file)
-			throw runtime_error("Failed to load GLTF file.");
+			throw std::runtime_error("Failed to load GLTF file.");
 
 		auto size = file->get_size();
 		void *mapped = file->map();
 		if (!mapped)
-			throw runtime_error("Failed to map GLTF file.");
+			throw std::runtime_error("Failed to map GLTF file.");
 
 		bool is_glb = false;
 
@@ -145,22 +145,22 @@ Parser::Parser(const std::string &path)
 			// GLB is little endian. Just parse it lazily.
 			auto *words = static_cast<const uint32_t *>(mapped);
 			if (words[1] != 2)
-				throw runtime_error("GLB version is not 2.");
+				throw std::runtime_error("GLB version is not 2.");
 			if (words[2] > size)
-				throw runtime_error("GLB length is larger than the file size.");
+				throw std::runtime_error("GLB length is larger than the file size.");
 
 			auto glb_size = words[2];
 			words += 3;
 
 			auto json_length = words[0];
 			if (memcmp(&words[1], "JSON", 4) != 0)
-				throw runtime_error("Could not find JSON chunk.");
+				throw std::runtime_error("Could not find JSON chunk.");
 			words += 2;
 
 			if (json_length + 12 > glb_size)
-				throw logic_error("Header error, JSON chunk lengths out of range.");
+				throw std::logic_error("Header error, JSON chunk lengths out of range.");
 
-			json = string(reinterpret_cast<const char *>(words),
+			json = std::string(reinterpret_cast<const char *>(words),
 			              reinterpret_cast<const char *>(words) + json_length);
 			words += (json_length + 3) >> 2;
 
@@ -169,11 +169,11 @@ Parser::Parser(const std::string &path)
 			{
 				auto binary_length = words[0];
 				if (memcmp(&words[1], "BIN\0", 4) != 0)
-					throw runtime_error("Could not find BIN chunk.");
+					throw std::runtime_error("Could not find BIN chunk.");
 				words += 2;
 
 				if (((binary_length + 3) & ~3) + ((json_length + 3) & ~3) + (2 * 2 + 3) * sizeof(uint32_t) != glb_size)
-					throw logic_error(
+					throw std::logic_error(
 							"Header error, binary chunk and JSON chunk lengths do not match up with GLB size.");
 
 				// The first buffer in the JSON must be this embedded buffer.
@@ -183,7 +183,7 @@ Parser::Parser(const std::string &path)
 			}
 		}
 		else
-			json = string(static_cast<const char *>(mapped), static_cast<const char *>(mapped) + size);
+			json = std::string(static_cast<const char *>(mapped), static_cast<const char *>(mapped) + size);
 	}
 	parse(path, json);
 }
@@ -355,7 +355,7 @@ void Parser::resolve_component_type(uint32_t component_type, const char *type, b
 	else if (!strcmp(type, "MAT4"))
 		components = 16;
 	else
-		throw logic_error("Unknown component type.");
+		throw std::logic_error("Unknown component type.");
 
 	switch (component_type)
 	{
@@ -420,7 +420,7 @@ void Parser::resolve_component_type(uint32_t component_type, const char *type, b
 	}
 
 	default:
-		throw logic_error("Unknown type.");
+		throw std::logic_error("Unknown type.");
 	}
 
 	stride = components * type_stride(scalar_type);
@@ -504,7 +504,7 @@ static MeshAttribute semantic_to_attribute(const char *semantic)
 	else if (!strcmp(semantic, "TEXCOORD_1"))
 		return MeshAttribute::None; // Ignore
 	else
-		throw logic_error("Unsupported semantic.");
+		throw std::logic_error("Unsupported semantic.");
 }
 
 static VkPrimitiveTopology gltf_topology(const char *top)
@@ -522,15 +522,15 @@ static VkPrimitiveTopology gltf_topology(const char *top)
 	else if (!strcmp(top, "LINE_STRIP"))
 		return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
 	else
-		throw logic_error("Unrecognized primitive mode.");
+		throw std::logic_error("Unrecognized primitive mode.");
 }
 
 void Parser::extract_attribute(std::vector<float> &attributes, const Accessor &accessor)
 {
 	if (accessor.type != ScalarType::Float32)
-		throw logic_error("Attribute is not Float32.");
+		throw std::logic_error("Attribute is not Float32.");
 	if (accessor.components != 1)
-		throw logic_error("Attribute is not single component.");
+		throw std::logic_error("Attribute is not single component.");
 
 	auto &view = json_views[accessor.view];
 	auto &buffer = json_buffers[view.buffer_index];
@@ -545,9 +545,9 @@ void Parser::extract_attribute(std::vector<float> &attributes, const Accessor &a
 void Parser::extract_attribute(std::vector<vec3> &attributes, const Accessor &accessor)
 {
 	if (accessor.type != ScalarType::Float32)
-		throw logic_error("Attribute is not Float32.");
+		throw std::logic_error("Attribute is not Float32.");
 	if (accessor.components != 3)
-		throw logic_error("Attribute is not single component.");
+		throw std::logic_error("Attribute is not single component.");
 
 	auto &view = json_views[accessor.view];
 	auto &buffer = json_buffers[view.buffer_index];
@@ -562,9 +562,9 @@ void Parser::extract_attribute(std::vector<vec3> &attributes, const Accessor &ac
 void Parser::extract_attribute(std::vector<quat> &attributes, const Accessor &accessor)
 {
 	if (accessor.type != ScalarType::Float32)
-		throw logic_error("Attribute is not Float32.");
+		throw std::logic_error("Attribute is not Float32.");
 	if (accessor.components != 4)
-		throw logic_error("Attribute is not single component.");
+		throw std::logic_error("Attribute is not single component.");
 
 	auto &view = json_views[accessor.view];
 	auto &buffer = json_buffers[view.buffer_index];
@@ -579,9 +579,9 @@ void Parser::extract_attribute(std::vector<quat> &attributes, const Accessor &ac
 void Parser::extract_attribute(std::vector<mat4> &attributes, const Accessor &accessor)
 {
 	if (accessor.type != ScalarType::Float32)
-		throw logic_error("Attribute is not Float32.");
+		throw std::logic_error("Attribute is not Float32.");
 	if (accessor.components != 16)
-		throw logic_error("Attribute is not single component.");
+		throw std::logic_error("Attribute is not single component.");
 
 	auto &view = json_views[accessor.view];
 	auto &buffer = json_buffers[view.buffer_index];
@@ -597,24 +597,24 @@ void Parser::extract_attribute(std::vector<mat4> &attributes, const Accessor &ac
 	}
 }
 
-static void build_bone_hierarchy(Skin::Bone &bone, const vector<vector<uint32_t>> &hierarchy, uint32_t index)
+static void build_bone_hierarchy(Skin::Bone &bone, const std::vector<std::vector<uint32_t>> &hierarchy, uint32_t index)
 {
 	for (auto &child : hierarchy[index])
 	{
 		Skin::Bone child_bone;
 		child_bone.index = child;
 		build_bone_hierarchy(child_bone, hierarchy, child);
-		bone.children.push_back(move(child_bone));
+		bone.children.push_back(std::move(child_bone));
 	}
 }
 
-void Parser::parse(const string &original_path, const string &json)
+void Parser::parse(const std::string &original_path, const std::string &json)
 {
 	Document doc;
 	doc.Parse(json);
 
 	if (doc.HasParseError())
-		throw logic_error("Parser error found.");
+		throw std::logic_error("Parser error found.");
 
 	const auto add_buffer = [&](const Value &buf) {
 		const char *uri = nullptr;
@@ -649,7 +649,7 @@ void Parser::parse(const string &original_path, const string &json)
 		auto length = view["byteLength"].GetUint();
 
 		if (offset + length > json_buffers[buffer_index].size())
-			throw logic_error("Buffer view is out of range.");
+			throw std::logic_error("Buffer view is out of range.");
 
 		auto stride = view.HasMember("byteStride") ? view["byteStride"].GetUint() : 0u;
 		json_views.push_back({buffer_index, offset, length, stride});
@@ -772,7 +772,7 @@ void Parser::parse(const string &original_path, const string &json)
 		MeshData data;
 		for (auto itr = prims.Begin(); itr != prims.End(); ++itr)
 			data.primitives.push_back(parse_primitive(*itr));
-		json_meshes.push_back(move(data));
+		json_meshes.push_back(std::move(data));
 	};
 
 	const auto add_image = [&](const Value &image) {
@@ -780,15 +780,15 @@ void Parser::parse(const string &original_path, const string &json)
 		{
 			auto index = image["bufferView"].GetUint();
 			auto &view = json_views[index];
-			auto fake_path = string("memory://") + original_path + "_buffer_view_" + to_string(index);
+			auto fake_path = std::string("memory://") + original_path + "_buffer_view_" + std::to_string(index);
 
 			auto file = Global::filesystem()->open(fake_path, FileMode::WriteOnly);
 			if (!file)
-				throw runtime_error("Failed to open memory file.");
+				throw std::runtime_error("Failed to open memory file.");
 
 			void *mapped = file->map_write(view.length);
 			if (!mapped)
-				throw runtime_error("Failed to map memory file.");
+				throw std::runtime_error("Failed to map memory file.");
 
 			memcpy(mapped, json_buffers[view.buffer_index].data() + view.offset, view.length);
 			json_images.emplace_back(move(fake_path));
@@ -817,18 +817,18 @@ void Parser::parse(const string &original_path, const string &json)
 					data_length--;
 
 				auto base64_buffer = read_base64(uri + strlen(base64_type_jpg), data_length);
-				auto fake_path = string("memory://") + original_path + "_base64_" + to_string(json_images.size());
+				auto fake_path = std::string("memory://") + original_path + "_base64_" + std::to_string(json_images.size());
 
 				auto file = Global::filesystem()->open(fake_path, FileMode::WriteOnly);
 				if (!file)
-					throw runtime_error("Failed to open memory file.");
+					throw std::runtime_error("Failed to open memory file.");
 
 				void *mapped = file->map_write(data_length);
 				if (!mapped)
-					throw runtime_error("Failed to map memory file.");
+					throw std::runtime_error("Failed to map memory file.");
 
 				memcpy(mapped, base64_buffer.data(), base64_buffer.size());
-				json_images.emplace_back(move(fake_path));
+				json_images.emplace_back(std::move(fake_path));
 			}
 		}
 	};
@@ -864,11 +864,11 @@ void Parser::parse(const string &original_path, const string &json)
 			{ GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_NEAREST, GL_NEAREST_MIPMAP_NEAREST, Vulkan::StockSampler::NearestClamp },
 		};
 
-		auto itr = find_if(begin(entries), end(entries), [&](const Entry &e) {
+		auto itr = std::find_if(std::begin(entries), std::end(entries), [&](const Entry &e) {
 			return e.wrap_s == wrap_s && e.wrap_t == wrap_t && e.min_filter == min_filter && e.mag_filter == mag_filter;
 		});
 
-		if (itr != end(entries))
+		if (itr != std::end(entries))
 			sampler = itr->sampler;
 		else
 			LOGE("Could not find stock sampler, using TrilinearWrap.\n");
@@ -901,7 +901,7 @@ void Parser::parse(const string &original_path, const string &json)
 		info.pipeline = DrawPipeline::Opaque;
 		if (value.HasMember("alphaMode"))
 		{
-			string mode = value["alphaMode"].GetString();
+			std::string mode = value["alphaMode"].GetString();
 			if (mode == "OPAQUE")
 				info.pipeline = DrawPipeline::Opaque;
 			else if (mode == "MASK")
@@ -965,7 +965,7 @@ void Parser::parse(const string &original_path, const string &json)
 					{
 						auto &gloss = pbr_value["glossinessFactor"];
 						// Probably some remapping needed.
-						info.uniform_roughness = clamp(1.0f - gloss.GetFloat(), 0.0f, 1.0f);
+						info.uniform_roughness = muglm::clamp(1.0f - gloss.GetFloat(), 0.0f, 1.0f);
 					}
 
 					if (pbr_value.HasMember("specularFactor"))
@@ -1022,7 +1022,7 @@ void Parser::parse(const string &original_path, const string &json)
 				info.uniform_metallic = 0.0f;
 		}
 
-		materials.push_back(move(info));
+		materials.push_back(std::move(info));
 	};
 
 	const auto add_node = [&](const Value &value) {
@@ -1114,21 +1114,21 @@ void Parser::parse(const string &original_path, const string &json)
 			decompose(transform, node.transform.scale, node.transform.rotation, node.transform.translation);
 		}
 
-		nodes.push_back(move(node));
+		nodes.push_back(std::move(node));
 	};
 
 	const auto add_skin = [&](const Value &skin) {
 		Util::Hasher hasher;
 
 		auto &joints = skin["joints"];
-		vector<NodeTransform> joint_transforms;
-		vector<uint32_t> joint_indices;
+		std::vector<NodeTransform> joint_transforms;
+		std::vector<uint32_t> joint_indices;
 
-		vector<int> parents(joints.GetArray().Size());
+		std::vector<int> parents(joints.GetArray().Size());
 		for (auto &p : parents)
 			p = -1;
 
-		vector<vector<uint32_t>> hierarchy(joints.GetArray().Size());
+		std::vector<std::vector<uint32_t>> hierarchy(joints.GetArray().Size());
 		joint_transforms.reserve(joints.GetArray().Size());
 		joint_indices.reserve(joints.GetArray().Size());
 
@@ -1138,9 +1138,9 @@ void Parser::parse(const string &original_path, const string &json)
 			uint32_t joint_index = itr->GetUint();
 			joint_indices.push_back(joint_index);
 			if (json_node_index_to_joint_index.find(joint_index) != end(json_node_index_to_joint_index))
-				throw logic_error("A joint cannot be attached to multiple skins.");
+				throw std::logic_error("A joint cannot be attached to multiple skins.");
 			if (json_node_index_to_skin.find(joint_index) != end(json_node_index_to_skin))
-				throw logic_error("A joint cannot be attached to multiple skins.");
+				throw std::logic_error("A joint cannot be attached to multiple skins.");
 
 			json_node_index_to_skin[joint_index] = json_skins.size();
 			json_node_index_to_joint_index[joint_index] = joint_transforms.size();
@@ -1159,18 +1159,18 @@ void Parser::parse(const string &original_path, const string &json)
 			for (auto &child : node.children)
 			{
 				auto itr = json_node_index_to_joint_index.find(child);
-				if (itr == end(json_node_index_to_joint_index))
-					throw logic_error("Joint has a child which is not part of the skeleton.");
+				if (itr == std::end(json_node_index_to_joint_index))
+					throw std::logic_error("Joint has a child which is not part of the skeleton.");
 				uint32_t index = itr->second;
 
 				if (parents[index] != -1)
-					throw logic_error("Joint cannot have two parents.");
+					throw std::logic_error("Joint cannot have two parents.");
 				parents[index] = i;
 				hierarchy[i].push_back(index);
 			}
 		}
 
-		vector<Skin::Bone> skeleton;
+		std::vector<Skin::Bone> skeleton;
 		for (unsigned i = 0; i < parents.size(); i++)
 		{
 			if (parents[i] == -1)
@@ -1179,7 +1179,7 @@ void Parser::parse(const string &original_path, const string &json)
 				Skin::Bone bone;
 				bone.index = i;
 				build_bone_hierarchy(bone, hierarchy, i);
-				skeleton.push_back(move(bone));
+				skeleton.push_back(std::move(bone));
 			}
 		}
 
@@ -1238,7 +1238,7 @@ void Parser::parse(const string &original_path, const string &json)
 			}
 		}
 
-		json_cameras.push_back(move(info));
+		json_cameras.push_back(std::move(info));
 	};
 
 	const auto add_light = [&](const Value &light) {
@@ -1273,7 +1273,7 @@ void Parser::parse(const string &original_path, const string &json)
 		else if (strcmp(type, "ambient") == 0)
 			info.type = LightInfo::Type::Ambient;
 		else
-			throw logic_error("Invalid light type.");
+			throw std::logic_error("Invalid light type.");
 
 		info.range = 0.0f;
 		if (light.HasMember("range"))
@@ -1301,7 +1301,7 @@ void Parser::parse(const string &original_path, const string &json)
 			}
 		}
 
-		json_lights.push_back(move(info));
+		json_lights.push_back(std::move(info));
 	};
 
 	const auto add_environment = [&](const Value &value) {
@@ -1339,7 +1339,7 @@ void Parser::parse(const string &original_path, const string &json)
 		}
 
 		EnvironmentInfo::Fog fog = { fog_color, fog_falloff };
-		json_environments.push_back({ move(cube), move(reflection), move(irradiance), intensity, fog });
+		json_environments.push_back({ std::move(cube), std::move(reflection), std::move(irradiance), intensity, fog });
 	};
 
 	if (doc.HasMember("cameras"))
@@ -1390,9 +1390,9 @@ void Parser::parse(const string &original_path, const string &json)
 		auto &samplers = animation["samplers"];
 		auto &channels = animation["channels"];
 
-		vector<Accessor *> json_time;
-		vector<Accessor *> json_samplers;
-		vector<const char *> json_interpolation;
+		std::vector<Accessor *> json_time;
+		std::vector<Accessor *> json_samplers;
+		std::vector<const char *> json_interpolation;
 
 		const auto add_sampler = [&](const Value &v) {
 			auto &input = v["input"];
@@ -1420,11 +1420,11 @@ void Parser::parse(const string &original_path, const string &json)
 			{
 				auto joint_index_itr = json_node_index_to_joint_index.find(channel.node_index);
 				if (joint_index_itr == end(json_node_index_to_joint_index))
-					throw logic_error("Joint is not attached to a skeleton.");
+					throw std::logic_error("Joint is not attached to a skeleton.");
 
 				auto skin_itr = json_node_index_to_skin.find(channel.node_index);
 				if (skin_itr == end(json_node_index_to_skin))
-					throw logic_error("Joint name does not exist in a skin.");
+					throw std::logic_error("Joint name does not exist in a skin.");
 
 				channel.joint_index = joint_index_itr->second;
 				channel.joint = true;
@@ -1436,7 +1436,7 @@ void Parser::parse(const string &original_path, const string &json)
 					combined_animation.skin_compat = skin_compat[skin_index]; // Any node which receives this animation must have the same skin.
 				}
 				else if (combined_animation.skin_compat != skin_compat[skin_index])
-					throw logic_error("Cannot have two different skin indices in a single animation.");
+					throw std::logic_error("Cannot have two different skin indices in a single animation.");
 			}
 
 			extract_attribute(channel.timestamps, *json_time[(*itr)["sampler"].GetUint()]);
@@ -1462,7 +1462,7 @@ void Parser::parse(const string &original_path, const string &json)
 					extract_attribute(channel.linear.values, *sampler);
 				}
 				else
-					throw logic_error("Invalid target for animation.");
+					throw std::logic_error("Invalid target for animation.");
 			}
 			else if (strcmp(interpolation, "CUBICSPLINE") == 0)
 			{
@@ -1477,16 +1477,16 @@ void Parser::parse(const string &original_path, const string &json)
 					extract_attribute(channel.cubic.values, *sampler);
 				}
 				else
-					throw logic_error("Invalid target for animation.");
+					throw std::logic_error("Invalid target for animation.");
 			}
 			else
-				throw logic_error("Unsupported interpolation type.");
+				throw std::logic_error("Unsupported interpolation type.");
 
-			combined_animation.channels.push_back(move(channel));
+			combined_animation.channels.push_back(std::move(channel));
 		}
 		combined_animation.update_length();
-		combined_animation.name = move(json_animation_names[animations.size()]);
-		animations.push_back(move(combined_animation));
+		combined_animation.name = std::move(json_animation_names[animations.size()]);
+		animations.push_back(std::move(combined_animation));
 	};
 
 	if (doc.HasMember("animations"))
@@ -1495,17 +1495,17 @@ void Parser::parse(const string &original_path, const string &json)
 		unsigned counter = 0;
 		for (auto itr = animation_list.Begin(); itr != animation_list.End(); ++itr)
 		{
-			string name;
+			std::string name;
 
 			if (itr->HasMember("name"))
 				name = (*itr)["name"].GetString();
 			else
 			{
 				name = "animation_";
-				name += to_string(counter);
+				name += std::to_string(counter);
 			}
 
-			json_animation_names.push_back(move(name));
+			json_animation_names.push_back(std::move(name));
 			counter++;
 		}
 		iterate_elements(animation_list, add_animation);
@@ -1529,7 +1529,7 @@ void Parser::parse(const string &original_path, const string &json)
 					sc.node_indices.push_back(node_itr->GetUint());
 			}
 
-			json_scenes.push_back(move(sc));
+			json_scenes.push_back(std::move(sc));
 		}
 	}
 
@@ -1578,7 +1578,7 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 	for (uint32_t i = 0; i < ecast(MeshAttribute::Count); i++)
 	{
 		if (i == ecast(MeshAttribute::Position) && !prim.attributes[i].active)
-			throw logic_error("Mesh must have POSITION semantic.");
+			throw std::logic_error("Mesh must have POSITION semantic.");
 		else if (i == ecast(MeshAttribute::Normal) &&
 		         !prim.attributes[i].active)
 		{
@@ -1608,7 +1608,7 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 
 		auto &attr = json_accessors[prim.attributes[i].accessor_index];
 		if (attr.count != vertex_count)
-			throw logic_error("Vertex count mismatch.");
+			throw std::logic_error("Vertex count mismatch.");
 
 		if (i == ecast(MeshAttribute::BoneIndex))
 			mesh.attribute_layout[i].format = VK_FORMAT_R8G8B8A8_UINT;
@@ -1684,7 +1684,7 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 						indices[c] = data[c];
 				}
 				else
-					throw logic_error("Invalid format for bone indices.");
+					throw std::logic_error("Invalid format for bone indices.");
 
 				memcpy(&output[mesh.attribute_layout[i].offset + output_stride * v], indices, sizeof(indices));
 			}
@@ -1726,7 +1726,7 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 						weights[c] = uint16_t(reinterpret_cast<const uint8_t *>(data)[c] * rescale);
 				}
 				else
-					throw logic_error("Invalid format for bone weights.");
+					throw std::logic_error("Invalid format for bone weights.");
 
 				memcpy(&output[mesh.attribute_layout[i].offset + output_stride * v], weights, sizeof(weights));
 			}
@@ -1805,7 +1805,7 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 	if (rebuild_tangents)
 		mesh_recompute_tangents(mesh);
 
-	meshes.push_back(move(mesh));
+	meshes.push_back(std::move(mesh));
 }
 
 void Parser::build_meshes()

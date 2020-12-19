@@ -21,7 +21,8 @@
  */
 
 #include "aabb.hpp"
-#include <float.h>
+
+#include <cfloat>
 
 namespace Granite
 {

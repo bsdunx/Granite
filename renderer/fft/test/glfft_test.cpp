@@ -20,19 +20,19 @@
 #include "glfft.hpp"
 #include "glfft_cli.hpp"
 #include "glfft_common.hpp"
+
+#include <cstdlib>
 #include <cmath>
 #include <complex>
 #include <functional>
 #include <random>
 #include <stdexcept>
-#include <stdlib.h>
 
-using namespace std;
 using namespace GLFFT;
 using namespace GLFFT::Internal;
 
-static normal_distribution<float> normal_dist{ 0.0f, 1.0f };
-static default_random_engine engine;
+static std::normal_distribution<float> normal_dist{ 0.0f, 1.0f };
+static std::default_random_engine engine;
 
 struct mufft_deleter
 {
@@ -41,19 +41,19 @@ struct mufft_deleter
 		mufft_free(ptr);
 	}
 };
-using mufft_buffer = unique_ptr<void, mufft_deleter>;
+using mufft_buffer = std::unique_ptr<void, mufft_deleter>;
 
 mufft_buffer alloc(size_t size)
 {
 	void *ptr = mufft_alloc(size);
 	if (ptr == nullptr)
 	{
-		throw bad_alloc();
+		throw std::bad_alloc();
 	}
 	return mufft_buffer(ptr);
 }
 
-using cfloat = complex<float>;
+using cfloat = std::complex<float>;
 
 mufft_buffer create_input(unsigned N)
 {
@@ -175,12 +175,12 @@ static mufft_buffer create_reference(Type type, Direction direction, unsigned Nx
 			break;
 
 		default:
-			throw logic_error("Invalid type");
+			throw std::logic_error("Invalid type");
 		}
 
 		if (plan == nullptr)
 		{
-			throw bad_alloc();
+			throw std::bad_alloc();
 		}
 
 		mufft_free_plan_2d(plan);
@@ -212,12 +212,12 @@ static mufft_buffer create_reference(Type type, Direction direction, unsigned Nx
 			break;
 
 		default:
-			throw logic_error("Invalid type");
+			throw std::logic_error("Invalid type");
 		}
 
 		if (plan == nullptr)
 		{
-			throw bad_alloc();
+			throw std::bad_alloc();
 		}
 
 		mufft_free_plan_1d(plan);
@@ -250,7 +250,7 @@ static mufft_buffer readback(Context *context, Buffer *buffer, size_t size)
 	const void *ptr = context->map(buffer, 0, size);
 	if (ptr == nullptr)
 	{
-		throw bad_alloc();
+		throw std::bad_alloc();
 	}
 
 	memcpy(buf.get(), ptr, size);
@@ -276,14 +276,14 @@ static bool validate_surface(Context *context, const float *a, const float *b, u
 				valid = false;
 			}
 
-			max_diff = max(diff, max_diff);
+			max_diff = std::max(diff, max_diff);
 
 			signal += b[x] * b[x];
 			noise += diff * diff;
 		}
 	}
 
-	double snr = 10.0 * log10(signal / noise);
+	double snr = 10.0 * std::log10(signal / noise);
 	if (snr < min_snr)
 	{
 		context->log("Too low SNR: %8.3f dB\n", snr);
@@ -333,12 +333,12 @@ static void validate(Context *context, Type type, const float *a, const float *b
 		break;
 
 	default:
-		throw logic_error("Invalid type");
+		throw std::logic_error("Invalid type");
 	}
 
 	if (!validate_surface(context, a, b, x, y, stride, epsilon, min_snr))
 	{
-		throw logic_error("Failed to validate surface.");
+		throw std::logic_error("Failed to validate surface.");
 	}
 }
 
@@ -458,11 +458,11 @@ static inline float fp16_to_fp32(uint16_t v)
 	}
 	else if (e == 31)
 	{
-		return sign * numeric_limits<float>::infinity();
+		return sign * std::numeric_limits<float>::infinity();
 	}
 	else
 	{
-		return numeric_limits<float>::quiet_NaN();
+		return std::numeric_limits<float>::quiet_NaN();
 	}
 }
 
@@ -492,7 +492,7 @@ static mufft_buffer convert_fp16_fp32(const uint16_t *input, unsigned N)
 }
 
 static void run_test_ssbo(Context *context, const TestSuiteArguments &args, unsigned Nx, unsigned Ny, Type type,
-                          Direction direction, const FFTOptions &options, const shared_ptr<ProgramCache> &cache)
+                          Direction direction, const FFTOptions &options, const std::shared_ptr<ProgramCache> &cache)
 {
 	context->log("Running SSBO -> SSBO FFT, %04u x %04u\n\t%7s transform\n\t%8s\n\tbanked shared %s\n\tvector size "
 	             "%u\n\twork group (%u, %u)\n\tinput fp16 %s\n\toutput fp16 %s ...\n",
@@ -501,8 +501,8 @@ static void run_test_ssbo(Context *context, const TestSuiteArguments &args, unsi
 	             options.performance.workgroup_size_x, options.performance.workgroup_size_y,
 	             options.type.input_fp16 ? "yes" : "no", options.type.output_fp16 ? "yes" : "no");
 
-	unique_ptr<Buffer> test_input;
-	unique_ptr<Buffer> test_output;
+	std::unique_ptr<Buffer> test_input;
+	std::unique_ptr<Buffer> test_output;
 
 	size_t input_size = Nx * Ny * type_to_input_size(type);
 	size_t output_size = Nx * Ny * type_to_output_size(type);
@@ -545,7 +545,7 @@ static void run_test_ssbo(Context *context, const TestSuiteArguments &args, unsi
 }
 
 static void run_test_texture(Context *context, const TestSuiteArguments &args, unsigned Nx, unsigned Ny, Type type,
-                             Direction direction, const FFTOptions &options, const shared_ptr<ProgramCache> &cache)
+                             Direction direction, const FFTOptions &options, const std::shared_ptr<ProgramCache> &cache)
 {
 	context->log("Running Texture -> SSBO FFT, %04u x %04u\n\t%7s transform\n\t%8s\n\tbanked shared %s\n\tvector size "
 	             "%u\n\twork group (%u, %u)\n\tinput fp16 %s\n\toutput fp16 %s ...\n",
@@ -554,8 +554,8 @@ static void run_test_texture(Context *context, const TestSuiteArguments &args, u
 	             options.performance.workgroup_size_x, options.performance.workgroup_size_y,
 	             options.type.input_fp16 ? "yes" : "no", options.type.output_fp16 ? "yes" : "no");
 
-	unique_ptr<Texture> test_input;
-	unique_ptr<Buffer> test_output;
+	std::unique_ptr<Texture> test_input;
+	std::unique_ptr<Buffer> test_output;
 
 	size_t input_size = Nx * Ny * type_to_input_size(type);
 	size_t output_size = Nx * Ny * type_to_output_size(type);
@@ -622,7 +622,7 @@ static mufft_buffer readback_texture(Context *context, Texture *tex, unsigned co
 }
 
 static void run_test_image(Context *context, const TestSuiteArguments &args, unsigned Nx, unsigned Ny, Type type,
-                           Direction direction, const FFTOptions &options, const shared_ptr<ProgramCache> &cache)
+                           Direction direction, const FFTOptions &options, const std::shared_ptr<ProgramCache> &cache)
 {
 	context->log("Running SSBO -> Image FFT, %04u x %04u\n\t%7s transform\n\t%8s\n\tbanked shared %s\n\tvector size "
 	             "%u\n\twork group (%u, %u)\n\tinput fp16 %s\n\toutput fp16 %s ...\n",
@@ -631,7 +631,7 @@ static void run_test_image(Context *context, const TestSuiteArguments &args, uns
 	             options.performance.workgroup_size_x, options.performance.workgroup_size_y,
 	             options.type.input_fp16 ? "yes" : "no", options.type.output_fp16 ? "yes" : "no");
 
-	unique_ptr<Buffer> test_input;
+	std::unique_ptr<Buffer> test_input;
 
 	size_t input_size = Nx * Ny * type_to_input_size(type);
 	size_t output_size = Nx * Ny * type_to_output_size(type);
@@ -668,8 +668,8 @@ static void run_test_image(Context *context, const TestSuiteArguments &args, uns
 	}
 
 	// Upload a blank buffer to make debugging easier.
-	vector<float> blank(Nx * Ny * components * sizeof(float));
-	unique_ptr<Texture> tex = context->create_texture(blank.data(), Nx, Ny, format);
+	std::vector<float> blank(Nx * Ny * components * sizeof(float));
+	std::unique_ptr<Texture> tex = context->create_texture(blank.data(), Nx, Ny, format);
 
 	FFT fft(context, Nx, Ny, type, direction, SSBO, type != ComplexToReal ? Image : ImageReal, cache, options);
 
@@ -694,9 +694,9 @@ static void run_test_image(Context *context, const TestSuiteArguments &args, uns
 	context->log("... Success!\n");
 }
 
-static void enqueue_test(Context *context, vector<function<void()>> &tests, const TestSuiteArguments &args, unsigned Nx,
+static void enqueue_test(Context *context, std::vector<std::function<void()>> &tests, const TestSuiteArguments &args, unsigned Nx,
                          unsigned Ny, Type type, Direction direction, Target input_target, Target output_target,
-                         const FFTOptions &options, const shared_ptr<ProgramCache> &cache)
+                         const FFTOptions &options, const std::shared_ptr<ProgramCache> &cache)
 {
 	if (input_target == SSBO && output_target == SSBO)
 	{
@@ -710,7 +710,7 @@ static void enqueue_test(Context *context, vector<function<void()>> &tests, cons
 		}
 		else
 		{
-			throw logic_error("run_test_image() not supported on interface.");
+			throw std::logic_error("run_test_image() not supported on interface.");
 		}
 	}
 	else if (input_target == Image && output_target == SSBO)
@@ -719,7 +719,7 @@ static void enqueue_test(Context *context, vector<function<void()>> &tests, cons
 	}
 	else
 	{
-		throw logic_error("Invalid target type.");
+		throw std::logic_error("Invalid target type.");
 	}
 }
 
@@ -736,7 +736,7 @@ static void test_fp32_fp16_convert()
 		float diff = fabs(fp16 - fp32);
 		if (diff > 0.001f)
 		{
-			throw logic_error("Failed to validate FP32 -> FP16 -> FP32 roundtrip conversion.");
+			throw std::logic_error("Failed to validate FP32 -> FP16 -> FP32 roundtrip conversion.");
 		}
 	}
 }
@@ -749,8 +749,8 @@ void GLFFT::Internal::run_test_suite(Context *context, const TestSuiteArguments 
 	FFTOptions options;
 	options.type.normalize = true;
 
-	vector<function<void()>> tests;
-	auto cache = make_shared<ProgramCache>();
+	std::vector<std::function<void()>> tests;
+	auto cache = std::make_shared<ProgramCache>();
 
 	// Very exhaustive. Lots of overlap in tests which could be avoided to speed up the tests.
 	for (unsigned i = 0; i < 64; i++)
@@ -898,7 +898,7 @@ void GLFFT::Internal::run_test_suite(Context *context, const TestSuiteArguments 
 	context->log("Enqueued %u tests!\n", unsigned(tests.size()));
 
 	unsigned successful_tests = 0;
-	vector<unsigned> failed_tests;
+	std::vector<unsigned> failed_tests;
 
 	if (!args.exhaustive)
 	{

@@ -35,32 +35,29 @@
 #endif
 #endif
 
-using namespace std;
+namespace Granite::Path
+{
 
-namespace Granite
-{
-namespace Path
-{
-string enforce_protocol(const string &path)
+std::string enforce_protocol(const std::string &path)
 {
 	if (path.empty())
 		return "";
 
 	auto index = path.find("://");
-	if (index == string::npos)
-		return string("file://") + path;
+	if (index == std::string::npos)
+		return std::string("file://") + path;
 	else
 		return path;
 }
 
-string canonicalize_path(const string &path)
+std::string canonicalize_path(const std::string &path)
 {
-	string transformed;
+	std::string transformed;
 	transformed.resize(path.size());
 	transform(begin(path), end(path), begin(transformed), [](char c) -> char { return c == '\\' ? '/' : c; });
 	auto data = Util::split_no_empty(transformed, "/");
 
-	vector<string> result;
+	std::vector<std::string> result;
 	for (auto &i : data)
 	{
 		if (i == "..")
@@ -72,7 +69,7 @@ string canonicalize_path(const string &path)
 			result.push_back(move(i));
 	}
 
-	string res;
+	std::string res;
 	for (auto &i : result)
 	{
 		if (&i != result.data())
@@ -82,7 +79,7 @@ string canonicalize_path(const string &path)
 	return res;
 }
 
-static size_t find_last_slash(const string &str)
+static size_t find_last_slash(const std::string &str)
 {
 #ifdef _WIN32
 	auto index = str.find_last_of("/\\");
@@ -92,7 +89,7 @@ static size_t find_last_slash(const string &str)
 	return index;
 }
 
-bool is_abspath(const string &path)
+bool is_abspath(const std::string &path)
 {
 	if (path.empty())
 		return false;
@@ -102,15 +99,15 @@ bool is_abspath(const string &path)
 #ifdef _WIN32
 	{
 		auto index = std::min(path.find(":/"), path.find(":\\"));
-		if (index != string::npos)
+		if (index != std::string::npos)
 			return true;
 	}
 #endif
 
-	return path.find("://") != string::npos;
+	return path.find("://") != std::string::npos;
 }
 
-bool is_root_path(const string &path)
+bool is_root_path(const std::string &path)
 {
 	if (path.empty())
 		return false;
@@ -121,16 +118,16 @@ bool is_root_path(const string &path)
 #ifdef _WIN32
 	{
 		auto index = std::min(path.find(":/"), path.find(":\\"));
-		if (index != string::npos && (index + 2) == path.size())
+		if (index != std::string::npos && (index + 2) == path.size())
 			return true;
 	}
 #endif
 
 	auto index = path.find("://");
-	return index != string::npos && (index + 3) == path.size();
+	return index != std::string::npos && (index + 3) == path.size();
 }
 
-string join(const string &base, const string &path)
+std::string join(const std::string &base, const std::string &path)
 {
 	if (base.empty())
 		return path;
@@ -145,7 +142,7 @@ string join(const string &base, const string &path)
 	return Util::join(base, need_slash ? "/" : "", path);
 }
 
-string basedir(const string &path)
+std::string basedir(const std::string &path)
 {
 	if (path.empty())
 		return "";
@@ -154,7 +151,7 @@ string basedir(const string &path)
 		return path;
 
 	auto index = find_last_slash(path);
-	if (index == string::npos)
+	if (index == std::string::npos)
 		return ".";
 
 	// Preserve the first slash.
@@ -167,59 +164,59 @@ string basedir(const string &path)
 	return ret;
 }
 
-string basename(const string &path)
+std::string basename(const std::string &path)
 {
 	if (path.empty())
 		return "";
 
 	auto index = find_last_slash(path);
-	if (index == string::npos)
+	if (index == std::string::npos)
 		return path;
 
-	auto base = path.substr(index + 1, string::npos);
+	auto base = path.substr(index + 1, std::string::npos);
 	return base;
 }
 
-string relpath(const string &base, const string &path)
+std::string relpath(const std::string &base, const std::string &path)
 {
 	return Path::join(basedir(base), path);
 }
 
-string ext(const string &path)
+std::string ext(const std::string &path)
 {
 	auto index = path.find_last_of('.');
-	if (index == string::npos)
+	if (index == std::string::npos)
 		return "";
 	else
-		return path.substr(index + 1, string::npos);
+		return path.substr(index + 1, std::string::npos);
 }
 
-pair<string, string> split(const string &path)
+std::pair<std::string, std::string> split(const std::string &path)
 {
 	if (path.empty())
-		return make_pair(string("."), string("."));
+		return std::make_pair(std::string("."), std::string("."));
 
 	auto index = find_last_slash(path);
-	if (index == string::npos)
-		return make_pair(string("."), path);
+	if (index == std::string::npos)
+		return std::make_pair(std::string("."), path);
 
-	auto base = path.substr(index + 1, string::npos);
-	return make_pair(path.substr(0, index), base);
+	auto base = path.substr(index + 1, std::string::npos);
+	return std::make_pair(path.substr(0, index), base);
 }
 
-pair<string, string> protocol_split(const string &path)
+std::pair<std::string, std::string> protocol_split(const std::string &path)
 {
 	if (path.empty())
-		return make_pair(string(""), string(""));
+		return std::make_pair(std::string(""), std::string(""));
 
 	auto index = path.find("://");
-	if (index == string::npos)
-		return make_pair(string(""), path);
+	if (index == std::string::npos)
+		return std::make_pair(std::string(""), path);
 
-	return make_pair(path.substr(0, index), path.substr(index + 3, string::npos));
+	return std::make_pair(path.substr(0, index), path.substr(index + 3, std::string::npos));
 }
 
-string get_executable_path()
+std::string get_executable_path()
 {
 #ifdef _WIN32
 	wchar_t target[4096];
@@ -239,7 +236,7 @@ string get_executable_path()
 		if (ret >= 0)
 			target[ret] = '\0';
 
-		return string(target);
+		return std::string(target);
 	}
 
 	return "";
@@ -247,9 +244,9 @@ string get_executable_path()
 }
 
 #ifdef _WIN32
-string to_utf8(const wchar_t *wstr, size_t len)
+std::string to_utf8(const wchar_t *wstr, size_t len)
 {
-	vector<char> char_buffer;
+	std::vector<char> char_buffer;
 	auto ret = WideCharToMultiByte(CP_UTF8, 0, wstr, len, nullptr, 0, nullptr, nullptr);
 	if (ret < 0)
 		return "";
@@ -258,9 +255,9 @@ string to_utf8(const wchar_t *wstr, size_t len)
 	return string(char_buffer.data(), char_buffer.size());
 }
 
-wstring to_utf16(const char *str, size_t len)
+std::wstring to_utf16(const char *str, size_t len)
 {
-	vector<wchar_t> wchar_buffer;
+	std::vector<wchar_t> wchar_buffer;
 	auto ret = MultiByteToWideChar(CP_UTF8, 0, str, len, nullptr, 0);
 	if (ret < 0)
 		return L"";
@@ -269,15 +266,15 @@ wstring to_utf16(const char *str, size_t len)
 	return wstring(wchar_buffer.data(), wchar_buffer.size());
 }
 
-string to_utf8(const wstring &wstr)
+std::string to_utf8(const std::wstring &wstr)
 {
 	return to_utf8(wstr.data(), wstr.size());
 }
 
-wstring to_utf16(const string &str)
+std::wstring to_utf16(const std::string &str)
 {
 	return to_utf16(str.data(), str.size());
 }
 #endif
-}
+
 }

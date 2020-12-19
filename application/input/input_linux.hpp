@@ -22,12 +22,14 @@
 
 #pragma once
 
+#include "input.hpp"
+
 #include <libudev.h>
 #include <linux/input.h>
+
 #include <functional>
 #include <vector>
 #include <memory>
-#include "input.hpp"
 
 namespace Granite
 {

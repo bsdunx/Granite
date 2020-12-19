@@ -25,7 +25,7 @@
 #include "audio_mixer.hpp"
 #include "event.hpp"
 #include "message_queue.hpp"
-#include <string.h>
+#include <cstring>
 
 namespace Granite
 {

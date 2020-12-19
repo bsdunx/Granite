@@ -20,8 +20,6 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// Rewrote the RetroArch Sinc resampler for my purpose here.
-
 /* Copyright  (C) 2010-2019 The RetroArch team
  *
  * ---------------------------------------------------------------------------------------
@@ -44,67 +42,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* Copyright  (C) 2010-2019 The RetroArch team
- *
- * ---------------------------------------------------------------------------------------
- * The following license statement only applies to this file (filters.h).
- * ---------------------------------------------------------------------------------------
- *
- * Permission is hereby granted, free of charge,
- * to any person obtaining a copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-
-/* Copyright  (C) 2010-2019 The RetroArch team
- *
- * ---------------------------------------------------------------------------------------
- * The following license statement only applies to this file (memalign.c).
- * ---------------------------------------------------------------------------------------
- *
- * Permission is hereby granted, free of charge,
- * to any person obtaining a copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software,
- * and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
- * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
- * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
+// Rewrote the RetroArch Sinc resampler for my purpose here. - Hans-Kristian Arntzen
 
 #include "simd_headers.hpp"
 #include "sinc_resampler.hpp"
 #include "aligned_alloc.hpp"
 #include "dsp.hpp"
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
+
+#include <cmath>
+#include <cstdlib>
+#include <cstring>
 
 #ifndef PI
 #define PI 3.14159265359
 #endif
 
-namespace Granite
-{
-namespace Audio
-{
-namespace DSP
+namespace Granite::Audio::DSP
 {
 
 void SincResampler::init_table_kaiser(double cutoff, unsigned phase_count, unsigned num_taps, double beta)
@@ -323,6 +276,4 @@ size_t SincResampler::process_and_accumulate(float *output, const float *input, 
 	return consumed_frames;
 }
 
-}
-}
 }

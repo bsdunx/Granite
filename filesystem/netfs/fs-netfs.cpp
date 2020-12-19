@@ -23,18 +23,19 @@
 #include "fs-netfs.hpp"
 #include "../path.hpp"
 #include "logging.hpp"
+
+#include <cassert>
 #include <queue>
-#include <assert.h>
 
 #define HOST_IP "localhost"
-using namespace std;
 
 namespace Granite
 {
+
 struct FSNotifyCommand : LooperHandler
 {
-	FSNotifyCommand(const string &protocol, unique_ptr<Socket> socket_)
-		: LooperHandler(move(socket_)), expected(false)
+	FSNotifyCommand(const std::string &protocol, std::unique_ptr<Socket> socket_)
+		: LooperHandler(std::move(socket_)), expected(false)
 	{
 		reply_queue.emplace();
 		auto &reply = reply_queue.back();
@@ -57,15 +58,15 @@ struct FSNotifyCommand : LooperHandler
 	~FSNotifyCommand()
 	{
 		if (!expected)
-			terminate();
+			std::terminate();
 	}
 
-	void set_notify_cb(function<void (const FileNotifyInfo &)> func)
+	void set_notify_cb(std::function<void (const FileNotifyInfo &)> func)
 	{
 		notify_cb = move(func);
 	}
 
-	void push_register_notification(const string &path, promise<FileNotifyHandle> result)
+	void push_register_notification(const std::string &path, std::promise<FileNotifyHandle> result)
 	{
 		if (reply_queue.empty() && socket->get_parent_looper())
 			socket->get_parent_looper()->modify_handler(EVENT_IN | EVENT_OUT, *this);
@@ -79,7 +80,7 @@ struct FSNotifyCommand : LooperHandler
 		replies.push(move(result));
 	}
 
-	void push_unregister_notification(FileNotifyHandle handler, promise<FileNotifyHandle> result)
+	void push_unregister_notification(FileNotifyHandle handler, std::promise<FileNotifyHandle> result)
 	{
 		if (reply_queue.empty() && socket->get_parent_looper())
 			socket->get_parent_looper()->modify_handler(EVENT_IN | EVENT_OUT, *this);
@@ -260,18 +261,18 @@ struct FSNotifyCommand : LooperHandler
 		SocketWriter writer;
 		ReplyBuilder builder;
 	};
-	queue<NotificationReply> reply_queue;
-	queue<promise<FileNotifyHandle>> replies;
-	function<void (const FileNotifyInfo &info)> notify_cb;
-	atomic_bool expected;
+	std::queue<NotificationReply> reply_queue;
+	std::queue<std::promise<FileNotifyHandle>> replies;
+	std::function<void (const FileNotifyInfo &info)> notify_cb;
+	std::atomic_bool expected;
 };
 
 struct FSReadCommand : LooperHandler
 {
 	virtual ~FSReadCommand() = default;
 
-	FSReadCommand(const string &path, NetFSCommand command, unique_ptr<Socket> socket_)
-		: LooperHandler(move(socket_))
+	FSReadCommand(const std::string &path, NetFSCommand command, std::unique_ptr<Socket> socket_)
+		: LooperHandler(std::move(socket_))
 	{
 		reply_builder.begin();
 		reply_builder.add_u32(command);
@@ -360,7 +361,7 @@ struct FSReadCommand : LooperHandler
 
 struct FSReader : FSReadCommand
 {
-	FSReader(const string &path, unique_ptr<Socket> socket_)
+	FSReader(const std::string &path, std::unique_ptr<Socket> socket_)
 		: FSReadCommand(path, NETFS_READ_FILE, move(socket_))
 	{
 	}
@@ -368,7 +369,7 @@ struct FSReader : FSReadCommand
 	~FSReader()
 	{
 		if (!got_reply)
-			result.set_exception(make_exception_ptr(runtime_error("file read")));
+			result.set_exception(make_exception_ptr(std::runtime_error("file read")));
 	}
 
 	void parse_reply() override
@@ -383,27 +384,27 @@ struct FSReader : FSReadCommand
 		}
 	}
 
-	promise<vector<uint8_t>> result;
+	std::promise<std::vector<uint8_t>> result;
 	bool got_reply = false;
 };
 
 struct FSList : FSReadCommand
 {
-	FSList(const string &path, unique_ptr<Socket> socket_)
-		: FSReadCommand(path, NETFS_LIST, move(socket_))
+	FSList(const std::string &path, std::unique_ptr<Socket> socket_)
+		: FSReadCommand(path, NETFS_LIST, std::move(socket_))
 	{
 	}
 
 	~FSList()
 	{
 		if (!got_reply)
-			result.set_exception(make_exception_ptr(runtime_error("List failed")));
+			result.set_exception(make_exception_ptr(std::runtime_error("List failed")));
 	}
 
 	void parse_reply() override
 	{
 		uint32_t entries = reply_builder.read_u32();
-		vector<ListEntry> list;
+		std::vector<ListEntry> list;
 		for (uint32_t i = 0; i < entries; i++)
 		{
 			auto path = reply_builder.read_string();
@@ -426,20 +427,20 @@ struct FSList : FSReadCommand
 		got_reply = true;
 		try
 		{
-			result.set_value(move(list));
+			result.set_value(std::move(list));
 		}
 		catch (...)
 		{
 		}
 	}
 
-	promise<vector<ListEntry>> result;
+	std::promise<std::vector<ListEntry>> result;
 	bool got_reply = false;
 };
 
 struct FSStat : FSReadCommand
 {
-	FSStat(const string &path, unique_ptr<Socket> socket_)
+	FSStat(const std::string &path, std::unique_ptr<Socket> socket_)
 		: FSReadCommand(path, NETFS_STAT, move(socket_))
 	{
 	}
@@ -448,7 +449,7 @@ struct FSStat : FSReadCommand
 	{
 		// Throw exception instead in calling thread.
 		if (!got_reply)
-			result.set_exception(make_exception_ptr(runtime_error("Failed stat")));
+			result.set_exception(make_exception_ptr(std::runtime_error("Failed stat")));
 	}
 
 	void parse_reply() override
@@ -489,8 +490,8 @@ struct FSStat : FSReadCommand
 
 struct FSWriteCommand : LooperHandler
 {
-	FSWriteCommand(const string &path, const vector<uint8_t> &buffer, unique_ptr<Socket> socket_)
-		: LooperHandler(move(socket_))
+	FSWriteCommand(const std::string &path, const std::vector<uint8_t> &buffer, std::unique_ptr<Socket> socket_)
+		: LooperHandler(std::move(socket_))
 	{
 		target_size = buffer.size();
 
@@ -538,7 +539,7 @@ struct FSWriteCommand : LooperHandler
 	~FSWriteCommand()
 	{
 		if (!got_reply)
-			result.set_exception(make_exception_ptr(runtime_error("Failed write")));
+			result.set_exception(make_exception_ptr(std::runtime_error("Failed write")));
 	}
 
 	bool read_reply(Looper &)
@@ -590,13 +591,13 @@ struct FSWriteCommand : LooperHandler
 	ReplyBuilder result_reply;
 	size_t target_size = 0;
 
-	promise<NetFSError> result;
+	std::promise<NetFSError> result;
 	bool got_reply = false;
 };
 
 NetworkFilesystem::NetworkFilesystem()
 {
-	looper_thread = thread(&NetworkFilesystem::looper_entry, this);
+	looper_thread = std::thread(&NetworkFilesystem::looper_entry, this);
 }
 
 void NetworkFilesystem::looper_entry()
@@ -609,6 +610,7 @@ void NetworkFilesystem::setup_notification()
 	auto socket = Socket::connect(HOST_IP, 7070);
 	if (!socket)
 		return;
+
 	notify = new FSNotifyCommand(protocol, move(socket));
 	notify->set_notify_cb([this](const FileNotifyInfo &info) {
 		signal_notification(info);
@@ -616,7 +618,7 @@ void NetworkFilesystem::setup_notification()
 
 	// Move capture would be nice ...
 	looper.run_in_looper([this]() {
-		looper.register_handler(EVENT_OUT, unique_ptr<FSNotifyCommand>(notify));
+		looper.register_handler(EVENT_OUT, std::unique_ptr<FSNotifyCommand>(notify));
 	});
 }
 
@@ -632,7 +634,7 @@ void NetworkFilesystem::uninstall_notification(FileNotifyHandle handle)
 		return;
 	handlers.erase(itr);
 
-	auto *value = new promise<FileNotifyHandle>;
+	auto *value = new std::promise<FileNotifyHandle>;
 	auto result = value->get_future();
 	looper.run_in_looper([this, value, handle]() {
 		notify->push_unregister_notification(handle, move(*value));
@@ -650,16 +652,16 @@ void NetworkFilesystem::uninstall_notification(FileNotifyHandle handle)
 
 void NetworkFilesystem::signal_notification(const FileNotifyInfo &info)
 {
-	lock_guard<mutex> holder{lock};
+	std::lock_guard<std::mutex> holder{lock};
 	pending.push_back(info);
 }
 
 void NetworkFilesystem::poll_notifications()
 {
-	vector<FileNotifyInfo> tmp_pending;
+	std::vector<FileNotifyInfo> tmp_pending;
 	{
-		lock_guard<mutex> holder{lock};
-		swap(tmp_pending, pending);
+		std::lock_guard<std::mutex> holder{lock};
+		std::swap(tmp_pending, pending);
 	}
 
 	for (auto &notification : tmp_pending)
@@ -678,11 +680,11 @@ FileNotifyHandle NetworkFilesystem::install_notification(const std::string &path
 	if (!notify)
 		return -1;
 
-	auto *value = new promise<FileNotifyHandle>;
+	auto *value = new std::promise<FileNotifyHandle>;
 	auto result = value->get_future();
 
 	looper.run_in_looper([this, value, path]() {
-		notify->push_register_notification(path, move(*value));
+		notify->push_register_notification(path, std::move(*value));
 		delete value;
 	});
 
@@ -698,18 +700,18 @@ FileNotifyHandle NetworkFilesystem::install_notification(const std::string &path
 	}
 }
 
-vector<ListEntry> NetworkFilesystem::list(const std::string &path)
+std::vector<ListEntry> NetworkFilesystem::list(const std::string &path)
 {
 	auto joined = protocol + "://" + path;
 	auto socket = Socket::connect(HOST_IP, 7070);
 	if (!socket)
 		return {};
 
-	unique_ptr<FSList> handler(new FSList(joined, move(socket)));
+	std::unique_ptr<FSList> handler(new FSList(joined, std::move(socket)));
 	auto fut = handler->result.get_future();
 
 	looper.run_in_looper([&]() {
-		looper.register_handler(EVENT_OUT, move(handler));
+		looper.register_handler(EVENT_OUT, std::move(handler));
 	});
 
 	try
@@ -770,12 +772,12 @@ void NetworkFile::unmap()
 		need_flush = false;
 		auto socket = Socket::connect(HOST_IP, 7070);
 		if (!socket)
-			throw runtime_error("Failed to connect to server.");
+			throw std::runtime_error("Failed to connect to server.");
 
-		auto handler = unique_ptr<FSWriteCommand>(new FSWriteCommand(path, buffer, move(socket)));
+		auto handler = std::unique_ptr<FSWriteCommand>(new FSWriteCommand(path, buffer, std::move(socket)));
 		auto reply = handler->result.get_future();
 		looper->run_in_looper([&handler, this]() {
-			looper->register_handler(EVENT_OUT | EVENT_IN, move(handler));
+			looper->register_handler(EVENT_OUT | EVENT_IN, std::move(handler));
 		});
 
 		try
@@ -805,7 +807,7 @@ bool NetworkFile::reopen()
 
 		// Capture-by-move would be nice here.
 		looper->run_in_looper([handler, this]() {
-			looper->register_handler(EVENT_OUT, unique_ptr<FSReader>(handler));
+			looper->register_handler(EVENT_OUT, std::unique_ptr<FSReader>(handler));
 		});
 	}
 	return true;
@@ -853,10 +855,10 @@ size_t NetworkFile::get_size()
 	}
 }
 
-unique_ptr<File> NetworkFilesystem::open(const std::string &path, FileMode mode)
+std::unique_ptr<File> NetworkFilesystem::open(const std::string &path, FileMode mode)
 {
 	auto joined = protocol + "://" + path;
-	return unique_ptr<File>(NetworkFile::open(looper, move(joined), mode));
+	return std::unique_ptr<File>(NetworkFile::open(looper, std::move(joined), mode));
 }
 
 bool NetworkFilesystem::stat(const std::string &path, FileStat &stat)
@@ -866,11 +868,11 @@ bool NetworkFilesystem::stat(const std::string &path, FileStat &stat)
 	if (!socket)
 		return false;
 
-	unique_ptr<FSStat> handler(new FSStat(joined, move(socket)));
+	std::unique_ptr<FSStat> handler(new FSStat(joined, std::move(socket)));
 	auto fut = handler->result.get_future();
 
 	looper.run_in_looper([&]() {
-		looper.register_handler(EVENT_OUT, move(handler));
+		looper.register_handler(EVENT_OUT, std::move(handler));
 	});
 
 	try
@@ -893,4 +895,5 @@ NetworkFilesystem::~NetworkFilesystem()
 	if (looper_thread.joinable())
 		looper_thread.join();
 }
+
 }

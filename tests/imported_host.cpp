@@ -23,7 +23,7 @@
 #include "vulkan_headers.hpp"
 #include "device.hpp"
 #include "global_managers.hpp"
-#include <string.h>
+#include <cstring>
 
 using namespace Vulkan;
 

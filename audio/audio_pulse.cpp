@@ -24,15 +24,14 @@
 #include <pulse/pulseaudio.h>
 #include "dsp/dsp.hpp"
 #include "logging.hpp"
-#include <string.h>
+
+#include <cstring>
 
 static constexpr size_t MAX_NUM_SAMPLES = 256;
-using namespace std;
 
-namespace Granite
+namespace Granite::Audio
 {
-namespace Audio
-{
+
 struct Pulse : Backend
 {
 	Pulse(BackendCallback &callback_)
@@ -316,5 +315,5 @@ Backend *create_pulse_backend(BackendCallback &callback, float sample_rate, unsi
 
 	return backend;
 }
-}
+
 }

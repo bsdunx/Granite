@@ -25,10 +25,6 @@
 #include "pole_zero_filter_design.hpp"
 #include "dsp.hpp"
 #include "logging.hpp"
-#include <complex>
-#include <cmath>
-#include <algorithm>
-#include <assert.h>
 
 #ifdef TONE_DEBUG
 #include "audio_events.hpp"
@@ -39,12 +35,14 @@
 #include "simd_headers.hpp"
 #endif
 
-namespace Granite
+#include <cassert>
+#include <cmath>
+#include <algorithm>
+#include <complex>
+
+namespace Granite::Audio::DSP
 {
-namespace Audio
-{
-namespace DSP
-{
+
 static const double TwoPI = 2.0 * 3.141592653589793;
 
 struct ToneFilter::Impl : Util::AlignedAllocation<ToneFilter::Impl>
@@ -457,6 +455,5 @@ void ToneFilter::filter(float *out_samples, const float *in_samples, unsigned co
 {
 	impl->filter(out_samples, in_samples, count);
 }
-}
-}
+
 }

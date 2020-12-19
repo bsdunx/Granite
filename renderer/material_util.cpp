@@ -23,7 +23,7 @@
 #include "material_util.hpp"
 #include "device.hpp"
 #include "texture_manager.hpp"
-#include <string.h>
+#include <cstring>
 
 using namespace Vulkan;
 

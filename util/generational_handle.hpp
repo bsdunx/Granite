@@ -22,12 +22,13 @@
 
 #pragma once
 
+#include "object_pool.hpp"
+
+#include <cstdint>
+#include <cassert>
 #include <vector>
 #include <stack>
 #include <utility>
-#include <stdint.h>
-#include "object_pool.hpp"
-#include <assert.h>
 
 namespace Util
 {

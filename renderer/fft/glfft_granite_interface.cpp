@@ -21,11 +21,12 @@
 #include "device.hpp"
 #include "timer.hpp"
 #include "compiler.hpp"
-#include <stdarg.h>
-using namespace std;
+
+#include <cstdarg>
 
 namespace Granite
 {
+
 struct FFTProgram : GLFFT::Program
 {
 	Vulkan::Program *program;
@@ -47,7 +48,7 @@ void FFTDeferredCommandBuffer::ensure_command_list()
 		commands.resize(command_counter + 1);
 }
 
-vector<function<void (Vulkan::CommandBuffer &)>> &FFTDeferredCommandBuffer::get_command_list()
+std::vector<std::function<void (Vulkan::CommandBuffer &)>> &FFTDeferredCommandBuffer::get_command_list()
 {
 	ensure_command_list();
 	return commands[command_counter];
@@ -221,7 +222,7 @@ void FFTInterface::wait_idle()
 	device->wait_idle();
 }
 
-unique_ptr<GLFFT::Buffer> FFTInterface::create_buffer(const void *initial_data, size_t size, GLFFT::AccessMode access)
+std::unique_ptr<GLFFT::Buffer> FFTInterface::create_buffer(const void *initial_data, size_t size, GLFFT::AccessMode access)
 {
 	Vulkan::BufferCreateInfo info = {};
 	info.size = size;
@@ -229,11 +230,11 @@ unique_ptr<GLFFT::Buffer> FFTInterface::create_buffer(const void *initial_data, 
 	info.domain =
 	    access == GLFFT::AccessMode::AccessStreamRead ? Vulkan::BufferDomain::CachedHost : Vulkan::BufferDomain::Device;
 
-	auto buffer = make_unique<FFTBuffer>(device->create_buffer(info, initial_data));
-	return unique_ptr<GLFFT::Buffer>(move(buffer));
+	auto buffer = std::make_unique<FFTBuffer>(device->create_buffer(info, initial_data));
+	return std::unique_ptr<GLFFT::Buffer>(std::move(buffer));
 }
 
-unique_ptr<GLFFT::Texture> FFTInterface::create_texture(const void *initial_data, unsigned width, unsigned height,
+std::unique_ptr<GLFFT::Texture> FFTInterface::create_texture(const void *initial_data, unsigned width, unsigned height,
                                                         GLFFT::Format format)
 {
 	VkFormat fmt = VK_FORMAT_UNDEFINED;
@@ -267,9 +268,9 @@ unique_ptr<GLFFT::Texture> FFTInterface::create_texture(const void *initial_data
 
 	Vulkan::ImageInitialData init = {};
 	init.data = initial_data;
-	auto image = make_unique<FFTTexture>(device->create_image(info, initial_data ? &init : nullptr));
+	auto image = std::make_unique<FFTTexture>(device->create_image(info, initial_data ? &init : nullptr));
 	image->image_holder->set_layout(Vulkan::Layout::General);
-	return unique_ptr<GLFFT::Texture>(move(image));
+	return std::unique_ptr<GLFFT::Texture>(move(image));
 }
 
 unsigned FFTInterface::get_max_work_group_threads()
@@ -302,7 +303,7 @@ bool FFTInterface::supports_texture_readback()
 	return true;
 }
 
-unique_ptr<GLFFT::Program> FFTInterface::compile_compute_shader(const char *source)
+std::unique_ptr<GLFFT::Program> FFTInterface::compile_compute_shader(const char *source)
 {
 	Util::Hasher hasher;
 	hasher.string(source);
@@ -337,9 +338,9 @@ unique_ptr<GLFFT::Program> FFTInterface::compile_compute_shader(const char *sour
 	}
 
 	Vulkan::Program *program = device->request_program(shader);
-	auto prog = make_unique<FFTProgram>();
+	auto prog = std::make_unique<FFTProgram>();
 	prog->program = program;
-	return unique_ptr<GLFFT::Program>(move(prog));
+	return std::unique_ptr<GLFFT::Program>(move(prog));
 }
 
 void FFTInterface::unmap(GLFFT::Buffer *buffer_)
@@ -384,12 +385,13 @@ void FFTInterface::read_texture(void *buffer, GLFFT::Texture *texture)
 	device->unmap_host_buffer(*readback, Vulkan::MEMORY_ACCESS_READ_BIT);
 }
 
-string FFTInterface::load_shader(const char *path)
+std::string FFTInterface::load_shader(const char *path)
 {
-	string str;
-	if (!Global::filesystem()->read_file_to_string(Path::join("builtin://shaders/fft", path), str))
-		return "";
-	return str;
+	std::string str;
+	if (Global::filesystem()->read_file_to_string(Path::join("builtin://shaders/fft", path), str))
+		return str;
+
+	return "";
 }
 
 GLFFT::CommandBuffer *FFTInterface::request_command_buffer()

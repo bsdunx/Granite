@@ -36,11 +36,11 @@
 #include "GLFW/glfw3native.h"
 #endif
 
-using namespace std;
 using namespace Vulkan;
 
 namespace Granite
 {
+
 static void fb_size_cb(GLFWwindow *window, int width, int height);
 static void key_cb(GLFWwindow *window, int key, int, int action, int);
 static void button_cb(GLFWwindow *window, int button, int action, int);
@@ -118,7 +118,7 @@ public:
 		get_input_tracker().dispatch_current_state(get_frame_timer().get_frame_time());
 	}
 
-	vector<const char *> get_instance_extensions() override
+	std::vector<const char *> get_instance_extensions() override
 	{
 		uint32_t count;
 		const char **ext = glfwGetRequiredInstanceExtensions(&count);
@@ -185,7 +185,7 @@ public:
 		cached_window = win;
 	}
 
-	void set_window_title(const string &title) override
+	void set_window_title(const std::string &title) override
 	{
 		if (window)
 			glfwSetWindowTitle(window, title.c_str());
@@ -388,11 +388,11 @@ namespace Granite
 int application_main(Application *(*create_application)(int, char **), int argc, char *argv[])
 {
 	Granite::Global::init();
-	auto app = unique_ptr<Granite::Application>(create_application(argc, argv));
+	auto app = std::unique_ptr<Granite::Application>(create_application(argc, argv));
 
 	if (app)
 	{
-		auto platform = make_unique<Granite::WSIPlatformGLFW>();
+		auto platform = std::make_unique<Granite::WSIPlatformGLFW>();
 		if (!platform->init(app->get_default_width(), app->get_default_height()))
 			return 1;
 

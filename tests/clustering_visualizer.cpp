@@ -23,13 +23,13 @@
 #include "application.hpp"
 #include "os_filesystem.hpp"
 #include "mesh_util.hpp"
-#include <string.h>
 #include "device.hpp"
+
+#include <cstring>
 
 using namespace Granite;
 using namespace Vulkan;
 using namespace Util;
-using namespace std;
 
 struct ClusteringVizApplication : Granite::Application, Granite::EventHandler
 {
@@ -89,7 +89,7 @@ struct ClusteringVizApplication : Granite::Application, Granite::EventHandler
 			vec4 pos;
 			vec4 color;
 		};
-		vector<Cube> cubes;
+		std::vector<Cube> cubes;
 		cubes.reserve(instances);
 		for (unsigned level = 0; level < 5; level++)
 		{

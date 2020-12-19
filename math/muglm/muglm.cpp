@@ -25,6 +25,7 @@
 
 namespace muglm
 {
+
 mat3 mat3_cast(const quat &q_)
 {
 	auto &q = q_.as_vec4();
@@ -291,4 +292,5 @@ mat4 perspective(float fovy, float aspect, float near, float far)
 
 	return result;
 }
+
 }

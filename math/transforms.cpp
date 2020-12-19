@@ -24,10 +24,12 @@
 #include "aabb.hpp"
 #include "simd.hpp"
 #include "muglm/matrix_helper.hpp"
-#include <assert.h>
+
+#include <cassert>
 
 namespace Granite
 {
+
 bool compute_plane_reflection(mat4 &projection, mat4 &view, vec3 camera_pos, vec3 center, vec3 normal, vec3 look_up,
                               float radius_up, float radius_other, float &z_near, float z_far)
 {
@@ -248,4 +250,5 @@ vec3 CubicSampler::sample(unsigned index, float t, float dt) const
 	       (-2.0f * t3 + 3.0f * t2) * p1 +
 	       (t3 - t2) * m1;
 }
+
 }

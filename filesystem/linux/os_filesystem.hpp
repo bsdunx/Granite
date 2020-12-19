@@ -21,11 +21,14 @@
  */
 
 #pragma once
+
 #include "../filesystem.hpp"
+
 #include <unordered_map>
 
 namespace Granite
 {
+
 class MMapFile : public File
 {
 public:
@@ -79,4 +82,5 @@ private:
 	int notify_fd;
 	FileNotifyHandle virtual_handle = 0;
 };
+
 }

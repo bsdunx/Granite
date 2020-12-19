@@ -21,14 +21,12 @@
  */
 
 #pragma once
+
 #include <complex>
 
-namespace Granite
+namespace Granite::Audio::DSP
 {
-namespace Audio
-{
-namespace DSP
-{
+
 class PoleZeroFilterDesigner
 {
 public:
@@ -63,6 +61,5 @@ private:
 	unsigned denominator_count = 1;
 	void add_filter(double *coeffs, unsigned &count, double amplitude, double phase);
 };
-}
-}
+
 }

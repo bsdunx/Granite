@@ -23,16 +23,15 @@
 #include "network.hpp"
 
 #ifdef __linux__
+#include <cerrno>
 #include <string>
+
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
 #endif
-
-using namespace std;
 
 namespace Granite
 {
@@ -77,7 +76,7 @@ Socket::Socket(int fd_, bool owned_)
 {
 }
 
-unique_ptr<Socket> Socket::connect(const char *addr, uint16_t port)
+std::unique_ptr<Socket> Socket::connect(const char *addr, uint16_t port)
 {
 #ifdef __linux__
 	SocketGlobal::get();
@@ -123,7 +122,7 @@ unique_ptr<Socket> Socket::connect(const char *addr, uint16_t port)
 		return {};
 	}
 
-	return unique_ptr<Socket>(new Socket(fd));
+	return std::unique_ptr<Socket>(new Socket(fd));
 #else
 	return {};
 #endif

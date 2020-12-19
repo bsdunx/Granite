@@ -25,13 +25,16 @@
 #include "network.hpp"
 #include "../filesystem.hpp"
 #include "netfs.hpp"
+
 #include <unordered_map>
 #include <future>
 #include <thread>
 
 namespace Granite
 {
+
 struct FSReader;
+
 class NetworkFile : public File
 {
 public:
@@ -89,4 +92,5 @@ private:
 	void setup_notification();
 	void signal_notification(const FileNotifyInfo &info);
 };
+
 }

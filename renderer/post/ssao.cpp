@@ -25,12 +25,11 @@
 #include "global_managers.hpp"
 #include "common_renderer_data.hpp"
 
-using namespace std;
-
 namespace Granite
 {
+
 void setup_ssao_interleaved(RenderGraph &graph, const RenderContext &context,
-                            const string &output, const string &input_depth, const string &input_normal)
+                            const std::string &output, const std::string &input_depth, const std::string &input_normal)
 {
 	auto &ssao_pass = graph.add_pass(output + "-ssao", RENDER_GRAPH_QUEUE_ASYNC_COMPUTE_BIT);
 
@@ -141,7 +140,7 @@ void setup_ssao_interleaved(RenderGraph &graph, const RenderContext &context,
 }
 
 void setup_ssao_naive(RenderGraph &graph, const RenderContext &context,
-                      const string &output, const string &input_depth, const string &input_normal)
+                      const std::string &output, const std::string &input_depth, const std::string &input_normal)
 {
 	AttachmentInfo info;
 	info.format = VK_FORMAT_R8_UNORM;
@@ -214,4 +213,5 @@ void setup_ssao_naive(RenderGraph &graph, const RenderContext &context,
 		Vulkan::CommandBufferUtil::draw_fullscreen_quad(cmd, "builtin://shaders/quad.vert", "builtin://shaders/post/ssao_blur.frag");
 	});
 }
+
 }

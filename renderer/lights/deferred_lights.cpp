@@ -24,11 +24,13 @@
 #include "renderer.hpp"
 #include "unstable_remove_if.hpp"
 #include "lights.hpp"
+
+#include <cfloat>
 #include <algorithm>
-#include <float.h>
 
 namespace Granite
 {
+
 void DeferredLights::refresh(const RenderContext &context, TaskComposer &)
 {
 	if (!enable_clustered_stencil)
@@ -145,4 +147,5 @@ void DeferredLights::render_lights(Vulkan::CommandBuffer &cmd, RenderQueue &queu
 		deferred_renderer.flush(cmd, queue, context);
 	}
 }
+
 }

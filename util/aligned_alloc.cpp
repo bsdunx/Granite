@@ -21,8 +21,10 @@
  */
 
 #include "aligned_alloc.hpp"
-#include <stdlib.h>
-#include <string.h>
+
+#include <cstdlib>
+#include <cstring>
+
 #ifdef _WIN32
 #include <malloc.h>
 #endif

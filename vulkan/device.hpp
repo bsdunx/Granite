@@ -38,11 +38,12 @@
 #include "context.hpp"
 #include "query_pool.hpp"
 #include "buffer_pool.hpp"
+
+#include <cstdio>
 #include <memory>
 #include <vector>
 #include <functional>
 #include <unordered_map>
-#include <stdio.h>
 
 #ifdef GRANITE_VULKAN_FILESYSTEM
 #include "shader_manager.hpp"

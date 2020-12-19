@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "math.hpp"
 #include "scene.hpp"
 #include "scene_formats.hpp"
 #include "generational_handle.hpp"

@@ -23,23 +23,23 @@
 #include "network.hpp"
 
 #ifdef __linux__
+#include <cerrno>
 #include <stdexcept>
+
 #include <sys/epoll.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <errno.h>
 #include <sys/eventfd.h>
 #endif
 
-using namespace std;
-
 namespace Granite
 {
+
 LooperHandler::LooperHandler(std::unique_ptr<Socket> socket_)
-	: socket(move(socket_))
+	: socket(std::move(socket_))
 {
 }
 
@@ -48,17 +48,17 @@ Looper::Looper()
 #ifdef __linux__
 	fd = epoll_create1(0);
 	if (fd < 0)
-		throw runtime_error("Failed to create epoller.");
+		throw std::runtime_error("Failed to create epoller.");
 
 	event_fd = ::eventfd(0, EFD_NONBLOCK);
 	if (event_fd < 0)
-		throw runtime_error("Failed to create eventfd.");
+		throw std::runtime_error("Failed to create eventfd.");
 
 	epoll_event event = {};
 	event.events = EPOLLIN;
 	event.data.ptr = nullptr;
 	if (epoll_ctl(fd, EPOLL_CTL_ADD, event_fd, &event) < 0)
-		throw runtime_error("Failed to add event fd to epoll.");
+		throw std::runtime_error("Failed to add event fd to epoll.");
 #else
 	throw std::runtime_error("Unimplemented feature on Windows.");
 #endif
@@ -99,7 +99,7 @@ bool Looper::modify_handler(EventFlags events, LooperHandler &handler)
 #endif
 }
 
-bool Looper::register_handler(EventFlags events, unique_ptr<LooperHandler> handler)
+bool Looper::register_handler(EventFlags events, std::unique_ptr<LooperHandler> handler)
 {
 #ifdef __linux__
 	int flags = 0;
@@ -137,7 +137,7 @@ void Looper::run_in_looper(std::function<void()> func)
 {
 #ifdef __linux__
 	{
-		lock_guard<mutex> holder{queue_lock};
+		std::lock_guard<std::mutex> holder{queue_lock};
 		func_queue.push_back(move(func));
 	}
 
@@ -150,7 +150,7 @@ void Looper::kill()
 {
 #ifdef __linux__
 	{
-		lock_guard<mutex> holder{queue_lock};
+		std::lock_guard<std::mutex> holder{queue_lock};
 		func_queue.push_back([this]() {
 			dead = true;
 		});
@@ -169,7 +169,7 @@ void Looper::handle_deferred_funcs()
 	if (!count)
 		return;
 
-	lock_guard<mutex> holder{queue_lock};
+	std::lock_guard<std::mutex> holder{queue_lock};
 	for (auto &func : func_queue)
 		func();
 	func_queue.clear();

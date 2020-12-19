@@ -22,8 +22,9 @@
 
 #include "muglm_impl.hpp"
 #include "matrix_helper.hpp"
-#include <assert.h>
-#include <stdlib.h>
+
+#include <cassert>
+#include <cstdlib>
 
 using namespace muglm;
 

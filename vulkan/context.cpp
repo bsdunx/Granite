@@ -21,10 +21,11 @@
  */
 
 #include "context.hpp"
+
 #include <vector>
 #include <mutex>
 #include <algorithm>
-#include <string.h>
+#include <cstring>
 
 #ifndef _WIN32
 #include <dlfcn.h>
@@ -35,10 +36,9 @@
 
 //#undef VULKAN_DEBUG
 
-using namespace std;
-
 namespace Vulkan
 {
+
 bool Context::init_instance_and_device(const char **instance_ext, uint32_t instance_ext_count, const char **device_ext,
                                        uint32_t device_ext_count, ContextCreationFlags flags)
 {
@@ -64,12 +64,12 @@ bool Context::init_instance_and_device(const char **instance_ext, uint32_t insta
 	return true;
 }
 
-static mutex loader_init_lock;
+static std::mutex loader_init_lock;
 static bool loader_init_once;
 
 bool Context::init_loader(PFN_vkGetInstanceProcAddr addr)
 {
-	lock_guard<mutex> holder(loader_init_lock);
+	std::lock_guard<std::mutex> holder(loader_init_lock);
 	if (loader_init_once && !addr)
 		return true;
 
@@ -211,9 +211,9 @@ void Context::notify_validation_error(const char *msg)
 		message_callback(msg);
 }
 
-void Context::set_notification_callback(function<void(const char *)> func)
+void Context::set_notification_callback(std::function<void(const char *)> func)
 {
-	message_callback = move(func);
+	message_callback = std::move(func);
 }
 
 #ifdef VULKAN_DEBUG
@@ -300,28 +300,28 @@ bool Context::create_instance(const char **instance_ext, uint32_t instance_ext_c
 	VkInstanceCreateInfo info = { VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO };
 	info.pApplicationInfo = &get_application_info(ext.supports_vulkan_11_instance);
 
-	vector<const char *> instance_exts;
-	vector<const char *> instance_layers;
+	std::vector<const char *> instance_exts;
+	std::vector<const char *> instance_layers;
 	for (uint32_t i = 0; i < instance_ext_count; i++)
 		instance_exts.push_back(instance_ext[i]);
 
 	uint32_t ext_count = 0;
 	vkEnumerateInstanceExtensionProperties(nullptr, &ext_count, nullptr);
-	vector<VkExtensionProperties> queried_extensions(ext_count);
+	std::vector<VkExtensionProperties> queried_extensions(ext_count);
 	if (ext_count)
 		vkEnumerateInstanceExtensionProperties(nullptr, &ext_count, queried_extensions.data());
 
 	uint32_t layer_count = 0;
 	vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
-	vector<VkLayerProperties> queried_layers(layer_count);
+	std::vector<VkLayerProperties> queried_layers(layer_count);
 	if (layer_count)
 		vkEnumerateInstanceLayerProperties(&layer_count, queried_layers.data());
 
 	const auto has_extension = [&](const char *name) -> bool {
-		auto itr = find_if(begin(queried_extensions), end(queried_extensions), [name](const VkExtensionProperties &e) -> bool {
+		auto itr = std::find_if(std::begin(queried_extensions), std::end(queried_extensions), [name](const VkExtensionProperties &e) -> bool {
 			return strcmp(e.extensionName, name) == 0;
 		});
-		return itr != end(queried_extensions);
+		return itr != std::end(queried_extensions);
 	};
 
 	for (uint32_t i = 0; i < instance_ext_count; i++)
@@ -349,7 +349,7 @@ bool Context::create_instance(const char **instance_ext, uint32_t instance_ext_c
 		ext.supports_debug_utils = true;
 	}
 
-	auto itr = find_if(instance_ext, instance_ext + instance_ext_count, [](const char *name) {
+	auto itr = std::find_if(instance_ext, instance_ext + instance_ext_count, [](const char *name) {
 		return strcmp(name, VK_KHR_SURFACE_EXTENSION_NAME) == 0;
 	});
 	bool has_surface_extension = itr != (instance_ext + instance_ext_count);
@@ -362,10 +362,10 @@ bool Context::create_instance(const char **instance_ext, uint32_t instance_ext_c
 
 #ifdef VULKAN_DEBUG
 	const auto has_layer = [&](const char *name) -> bool {
-		auto layer_itr = find_if(begin(queried_layers), end(queried_layers), [name](const VkLayerProperties &e) -> bool {
+		auto layer_itr = std::find_if(std::begin(queried_layers), std::end(queried_layers), [name](const VkLayerProperties &e) -> bool {
 			return strcmp(e.layerName, name) == 0;
 		});
-		return layer_itr != end(queried_layers);
+		return layer_itr != std::end(queried_layers);
 	};
 
 	VkValidationFeaturesEXT validation_features = { VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT };
@@ -383,9 +383,9 @@ bool Context::create_instance(const char **instance_ext, uint32_t instance_ext_c
 		std::vector<VkExtensionProperties> layer_exts(layer_ext_count);
 		vkEnumerateInstanceExtensionProperties("VK_LAYER_KHRONOS_validation", &layer_ext_count, layer_exts.data());
 
-		if (find_if(begin(layer_exts), end(layer_exts), [](const VkExtensionProperties &e) {
+		if (std::find_if(std::begin(layer_exts), std::end(layer_exts), [](const VkExtensionProperties &e) {
 			return strcmp(e.extensionName, VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME) == 0;
-		}) != end(layer_exts))
+		}) != std::end(layer_exts))
 		{
 			instance_exts.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
 			static const VkValidationFeatureEnableEXT validation_sync_features[1] = {
@@ -449,7 +449,7 @@ bool Context::create_device(VkPhysicalDevice gpu_, VkSurfaceKHR surface, const c
 		if (gpu_count == 0)
 			return false;
 
-		vector<VkPhysicalDevice> gpus(gpu_count);
+		std::vector<VkPhysicalDevice> gpus(gpu_count);
 		if (vkEnumeratePhysicalDevices(instance, &gpu_count, gpus.data()) != VK_SUCCESS)
 			return false;
 
@@ -482,28 +482,28 @@ bool Context::create_device(VkPhysicalDevice gpu_, VkSurfaceKHR surface, const c
 
 	uint32_t ext_count = 0;
 	vkEnumerateDeviceExtensionProperties(gpu, nullptr, &ext_count, nullptr);
-	vector<VkExtensionProperties> queried_extensions(ext_count);
+	std::vector<VkExtensionProperties> queried_extensions(ext_count);
 	if (ext_count)
 		vkEnumerateDeviceExtensionProperties(gpu, nullptr, &ext_count, queried_extensions.data());
 
 	uint32_t layer_count = 0;
 	vkEnumerateDeviceLayerProperties(gpu, &layer_count, nullptr);
-	vector<VkLayerProperties> queried_layers(layer_count);
+	std::vector<VkLayerProperties> queried_layers(layer_count);
 	if (layer_count)
 		vkEnumerateDeviceLayerProperties(gpu, &layer_count, queried_layers.data());
 
 	const auto has_extension = [&](const char *name) -> bool {
-		auto itr = find_if(begin(queried_extensions), end(queried_extensions), [name](const VkExtensionProperties &e) -> bool {
+		auto itr = std::find_if(std::begin(queried_extensions), std::end(queried_extensions), [name](const VkExtensionProperties &e) -> bool {
 			return strcmp(e.extensionName, name) == 0;
 		});
-		return itr != end(queried_extensions);
+		return itr != std::end(queried_extensions);
 	};
 
 	const auto has_layer = [&](const char *name) -> bool {
-		auto itr = find_if(begin(queried_layers), end(queried_layers), [name](const VkLayerProperties &e) -> bool {
+		auto itr = std::find_if(std::begin(queried_layers), std::end(queried_layers), [name](const VkLayerProperties &e) -> bool {
 			return strcmp(e.layerName, name) == 0;
 		});
-		return itr != end(queried_layers);
+		return itr != std::end(queried_layers);
 	};
 
 	for (uint32_t i = 0; i < num_required_device_extensions; i++)
@@ -532,7 +532,7 @@ bool Context::create_device(VkPhysicalDevice gpu_, VkSurfaceKHR surface, const c
 
 	uint32_t queue_count;
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, nullptr);
-	vector<VkQueueFamilyProperties> queue_props(queue_count);
+	std::vector<VkQueueFamilyProperties> queue_props(queue_count);
 	vkGetPhysicalDeviceQueueFamilyProperties(gpu, &queue_count, queue_props.data());
 
 	for (unsigned i = 0; i < queue_count; i++)
@@ -648,8 +648,8 @@ bool Context::create_device(VkPhysicalDevice gpu_, VkSurfaceKHR surface, const c
 
 	device_info.queueCreateInfoCount = queue_family_count;
 
-	vector<const char *> enabled_extensions;
-	vector<const char *> enabled_layers;
+	std::vector<const char *> enabled_extensions;
+	std::vector<const char *> enabled_layers;
 
 	for (uint32_t i = 0; i < num_required_device_extensions; i++)
 		enabled_extensions.push_back(required_device_extensions[i]);

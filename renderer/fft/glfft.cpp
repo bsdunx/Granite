@@ -17,13 +17,13 @@
  */
 
 #include "glfft.hpp"
-#include <algorithm>
-#include <assert.h>
+
+#include <cassert>
 #include <cmath>
+#include <algorithm>
 #include <numeric>
 #include <stdexcept>
 
-using namespace std;
 using namespace GLFFT;
 
 enum Bindings
@@ -98,7 +98,7 @@ static Radix build_radix(unsigned Nx, unsigned Ny, Mode mode, unsigned vector_si
 
 	if (Ny == 1 && size.y > 1)
 	{
-		throw logic_error("WorkGroupSize.y must be 1, when Ny == 1.\n");
+		throw std::logic_error("WorkGroupSize.y must be 1, when Ny == 1.\n");
 	}
 
 	// To avoid too many threads per workgroup due to workgroup_size_z,
@@ -123,7 +123,7 @@ static Radix build_radix(unsigned Nx, unsigned Ny, Mode mode, unsigned vector_si
 		break;
 
 	case VerticalDual:
-		vector_size = max(vector_size, 4u);
+		vector_size = std::max(vector_size, 4u);
 		wg_x = (4 * Nx) / (vector_size * size.x);
 		wg_y = Ny / (size.y * radix);
 		break;
@@ -134,7 +134,7 @@ static Radix build_radix(unsigned Nx, unsigned Ny, Mode mode, unsigned vector_si
 		break;
 
 	case HorizontalDual:
-		vector_size = max(vector_size, 4u);
+		vector_size = std::max(vector_size, 4u);
 		wg_x = (4 * Nx) / (vector_size * radix * size.x);
 		wg_y = Ny / size.y;
 		break;
@@ -177,7 +177,7 @@ static double find_cost(unsigned Nx, unsigned Ny, Mode mode, unsigned radix, con
 struct CostPropagate
 {
 	CostPropagate() = default;
-	CostPropagate(double cost_, vector<unsigned> radices_)
+	CostPropagate(double cost_, std::vector<unsigned> radices_)
 	    : cost(cost_)
 	    , radices(move(radices_))
 	{
@@ -191,15 +191,15 @@ struct CostPropagate
 		{
 			cost = new_cost;
 			radices = a.radices;
-			radices.insert(end(radices), begin(b.radices), end(b.radices));
+			radices.insert(std::end(radices), std::begin(b.radices), std::end(b.radices));
 		}
 	}
 
 	double cost = 0.0;
-	vector<unsigned> radices;
+	std::vector<unsigned> radices;
 };
 
-static vector<Radix> split_radices(unsigned Nx, unsigned Ny, Mode mode, Target input_target, Target output_target,
+static std::vector<Radix> split_radices(unsigned Nx, unsigned Ny, Mode mode, Target input_target, Target output_target,
                                    const FFTOptions &options, bool pow2_stride, const FFTWisdom &wisdom,
                                    double &accumulate_cost)
 {
@@ -273,7 +273,7 @@ static vector<Radix> split_radices(unsigned Nx, unsigned Ny, Mode mode, Target i
 
 		if ((1u << i) == N && target.cost == 0.0)
 		{
-			throw logic_error("There is no possible subdivision ...\n");
+			throw std::logic_error("There is no possible subdivision ...\n");
 		}
 	}
 
@@ -284,16 +284,16 @@ static vector<Radix> split_radices(unsigned Nx, unsigned Ny, Mode mode, Target i
 	// need p factors for 4 and 8 for those cases.
 	// The cost function doesn't depend in which order we split the radices.
 	auto &cost = cost_propagate[unsigned(log2(float(N)))];
-	auto radices = move(cost.radices);
+	auto radices = std::move(cost.radices);
 
-	sort(begin(radices), end(radices), greater<unsigned>());
+	std::sort(std::begin(radices), std::end(radices), std::greater<unsigned>());
 
-	if (accumulate(begin(radices), end(radices), 1u, multiplies<unsigned>()) != N)
+	if (std::accumulate(std::begin(radices), std::end(radices), 1u, std::multiplies<unsigned>()) != N)
 	{
-		throw logic_error("Radix splits are invalid.");
+		throw std::logic_error("Radix splits are invalid.");
 	}
 
-	vector<Radix> radices_out;
+	std::vector<Radix> radices_out;
 	radices_out.reserve(radices.size());
 
 	// Fill in the structs with all information.
@@ -344,7 +344,7 @@ Program *FFT::get_program(const Parameters &params)
 		auto newprog = build_program(params);
 		if (!newprog)
 		{
-			throw runtime_error("Failed to compile shader.\n");
+			throw std::runtime_error("Failed to compile shader.\n");
 		}
 		prog = newprog.get();
 		cache->insert_program(params, move(newprog));
@@ -384,17 +384,17 @@ FFT::FFT(Context *context_, unsigned Nx, unsigned Ny, unsigned radix, unsigned p
 
 	if (!Nx || !Ny || (Nx & (Nx - 1)) || (Ny & (Ny - 1)))
 	{
-		throw logic_error("FFT size is not POT.");
+		throw std::logic_error("FFT size is not POT.");
 	}
 
 	if (p != 1 && input_target != SSBO)
 	{
-		throw logic_error("P != 1 only supported with SSBO as input.");
+		throw std::logic_error("P != 1 only supported with SSBO as input.");
 	}
 
 	if (p < radix && output_target != SSBO)
 	{
-		throw logic_error("P < radix only supported with SSBO as output.");
+		throw std::logic_error("P < radix only supported with SSBO as output.");
 	}
 
 	// We don't really care about transform direction since it's just a matter of sign-flipping twiddles,
@@ -435,7 +435,7 @@ FFT::FFT(Context *context_, unsigned Nx, unsigned Ny, unsigned radix, unsigned p
 
 	if (res.num_workgroups_x == 0 || res.num_workgroups_y == 0)
 	{
-		throw logic_error("Invalid workgroup sizes for this radix.");
+		throw std::logic_error("Invalid workgroup sizes for this radix.");
 	}
 
 	unsigned uv_scale_x = res.vector_size / mode_to_input_components(mode);
@@ -452,7 +452,7 @@ FFT::FFT(Context *context_, unsigned Nx, unsigned Ny, unsigned radix, unsigned p
 }
 
 #if 0
-static inline void print_radix_splits(Context *context, const vector<Radix> radices[2])
+static inline void print_radix_splits(Context *context, const std::vector<Radix> radices[2])
 {
 	context->log("Transform #1\n");
 	for (auto &radix : radices[0])
@@ -524,30 +524,30 @@ FFT::FFT(Context *context_, unsigned Nx, unsigned Ny, Type type, Direction direc
 	// Sanity checks.
 	if (!Nx || !Ny || (Nx & (Nx - 1)) || (Ny & (Ny - 1)))
 	{
-		throw logic_error("FFT size is not POT.");
+		throw std::logic_error("FFT size is not POT.");
 	}
 
 	if (type == ComplexToReal && direction == Forward)
 	{
-		throw logic_error("ComplexToReal transforms requires inverse transform.");
+		throw std::logic_error("ComplexToReal transforms requires inverse transform.");
 	}
 
 	if (type == RealToComplex && direction != Forward)
 	{
-		throw logic_error("RealToComplex transforms requires forward transform.");
+		throw std::logic_error("RealToComplex transforms requires forward transform.");
 	}
 
 	if (type == RealToComplex && input_target == Image)
 	{
-		throw logic_error("Input real-to-complex must use ImageReal target.");
+		throw std::logic_error("Input real-to-complex must use ImageReal target.");
 	}
 
 	if (type == ComplexToReal && output_target == Image)
 	{
-		throw logic_error("Output complex-to-real must use ImageReal target.");
+		throw std::logic_error("Output complex-to-real must use ImageReal target.");
 	}
 
-	vector<Radix> radices[2];
+	std::vector<Radix> radices[2];
 	Mode modes[2];
 	Target targets[4];
 
@@ -686,17 +686,17 @@ FFT::FFT(Context *context_, unsigned Nx, unsigned Ny, Type type, Direction direc
 	}
 }
 
-string FFT::load_shader_string(const char *path)
+std::string FFT::load_shader_string(const char *path)
 {
-	string str = context->load_shader(path);
+	std::string str = context->load_shader(path);
 	if (str.empty())
 		throw std::runtime_error("Failed to load FFT shader.");
 	return str;
 }
 
-unique_ptr<Program> FFT::build_program(const Parameters &params)
+std::unique_ptr<Program> FFT::build_program(const Parameters &params)
 {
-	string str;
+	std::string str;
 	str.reserve(16 * 1024);
 
 #if 0
@@ -768,7 +768,7 @@ unique_ptr<Program> FFT::build_program(const Parameters &params)
 	str += params.shared_banked ? "#define FFT_SHARED_BANKED 1\n" : "#define FFT_SHARED_BANKED 0\n";
 
 	str += params.direction == Forward ? "#define FFT_FORWARD\n" : "#define FFT_INVERSE\n";
-	str += string("#define FFT_RADIX ") + to_string(params.radix) + "\n";
+	str += "#define FFT_RADIX " + std::to_string(params.radix) + "\n";
 
 	unsigned vector_size = params.vector_size;
 	switch (params.mode)
@@ -841,9 +841,9 @@ unique_ptr<Program> FFT::build_program(const Parameters &params)
 		break;
 	}
 
-	str += string("layout(local_size_x = ") + to_string(params.workgroup_size_x) +
-	       ", local_size_y = " + to_string(params.workgroup_size_y) +
-	       ", local_size_z = " + to_string(params.workgroup_size_z) + ") in;\n";
+	str += "layout(local_size_x = " + std::to_string(params.workgroup_size_x) +
+	       ", local_size_y = " + std::to_string(params.workgroup_size_y) +
+	       ", local_size_z = " + std::to_string(params.workgroup_size_z) + ") in;\n";
 
 	str += load_shader_string("builtin://shaders/fft/fft_common.comp");
 	switch (params.radix)
@@ -1047,7 +1047,7 @@ void FFT::process(CommandBuffer *cmd, Resource *output, Resource *input, Resourc
 			                 (passes.back().parameters.output_target != SSBO ? temp_buffer_image.get() : output);
 		}
 
-		swap(buffers[0], buffers[1]);
+		std::swap(buffers[0], buffers[1]);
 		pass_index++;
 	}
 }

@@ -22,8 +22,8 @@
 
 #pragma once
 
-#include <stddef.h>
-#include <stdlib.h>
+#include <cstddef>
+#include <cstdlib>
 #include <utility>
 #include <exception>
 #include <algorithm>

@@ -24,10 +24,10 @@
 #include "device.hpp"
 #include "event.hpp"
 #include "sprite.hpp"
-#include <float.h>
+
+#include <cfloat>
 
 using namespace Vulkan;
-using namespace std;
 using namespace Util;
 
 namespace Granite

@@ -23,13 +23,14 @@
 #pragma once
 
 #include <vector>
+#include <string>
+#include <cstring>
+
 #ifdef _WIN32
 #include <winsock2.h>
 #else
 #include <arpa/inet.h>
 #endif
-#include <string.h>
-#include <string>
 
 namespace Granite
 {

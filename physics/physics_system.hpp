@@ -286,6 +286,6 @@ private:
 
 	btCollisionShape *create_shape(const ConvexMeshPart &part);
 	Scene *scene = nullptr;
-	ComponentGroupVector<PhysicsComponent, ForceComponent> *forces = nullptr;
+	std::optional<std::reference_wrapper<const ComponentGroupVector<PhysicsComponent, ForceComponent>>> forces;
 };
 }

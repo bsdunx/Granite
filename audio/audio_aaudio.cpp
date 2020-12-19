@@ -23,10 +23,13 @@
 #include "audio_aaudio.hpp"
 #include "dsp/dsp.hpp"
 #include "logging.hpp"
-#include <dlfcn.h>
-#include <stdint.h>
+
 #include <aaudio/AAudio.h>
-#include <time.h>
+
+#include <dlfcn.h>
+
+#include <cstdint>
+#include <ctime>
 #include <cmath>
 #include <vector>
 #include <algorithm>

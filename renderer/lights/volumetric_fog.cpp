@@ -23,11 +23,11 @@
 #include "volumetric_fog.hpp"
 #include "render_graph.hpp"
 #include "render_context.hpp"
+
 #include <random>
 #include <cmath>
 
 using namespace Vulkan;
-using namespace std;
 
 namespace Granite
 {
@@ -72,12 +72,12 @@ void VolumetricFog::set_resolution(unsigned width_, unsigned height_, unsigned d
 	depth = depth_;
 }
 
-void VolumetricFog::add_texture_dependency(string name)
+void VolumetricFog::add_texture_dependency(std::string name)
 {
 	texture_dependencies.push_back(move(name));
 }
 
-void VolumetricFog::add_storage_buffer_dependency(string name)
+void VolumetricFog::add_storage_buffer_dependency(std::string name)
 {
 	buffer_dependencies.push_back(move(name));
 }
@@ -355,10 +355,10 @@ void VolumetricFog::build_dither_lut(Device &device)
 {
 	auto info = ImageCreateInfo::immutable_3d_image(width / 4, height / 4, depth / 4, VK_FORMAT_A2B10G10R10_UNORM_PACK32);
 
-	mt19937 rnd;
-	uniform_int_distribution<uint32_t> dist(0, 1023);
+	std::mt19937 rnd;
+	std::uniform_int_distribution<uint32_t> dist(0, 1023);
 
-	vector<uint32_t> buffer((width * height * depth) / (4 * 4 * 4));
+	std::vector<uint32_t> buffer((width * height * depth) / (4 * 4 * 4));
 	for (auto &elem : buffer)
 	{
 		uint32_t b = dist(rnd);
@@ -371,4 +371,5 @@ void VolumetricFog::build_dither_lut(Device &device)
 	init.data = buffer.data();
 	dither_lut = device.create_image(info, &init);
 }
+
 }

@@ -21,16 +21,13 @@
  */
 
 #pragma once
+
 #include "audio_mixer.hpp"
 
-namespace Granite
+namespace Granite::Audio::DSP
 {
-namespace Audio
-{
-namespace DSP
-{
+
 MixerStream *create_fft_eq_stream(MixerStream *source,
                                   const float *filter_coeffs, unsigned coeff_count);
-}
-}
+
 }

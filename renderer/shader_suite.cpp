@@ -24,7 +24,6 @@
 #include "device.hpp"
 #include "string_helpers.hpp"
 
-using namespace std;
 using namespace Util;
 using namespace Vulkan;
 
@@ -84,7 +83,7 @@ Vulkan::Program *ShaderSuite::get_program(DrawPipeline pipeline, uint32_t attrib
 	auto *variant = variants.find(hash);
 	if (!variant)
 	{
-		vector<pair<string, int>> defines = base_defines;
+		std::vector<std::pair<std::string, int>> defines = base_defines;
 		switch (pipeline)
 		{
 		case DrawPipeline::AlphaTest:

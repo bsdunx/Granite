@@ -42,7 +42,6 @@
 #include "audio_oboe.hpp"
 #endif
 
-using namespace std;
 using namespace Vulkan;
 
 #define SENSOR_GAME_ROTATION_VECTOR 15
@@ -102,6 +101,7 @@ static void on_content_rect_changed(ANativeActivity *, const ARect *rect)
 
 namespace App
 {
+
 static void finishFromThread()
 {
 	jni.env->CallVoidMethod(global_state.app->activity->clazz, jni.finishFromThread);

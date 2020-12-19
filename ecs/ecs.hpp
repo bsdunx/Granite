@@ -22,19 +22,21 @@
 
 #pragma once
 
-#include <tuple>
-#include <vector>
-#include <memory>
-#include <algorithm>
 #include "object_pool.hpp"
 #include "intrusive.hpp"
 #include "intrusive_hash_map.hpp"
 #include "compile_time_hash.hpp"
 #include "enum_cast.hpp"
-#include <assert.h>
+
+#include <cassert>
+#include <tuple>
+#include <vector>
+#include <memory>
+#include <algorithm>
 
 namespace Granite
 {
+
 struct ComponentBase
 {
 };

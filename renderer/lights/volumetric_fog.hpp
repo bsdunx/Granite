@@ -32,6 +32,7 @@
 
 namespace Granite
 {
+
 class RenderTextureResource;
 class RenderPass;
 
@@ -119,4 +120,5 @@ private:
 
 	mat4 old_projection;
 };
+
 }

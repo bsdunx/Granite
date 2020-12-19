@@ -25,7 +25,7 @@
 #include "device.hpp"
 #include "os_filesystem.hpp"
 #include "math.hpp"
-#include <string.h>
+#include <cstring>
 #include "cli_parser.hpp"
 
 using namespace Granite;

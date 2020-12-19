@@ -19,13 +19,13 @@
 #include "glfft_wisdom.hpp"
 #include "glfft.hpp"
 #include "glfft_interface.hpp"
+
+#include "rapidjson_wrapper.hpp"
+
 #include <utility>
 #include <algorithm>
 
-#include "rapidjson_wrapper.hpp"
 using namespace rapidjson;
-
-using namespace std;
 using namespace GLFFT;
 
 FFTOptions::Performance FFTWisdom::get_static_performance_options_from_renderer(GLFFT::Context *context)
@@ -74,7 +74,7 @@ FFTStaticWisdom FFTWisdom::get_static_wisdom_from_renderer(Context *context)
 		context->log("Detected GeForce/Quadro GPU.\n");
 		res.min_workgroup_size = 32; // Warp threads.
 		res.min_workgroup_size_shared = 32;
-		res.max_workgroup_size = min(threads, 256u); // Very unlikely that more than 256 threads will do anything good.
+		res.max_workgroup_size = std::min(threads, 256u); // Very unlikely that more than 256 threads will do anything good.
 		res.min_vector_size = 2;
 		res.max_vector_size = 2;
 		res.shared_banked = FFTStaticWisdom::On;
@@ -84,7 +84,7 @@ FFTStaticWisdom FFTWisdom::get_static_wisdom_from_renderer(Context *context)
 		context->log("Detected Radeon GPU.\n");
 		res.min_workgroup_size = 64; // Wavefront threads (GCN).
 		res.min_workgroup_size_shared = 64;
-		res.max_workgroup_size = min(threads, 256u); // Very unlikely that more than 256 threads will do anything good.
+		res.max_workgroup_size = std::min(threads, 256u); // Very unlikely that more than 256 threads will do anything good.
 		// TODO: Find if we can restrict this to 2 or 4 always.
 		res.min_vector_size = 2;
 		res.max_vector_size = 2;
@@ -106,7 +106,7 @@ FFTStaticWisdom FFTWisdom::get_static_wisdom_from_renderer(Context *context)
 	return res;
 }
 
-pair<double, FFTOptions::Performance> FFTWisdom::learn_optimal_options(Context *context, unsigned Nx, unsigned Ny,
+std::pair<double, FFTOptions::Performance> FFTWisdom::learn_optimal_options(Context *context, unsigned Nx, unsigned Ny,
                                                                        unsigned radix, Mode mode, Target input_target,
                                                                        Target output_target,
                                                                        const FFTOptions::Type &type)
@@ -125,9 +125,9 @@ pair<double, FFTOptions::Performance> FFTWisdom::learn_optimal_options(Context *
 	};
 
 	auto itr = library.find(pass);
-	if (itr != end(library))
+	if (itr != std::end(library))
 	{
-		return make_pair(itr->first.cost, itr->second);
+		return std::make_pair(itr->first.cost, itr->second);
 	}
 	else
 	{
@@ -231,7 +231,7 @@ void FFTWisdom::learn_optimal_options_exhaustive(Context *context, unsigned Nx, 
 }
 
 double FFTWisdom::bench(Context *context, Resource *output, Resource *input, const WisdomPass &pass,
-                        const FFTOptions &options, const shared_ptr<ProgramCache> &cache) const
+                        const FFTOptions &options, const std::shared_ptr<ProgramCache> &cache) const
 {
 	FFT fft(context, pass.pass.Nx, pass.pass.Ny, pass.pass.radix, pass.pass.input_target != SSBO ? 1 : pass.pass.radix,
 	        pass.pass.mode, pass.pass.input_target, pass.pass.output_target, cache, options);
@@ -257,13 +257,13 @@ static inline unsigned mode_to_size(Mode mode)
 std::pair<double, FFTOptions::Performance> FFTWisdom::study(Context *context, const WisdomPass &pass,
                                                             FFTOptions::Type type) const
 {
-	auto cache = make_shared<ProgramCache>();
+	auto cache = std::make_shared<ProgramCache>();
 
-	unique_ptr<Resource> output;
-	unique_ptr<Resource> input;
+	std::unique_ptr<Resource> output;
+	std::unique_ptr<Resource> input;
 
 	unsigned mode_size = mode_to_size(pass.pass.mode);
-	vector<float> tmp(mode_size * pass.pass.Nx * pass.pass.Ny);
+	std::vector<float> tmp(mode_size * pass.pass.Nx * pass.pass.Ny);
 
 	if (pass.pass.input_target == SSBO)
 	{
@@ -293,7 +293,7 @@ std::pair<double, FFTOptions::Performance> FFTWisdom::study(Context *context, co
 			break;
 
 		default:
-			throw logic_error("Invalid input mode.\n");
+			throw std::logic_error("Invalid input mode.\n");
 		}
 
 		input = context->create_texture(tmp.data(), Nx, Ny, format);
@@ -327,7 +327,7 @@ std::pair<double, FFTOptions::Performance> FFTWisdom::study(Context *context, co
 			break;
 
 		default:
-			throw logic_error("Invalid output mode.\n");
+			throw std::logic_error("Invalid output mode.\n");
 		}
 
 		output = context->create_texture(nullptr, Nx, Ny, format);
@@ -393,9 +393,9 @@ std::pair<double, FFTOptions::Performance> FFTWisdom::study(Context *context, co
 					                                                      static_wisdom.min_workgroup_size;
 
 					unsigned min_vector_size =
-					    test_dual ? max(4u, static_wisdom.min_vector_size) : static_wisdom.min_vector_size;
+					    test_dual ? std::max(4u, static_wisdom.min_vector_size) : static_wisdom.min_vector_size;
 					unsigned max_vector_size =
-					    test_dual ? max(4u, static_wisdom.max_vector_size) : static_wisdom.max_vector_size;
+					    test_dual ? std::max(4u, static_wisdom.max_vector_size) : static_wisdom.max_vector_size;
 
 					bool fair_workgroup_size =
 					    workgroup_size <= static_wisdom.max_workgroup_size && workgroup_size >= min_workgroup_size;
@@ -455,10 +455,10 @@ std::pair<double, FFTOptions::Performance> FFTWisdom::study(Context *context, co
 	}
 
 	context->log("Tested %u variants!\n", bench_count);
-	return make_pair(minimum_cost, best_perf);
+	return std::make_pair(minimum_cost, best_perf);
 }
 
-const pair<const WisdomPass, FFTOptions::Performance> *FFTWisdom::find_optimal_options(
+const std::pair<const WisdomPass, FFTOptions::Performance> *FFTWisdom::find_optimal_options(
     unsigned Nx, unsigned Ny, unsigned radix, Mode mode, Target input_target, Target output_target,
     const FFTOptions::Type &type) const
 {
@@ -581,7 +581,7 @@ void FFTWisdom::extract(const char *json)
 
 	// Exception safe, we don't want to risk throwing in the middle of the
 	// loop, leaving the library is broken state.
-	unordered_map<WisdomPass, FFTOptions::Performance> new_library;
+	std::unordered_map<WisdomPass, FFTOptions::Performance> new_library;
 
 	auto &lib = document["library"];
 

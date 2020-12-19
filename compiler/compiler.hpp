@@ -22,14 +22,15 @@
 
 #pragma once
 
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
-#include <stdint.h>
 
 namespace Granite
 {
+
 enum class Stage
 {
 	Vertex,
@@ -115,4 +116,5 @@ private:
 	bool find_include_path(const std::string &source_path, const std::string &include_path,
 	                       std::string &included_path, std::string &included_source);
 };
+
 }

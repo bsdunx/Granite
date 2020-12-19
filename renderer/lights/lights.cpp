@@ -30,14 +30,16 @@
 #include "quirks.hpp"
 #include "muglm/matrix_helper.hpp"
 #include "common_renderer_data.hpp"
+
+#include <cfloat>
 #include <atomic>
-#include <float.h>
 
 using namespace Vulkan;
 using namespace Util;
 
 namespace Granite
 {
+
 enum PositionalLightVariantBits
 {
 	POSITIONAL_VARIANT_FULL_SCREEN_BIT = 1 << 0,
@@ -646,4 +648,5 @@ vec2 spot_light_z_range(const RenderContext &context, const mat4 &model)
 
 	return vec2(lo, hi);
 }
+
 }

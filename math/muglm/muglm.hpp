@@ -22,10 +22,11 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace muglm
 {
+
 template <typename T> struct tvec2;
 template <typename T> struct tvec3;
 template <typename T> struct tvec4;

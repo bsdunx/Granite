@@ -21,17 +21,15 @@
  */
 
 #include "pole_zero_filter_design.hpp"
+
+#include <cassert>
 #include <cmath>
 #include <complex>
-#include <assert.h>
 #include <algorithm>
 
-namespace Granite
+namespace Granite::Audio::DSP
 {
-namespace Audio
-{
-namespace DSP
-{
+
 const double *PoleZeroFilterDesigner::get_numerator() const
 {
 	return numerator;
@@ -157,6 +155,5 @@ void PoleZeroFilterDesigner::add_zero_nyquist(double amplitude)
 	double tap_coeffs[2] = { 1.0, amplitude };
 	add_convolve(numerator, numerator_count, tap_coeffs, 2);
 }
-}
-}
+
 }

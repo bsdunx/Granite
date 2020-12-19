@@ -19,6 +19,7 @@
 #include "glfft_cli.hpp"
 #include "glfft.hpp"
 #include "cli_parser.hpp"
+
 #include <cmath>
 #include <cstdlib>
 #include <functional>
@@ -30,7 +31,6 @@
 using namespace GLFFT;
 using namespace GLFFT::Internal;
 using namespace Util;
-using namespace std;
 
 struct BenchArguments
 {
@@ -100,15 +100,15 @@ static double get_estimated_bw_per_pass(unsigned width, unsigned height, Type ty
 
 static void run_benchmark(Context *context, const BenchArguments &args)
 {
-	auto cache = make_shared<ProgramCache>();
+	auto cache = std::make_shared<ProgramCache>();
 
 	FFTOptions options;
 	options.type.input_fp16 = args.fp16;
 	options.type.output_fp16 = args.fp16;
 	options.type.fp16 = args.fp16;
 
-	unique_ptr<Resource> output;
-	unique_ptr<Resource> input;
+	std::unique_ptr<Resource> output;
+	std::unique_ptr<Resource> input;
 
 	Target input_target = SSBO;
 	Target output_target = SSBO;
@@ -142,7 +142,7 @@ static void run_benchmark(Context *context, const BenchArguments &args)
 	}
 	else
 	{
-		vector<uint8_t> tmp(buffer_size);
+		std::vector<uint8_t> tmp(buffer_size);
 		input = context->create_buffer(tmp.data(), buffer_size, AccessStaticCopy);
 	}
 
@@ -251,7 +251,7 @@ static int cli_test(Context *context, int argc, char *argv[])
 	cbs.add("--epsilon-fp32", [&args](CLIParser &parser) { args.epsilon_fp32 = parser.next_double(); });
 
 	cbs.error_handler = [context] { cli_test_help(context); };
-	CLIParser parser(move(cbs), argc, argv);
+	CLIParser parser(std::move(cbs), argc, argv);
 
 	if (!parser.parse())
 	{
@@ -300,7 +300,7 @@ static Type parse_type(const char *arg, BenchArguments &args)
 	}
 	else
 	{
-		throw logic_error("Invalid argument to parse_type().\n");
+		throw std::logic_error("Invalid argument to parse_type().\n");
 	}
 }
 
@@ -332,7 +332,7 @@ static int cli_bench(Context *context, int argc, char *argv[])
 
 	cbs.error_handler = [context] { cli_bench_help(context); };
 
-	CLIParser parser(move(cbs), argc, argv);
+	CLIParser parser(std::move(cbs), argc, argv);
 
 	if (!parser.parse())
 	{

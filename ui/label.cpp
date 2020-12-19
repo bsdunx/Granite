@@ -23,13 +23,10 @@
 #include "label.hpp"
 #include "widget.hpp"
 
-using namespace std;
+namespace Granite::UI
+{
 
-namespace Granite
-{
-namespace UI
-{
-Label::Label(string text_, FontSize font_size_)
+Label::Label(std::string text_, FontSize font_size_)
 	: text(move(text_)), font_size(font_size_)
 {
 }
@@ -69,5 +66,5 @@ void Label::reconfigure()
 
 	geometry.minimum = max(geometry.minimum, minimum + 2.0f * geometry.margin);
 }
-}
+
 }

@@ -26,11 +26,13 @@
 #include "intrusive_list.hpp"
 #include "object_pool.hpp"
 #include "read_write_lock.hpp"
-#include <assert.h>
+
+#include <cassert>
 #include <vector>
 
 namespace Util
 {
+
 template <typename T>
 class IntrusiveHashMapEnabled : public IntrusiveListEnabled<T>
 {
@@ -672,4 +674,5 @@ private:
 		}
 	}
 };
+
 }

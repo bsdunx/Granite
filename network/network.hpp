@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <unordered_map>
@@ -31,6 +31,7 @@
 
 namespace Granite
 {
+
 class Looper;
 class Socket;
 

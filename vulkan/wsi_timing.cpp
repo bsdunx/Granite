@@ -22,17 +22,18 @@
 
 #define __USE_MINGW_ANSI_STDIO 1
 #define __STDC_FORMAT_MACROS 1
-#include <inttypes.h>
 
 #include "wsi_timing.hpp"
 #include "wsi.hpp"
-#include <string.h>
-#include <algorithm>
-#include <cmath>
 
 #ifndef _WIN32
-#include <time.h>
+#include <ctime>
 #endif
+
+#include <cinttypes>
+#include <cstring>
+#include <cmath>
+#include <algorithm>
 
 namespace Vulkan
 {

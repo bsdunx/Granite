@@ -26,17 +26,17 @@
 #include "filesystem.hpp"
 #include "thread_group.hpp"
 #include "path.hpp"
-#include <vector>
-#include <algorithm>
 #include "stb_image_write.h"
 #include "muglm/muglm_impl.hpp"
-#include <string.h>
+
+#include <cstring>
+#include <vector>
+#include <algorithm>
 
 using namespace Util;
 using namespace Granite;
-using namespace std;
 
-static void save_diff_image(const string &path,
+static void save_diff_image(const std::string &path,
                             const SceneFormats::MemoryMappedTexture &a,
                             const SceneFormats::MemoryMappedTexture &b)
 {
@@ -55,7 +55,7 @@ static void save_diff_image(const string &path,
 
 	int width = a.get_layout().get_width();
 	int height = a.get_layout().get_height();
-	vector<uint8_t> buffer(width * height * 4);
+	std::vector<uint8_t> buffer(width * height * 4);
 
 	auto *src_a = static_cast<const uint8_t *>(a.get_layout().data());
 	auto *src_b = static_cast<const uint8_t *>(b.get_layout().data());
@@ -66,9 +66,9 @@ static void save_diff_image(const string &path,
 		int diff_r = src_a[0] - src_b[0];
 		int diff_g = src_a[1] - src_b[1];
 		int diff_b = src_a[2] - src_b[2];
-		dst[0] = min(diff_r * 16, 255);
-		dst[1] = min(diff_g * 16, 255);
-		dst[2] = min(diff_b * 16, 255);
+		dst[0] = std::min(diff_r * 16, 255);
+		dst[1] = std::min(diff_g * 16, 255);
+		dst[2] = std::min(diff_b * 16, 255);
 		dst[3] = 255;
 	}
 
@@ -123,8 +123,8 @@ int main(int argc, char *argv[])
 {
 	struct Arguments
 	{
-		vector<string> inputs;
-		string diff;
+		std::vector<std::string> inputs;
+		std::string diff;
 		double threshold = -1.0;
 	} args;
 	CLICallbacks cbs;
@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
 		args.inputs.push_back(arg);
 	};
 
-	CLIParser parser(move(cbs), argc - 1, argv + 1);
+	CLIParser parser(std::move(cbs), argc - 1, argv + 1);
 	if (!parser.parse())
 		return 1;
 
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
 	}
 
 	ThreadGroup workers;
-	workers.start(thread::hardware_concurrency());
+	workers.start(std::thread::hardware_concurrency());
 
 	FileStat a_stat, b_stat;
 	if (Global::filesystem()->stat(args.inputs[0], a_stat) && a_stat.type == PathType::Directory &&
@@ -172,8 +172,8 @@ int main(int argc, char *argv[])
 			return 1;
 		}
 
-		vector<double> psnrs(a_list.size());
-		vector<bool> ignore(a_list.size());
+		std::vector<double> psnrs(a_list.size());
+		std::vector<bool> ignore(a_list.size());
 
 		auto task = workers.create_task();
 

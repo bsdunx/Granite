@@ -28,12 +28,14 @@
 #include "muglm/matrix_helper.hpp"
 #include "muglm/muglm_impl.hpp"
 #include "memory_mapped_texture.hpp"
-#include <string.h>
+
+#include <cstring>
 
 using namespace Vulkan;
 
 namespace Granite
 {
+
 ImageHandle convert_cube_to_ibl_specular(Device &device, ImageView &view)
 {
 	unsigned size = 128;
@@ -307,4 +309,5 @@ bool save_image_buffer_to_gtx(Vulkan::Device &device, ImageReadback &readback, c
 
 	return true;
 }
+
 }

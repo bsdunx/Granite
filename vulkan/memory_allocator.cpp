@@ -22,9 +22,8 @@
 
 #include "memory_allocator.hpp"
 #include "device.hpp"
-#include <algorithm>
 
-using namespace std;
+#include <algorithm>
 
 #ifdef GRANITE_VULKAN_MT
 #define ALLOCATOR_LOCK() std::lock_guard<std::mutex> holder__{lock}
@@ -583,10 +582,10 @@ bool DeviceAllocator::allocate(uint32_t size, uint32_t memory_type, AllocationMo
 	ALLOCATOR_LOCK();
 
 	// Naive searching is fine here as vkAllocate blocks are *huge* and we won't have many of them.
-	auto itr = end(heap.blocks);
+	auto itr = std::end(heap.blocks);
 	if (dedicated_image == VK_NULL_HANDLE)
 	{
-		itr = find_if(begin(heap.blocks), end(heap.blocks),
+		itr = std::find_if(std::begin(heap.blocks), std::end(heap.blocks),
 		              [=](const Allocation &alloc) { return size == alloc.size && memory_type == alloc.type && mode == alloc.mode; });
 	}
 
@@ -594,7 +593,7 @@ bool DeviceAllocator::allocate(uint32_t size, uint32_t memory_type, AllocationMo
 	                    host_memory != nullptr;
 
 	// Found previously used block.
-	if (itr != end(heap.blocks))
+	if (itr != std::end(heap.blocks))
 	{
 		*memory = itr->memory;
 		if (host_visible)
@@ -688,8 +687,8 @@ bool DeviceAllocator::allocate(uint32_t size, uint32_t memory_type, AllocationMo
 	else
 	{
 		// Look through our heap and see if there are blocks of other types we can free.
-		auto block_itr = begin(heap.blocks);
-		while (res != VK_SUCCESS && itr != end(heap.blocks))
+		auto block_itr = std::begin(heap.blocks);
+		while (res != VK_SUCCESS && itr != std::end(heap.blocks))
 		{
 			table->vkFreeMemory(device->get_device(), block_itr->memory, nullptr);
 			heap.size -= block_itr->size;
@@ -697,7 +696,7 @@ bool DeviceAllocator::allocate(uint32_t size, uint32_t memory_type, AllocationMo
 			++block_itr;
 		}
 
-		heap.blocks.erase(begin(heap.blocks), block_itr);
+		heap.blocks.erase(std::begin(heap.blocks), block_itr);
 
 		if (res == VK_SUCCESS)
 		{

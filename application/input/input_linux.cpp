@@ -25,7 +25,7 @@
 #include "input_linux.hpp"
 #include "unstable_remove_if.hpp"
 #include "logging.hpp"
-#include <stdexcept>
+
 #include <sys/epoll.h>
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -33,15 +33,16 @@
 #include <sys/ioctl.h>
 #include <linux/kd.h>
 #include <poll.h>
-#include <string.h>
 #include <signal.h>
 #include <termio.h>
 #include <limits.h>
 
-using namespace std;
+#include <cstring>
+#include <stdexcept>
 
 namespace Granite
 {
+
 static long old_kbmd = 0xffff;
 static struct termios old_term;
 
@@ -175,7 +176,7 @@ bool LinuxInputManager::add_device(int fd, DeviceType type, const char *devnode,
 		return false;
 
 	epoll_event event;
-	auto dev = make_unique<Device>();
+	auto dev = std::make_unique<Device>();
 	dev->type = type;
 	dev->callback = callback;
 	dev->devnode = devnode;
@@ -361,11 +362,11 @@ bool LinuxInputManager::poll()
 
 void LinuxInputManager::remove_device(const char *devnode)
 {
-	auto itr = Util::unstable_remove_if(begin(devices), end(devices), [=](const unique_ptr<Device> &dev) {
+	auto itr = Util::unstable_remove_if(std::begin(devices), std::end(devices), [=](const std::unique_ptr<Device> &dev) {
 		return dev->devnode == devnode;
 	});
 
-	devices.erase(itr, end(devices));
+	devices.erase(itr, std::end(devices));
 }
 
 bool LinuxInputManager::open_devices(DeviceType type, InputCallback callback)

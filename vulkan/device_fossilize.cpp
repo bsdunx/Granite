@@ -23,10 +23,9 @@
 #include "device.hpp"
 #include "timer.hpp"
 
-using namespace std;
-
 namespace Vulkan
 {
+
 void Device::register_sampler(VkSampler sampler, Fossilize::Hash hash, const VkSamplerCreateInfo &info)
 {
 	state_recorder.record_sampler(sampler, info, hash);
@@ -259,4 +258,5 @@ void Device::flush_pipeline_state()
 	}
 	state_recorder.free_serialized(serialized);
 }
+
 }

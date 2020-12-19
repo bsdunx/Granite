@@ -22,15 +22,15 @@
 
 #include "cli_parser.hpp"
 #include "logging.hpp"
+
 #include <limits>
 #include <stdexcept>
 
-using namespace std;
-
 namespace Util
 {
+
 CLIParser::CLIParser(CLICallbacks cbs_, int argc_, char *argv_[])
-	: cbs(move(cbs_)), argc(argc_), argv(argv_)
+	: cbs(std::move(cbs_)), argc(argc_), argv(argv_)
 {
 }
 
@@ -50,7 +50,7 @@ bool CLIParser::parse()
 			else
 			{
 				auto itr = cbs.callbacks.find(next);
-				if (itr == ::end(cbs.callbacks))
+				if (itr == std::end(cbs.callbacks))
 				{
 					if (unknown_argument_is_default)
 						cbs.default_handler(next);
@@ -84,13 +84,13 @@ unsigned CLIParser::next_uint()
 {
 	if (!argc)
 	{
-		throw invalid_argument("Tried to parse uint, but nothing left in arguments");
+		throw std::invalid_argument("Tried to parse uint, but nothing left in arguments");
 	}
 
-	auto val = stoul(*argv);
-	if (val > numeric_limits<unsigned>::max())
+	auto val = std::stoul(*argv);
+	if (val > std::numeric_limits<unsigned>::max())
 	{
-		throw invalid_argument("next_uint() out of range");
+		throw std::invalid_argument("next_uint() out of range");
 	}
 
 	argc--;
@@ -103,10 +103,10 @@ double CLIParser::next_double()
 {
 	if (!argc)
 	{
-		throw invalid_argument("Tried to parse double, but nothing left in arguments");
+		throw std::invalid_argument("Tried to parse double, but nothing left in arguments");
 	}
 
-	double val = stod(*argv);
+	double val = std::stod(*argv);
 
 	argc--;
 	argv++;
@@ -118,7 +118,7 @@ const char *CLIParser::next_string()
 {
 	if (!argc)
 	{
-		throw invalid_argument("Tried to parse string, but nothing left in arguments");
+		throw std::invalid_argument("Tried to parse string, but nothing left in arguments");
 	}
 
 	const char *ret = *argv;
@@ -126,4 +126,5 @@ const char *CLIParser::next_string()
 	argv++;
 	return ret;
 }
+
 }

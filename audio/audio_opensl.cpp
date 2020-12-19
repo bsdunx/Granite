@@ -22,17 +22,16 @@
 
 #include "audio_opensl.hpp"
 #include "dsp/dsp.hpp"
-#include <SLES/OpenSLES_Android.h>
 #include "logging.hpp"
-#include <string.h>
+
+#include <SLES/OpenSLES_Android.h>
+
+#include <cstring>
 #include <cmath>
 
-using namespace std;
+namespace Granite::Audio
+{
 
-namespace Granite
-{
-namespace Audio
-{
 static unsigned global_target_sample_rate;
 static unsigned global_target_block_frames;
 
@@ -46,8 +45,8 @@ struct OpenSLESBackend : Backend
 	~OpenSLESBackend();
 	bool init(float target_sample_rate, unsigned channels);
 
-	vector<vector<int16_t>> buffers;
-	vector<float> mix_buffers[2];
+	std::vector<std::vector<int16_t>> buffers;
+	std::vector<float> mix_buffers[2];
 	unsigned buffer_index = 0;
 	unsigned buffer_count = 0;
 	unsigned block_frames = 0;
@@ -289,5 +288,5 @@ void set_opensl_low_latency_parameters(unsigned sample_rate, unsigned block_fram
 	global_target_sample_rate = sample_rate;
 	global_target_block_frames = block_frames;
 }
-}
+
 }
