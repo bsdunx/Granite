@@ -26,6 +26,9 @@
 #include "object_pool.hpp"
 #include "math.hpp"
 #include "ecs.hpp"
+
+#include <optional>
+#include <functional>
 #include <memory>
 
 class btDefaultCollisionConfiguration;
