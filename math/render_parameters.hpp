@@ -29,6 +29,7 @@
 
 namespace Granite
 {
+
 class LightClusterer;
 class VolumetricFog;
 enum { NumShadowCascades = 4 };
@@ -159,4 +160,5 @@ struct LightingParameters
 	const LightClusterer *cluster = nullptr;
 	const VolumetricFog *volumetric_fog = nullptr;
 };
+
 }

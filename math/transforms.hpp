@@ -27,6 +27,7 @@
 
 namespace Granite
 {
+
 class AABB;
 
 bool compute_plane_reflection(mat4 &projection, mat4 &view, vec3 camera_pos, vec3 center, vec3 normal, vec3 look_up,
@@ -70,4 +71,5 @@ struct SlerpSampler
 	std::vector<quat> values;
 	quat sample(unsigned index, float l, float dt) const;
 };
+
 }

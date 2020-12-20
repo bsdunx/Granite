@@ -24,6 +24,7 @@
 
 namespace Granite
 {
+
 enum class RenderableType
 {
 	Mesh,
@@ -49,4 +50,5 @@ enum class RendererType
 	Flat,
 	External
 };
+
 }

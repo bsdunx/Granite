@@ -27,10 +27,9 @@
 #include "flat_renderer.hpp"
 #include "input.hpp"
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 enum class FontSize
 {
 	Small = 0,
@@ -81,5 +80,5 @@ private:
 
 	unsigned touch_emulation_id = ~0u;
 };
-}
+
 }

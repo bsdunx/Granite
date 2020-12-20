@@ -26,6 +26,7 @@
 
 namespace Granite
 {
+
 AABB AABB::transform(const mat4 &m) const
 {
 	vec3 m0 = vec3(FLT_MAX);

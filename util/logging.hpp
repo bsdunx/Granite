@@ -23,16 +23,16 @@
 #pragma once
 
 #include <cstdio>
+#include <cstdarg>
+#include <cstring>
 
 #ifdef GRANITE_LOGGING_QUEUE
 #include "global_managers.hpp"
 #include "message_queue.hpp"
 
-#include <cstring>
-#include <cstdarg>
-
 namespace Util
 {
+
 static inline void queued_log(const char *tag, const char *fmt, ...)
 {
 	auto *message_queue = ::Granite::Global::message_queue();
@@ -61,6 +61,7 @@ static inline void queued_log(const char *tag, const char *fmt, ...)
 		message_queue->push_written_payload(std::move(message_payload));
 	}
 }
+
 }
 
 #define QUEUED_LOGE(...) do { \

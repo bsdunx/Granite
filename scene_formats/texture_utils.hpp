@@ -28,10 +28,9 @@
 #include <cstring>
 #include <stdexcept>
 
-namespace Granite
+namespace Granite::SceneFormats
 {
-namespace SceneFormats
-{
+
 template <typename T, typename Op>
 inline void transform_texture_layout(const Vulkan::TextureFormatLayout &layout, const Op &op)
 {
@@ -74,5 +73,5 @@ enum class TransparencyType
 	Floating
 };
 TransparencyType image_slice_contains_transparency(const Vulkan::TextureFormatLayout &layout, unsigned layer, unsigned level);
-}
+
 }

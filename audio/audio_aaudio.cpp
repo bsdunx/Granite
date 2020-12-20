@@ -37,8 +37,11 @@
 namespace Granite
 {
 extern uint32_t android_api_version;
-namespace Audio
+}
+
+namespace Granite::Audio
 {
+
 static aaudio_data_callback_result_t aaudio_callback(AAudioStream *stream, void *userData, void *audioData, int32_t numFrames);
 static void aaudio_error_callback(AAudioStream *stream, void *userData, aaudio_result_t error);
 
@@ -451,5 +454,5 @@ Backend *create_aaudio_backend(BackendCallback &callback, float sample_rate, uns
 	}
 	return aa;
 }
-}
+
 }

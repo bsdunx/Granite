@@ -22,13 +22,13 @@
 
 #pragma once
 
-#include <vector>
 #include "math.hpp"
 
-namespace Granite
+#include <vector>
+
+namespace Granite::Rasterizer
 {
-namespace Rasterizer
-{
+
 enum class CullMode
 {
 	Front,
@@ -43,4 +43,5 @@ void rasterize_conservative_triangles(std::vector<uvec2> &coverage,
 
 void transform_vertices(vec4 *clip_position, const vec4 *positions, unsigned num_positions, const mat4 &mvp);
 }
+
 }

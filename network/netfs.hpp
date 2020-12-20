@@ -34,6 +34,7 @@
 
 namespace Granite
 {
+
 enum NetFSCommand
 {
 	NETFS_READ_FILE = 1,
@@ -187,4 +188,5 @@ private:
 	std::vector<uint8_t> buffer;
 	size_t offset = 0;
 };
+
 }

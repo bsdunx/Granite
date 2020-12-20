@@ -28,10 +28,12 @@
 #include "fft/glfft.hpp"
 #include "glfft_granite_interface.hpp"
 #include "application_events.hpp"
+
 #include <vector>
 
 namespace Granite
 {
+
 class RenderTextureResource;
 class RenderBufferResource;
 
@@ -190,4 +192,5 @@ private:
 	Vulkan::ImageView *refraction = nullptr;
 	RenderTextureResource *refraction_resource = nullptr;
 };
+
 }

@@ -29,6 +29,7 @@
 
 namespace GLTF
 {
+
 using namespace Granite;
 using namespace Granite::SceneFormats;
 
@@ -201,4 +202,5 @@ private:
 	void extract_attribute(std::vector<quat> &attributes, const Accessor &accessor);
 	void extract_attribute(std::vector<mat4> &attributes, const Accessor &accessor);
 };
+
 }

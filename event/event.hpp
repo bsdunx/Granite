@@ -37,6 +37,7 @@
 
 namespace Granite
 {
+
 class Event;
 
 template <typename Return, typename T, typename EventType, Return (T::*callback)(const EventType &e)>
@@ -269,4 +270,5 @@ private:
 	Util::IntrusiveHashMap<LatchEventTypeData> latched_events;
 	uint64_t cookie_counter = 0;
 };
+
 }

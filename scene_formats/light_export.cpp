@@ -24,10 +24,12 @@
 #include "scene.hpp"
 #include "lights/lights.hpp"
 #include "rapidjson_wrapper.hpp"
+
 using namespace rapidjson;
 
 namespace Granite
 {
+
 std::string export_lights_to_json(const DirectionalParameters &dir, Scene &scene)
 {
 	Document doc;
@@ -110,4 +112,5 @@ std::string export_lights_to_json(const DirectionalParameters &dir, Scene &scene
 	doc.Accept(writer);
 	return buffer.GetString();
 }
+
 }

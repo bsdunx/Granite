@@ -26,6 +26,8 @@
 
 namespace Granite
 {
+
 using namespace muglm;
 void quantize_color(uint8_t *v, const vec4 &color);
+
 }

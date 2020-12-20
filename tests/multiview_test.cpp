@@ -130,6 +130,7 @@ struct MultiviewApplication : Application, EventHandler
 
 namespace Granite
 {
+
 Application *application_create(int, char **)
 {
 	application_dummy();
@@ -153,4 +154,5 @@ Application *application_create(int, char **)
 		return nullptr;
 	}
 }
+
 }

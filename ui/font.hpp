@@ -29,6 +29,7 @@
 
 namespace Granite
 {
+
 class Font : public EventHandler
 {
 public:
@@ -68,4 +69,5 @@ private:
 	unsigned width = 0, height = 0;
 	unsigned font_height = 0;
 };
+
 }

@@ -35,6 +35,7 @@
 
 namespace Granite
 {
+
 void SocketReader::start(void *data_, size_t size_)
 {
 	data = data_;
@@ -172,4 +173,5 @@ int Socket::write(const void *data, size_t size)
 	return -1;
 #endif
 }
+
 }

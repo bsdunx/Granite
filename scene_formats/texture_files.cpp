@@ -24,10 +24,12 @@
 #include "stb_image.h"
 #include "filesystem.hpp"
 #include "muglm/muglm_impl.hpp"
+
 #include <cstring>
 
 namespace Granite
 {
+
 static SceneFormats::MemoryMappedTexture load_stb(const void *data, size_t size, ColorSpace color)
 {
 	int width, height;
@@ -121,4 +123,5 @@ SceneFormats::MemoryMappedTexture load_texture_from_file(const std::string &path
 
 	return load_texture_from_memory(mapped, file->get_size(), color);
 }
+
 }

@@ -24,6 +24,7 @@
 
 namespace Granite
 {
+
 float catmull_rom_spline(float c0, float c1, float c2, float c3, float phase)
 {
 	float phase2 = phase * phase;
@@ -42,4 +43,5 @@ float catmull_rom_spline_gradient(float c0, float c1, float c2, float c3, float 
 	       (c0 - (2.5f * c1) + (2.0f * c2) - (0.5f * c3)) * 2.0f * phase +
 	       ((-0.5f * c0) + (1.5f * c1) - (1.5f * c2) + (0.5f * c3)) * 3.0f * phase2;
 }
+
 }

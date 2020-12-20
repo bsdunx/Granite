@@ -27,6 +27,7 @@
 
 namespace Granite
 {
+
 class Frustum
 {
 public:
@@ -47,4 +48,5 @@ private:
 	vec4 planes[6];
 	mat4 inv_view_projection;
 };
+
 }

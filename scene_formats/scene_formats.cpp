@@ -35,6 +35,7 @@ using namespace Util;
 
 namespace Granite::SceneFormats
 {
+
 static vec3 compute_normal(const vec3 &a, const vec3 &b, const vec3 &c)
 {
 	vec3 n = cross(b - a, c - a);

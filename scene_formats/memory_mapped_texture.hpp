@@ -25,10 +25,9 @@
 #include "texture_format.hpp"
 #include "filesystem.hpp"
 
-namespace Granite
+namespace Granite::SceneFormats
 {
-namespace SceneFormats
-{
+
 enum MemoryMappedTextureFlagBits
 {
 	MEMORY_MAPPED_TEXTURE_CUBE_MAP_COMPATIBLE_BIT = 1 << 0,
@@ -93,5 +92,5 @@ private:
 		VK_COMPONENT_SWIZZLE_A,
 	};
 };
-}
+
 }

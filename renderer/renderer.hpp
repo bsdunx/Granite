@@ -28,6 +28,7 @@
 
 namespace Granite
 {
+
 struct Sprite;
 class LightClusterer;
 class RenderQueue;
@@ -196,4 +197,5 @@ class DeferredLightRenderer
 public:
 	static void render_light(Vulkan::CommandBuffer &cmd, const RenderContext &context, Renderer::RendererOptionFlags flags);
 };
+
 }

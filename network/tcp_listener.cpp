@@ -22,9 +22,9 @@
 
 #include "network.hpp"
 
-#ifdef _WIN32
 namespace Granite
 {
+#ifdef _WIN32
 
 SocketGlobal::SocketGlobal()
 {
@@ -58,9 +58,6 @@ TCPListener::TCPListener(uint16_t port)
 #include <fcntl.h>
 #include <signal.h>
 #include <string>
-
-namespace Granite
-{
 
 SocketGlobal::SocketGlobal()
 {

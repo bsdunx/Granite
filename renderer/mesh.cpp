@@ -31,6 +31,7 @@ using namespace Vulkan;
 
 namespace Granite
 {
+
 Hash StaticMesh::get_instance_key() const
 {
 	Hasher h;
@@ -323,4 +324,5 @@ void StaticMesh::reset()
 	ibo.reset();
 	material.reset();
 }
+
 }

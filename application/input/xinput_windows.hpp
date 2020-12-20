@@ -31,6 +31,7 @@
 
 namespace Granite
 {
+
 class XInputManager
 {
 public:
@@ -49,4 +50,5 @@ private:
 	Util::DynamicLibrary lib;
 	decltype(&XInputGetState) pXInputGetState = nullptr;
 };
+
 }

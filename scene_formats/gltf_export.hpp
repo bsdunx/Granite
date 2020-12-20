@@ -25,10 +25,9 @@
 #include "scene_formats.hpp"
 #include "texture_compression.hpp"
 
-namespace Granite
+namespace Granite::SceneFormats
 {
-namespace SceneFormats
-{
+
 enum class TextureCompression
 {
 	BC7,
@@ -79,5 +78,5 @@ struct ExportOptions
 };
 
 bool export_scene_to_glb(const SceneInformation &scene, const std::string &path, const ExportOptions &options);
-}
+
 }

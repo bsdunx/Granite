@@ -31,6 +31,7 @@
 
 namespace Granite
 {
+
 enum SceneRendererFlagBits : uint32_t
 {
 	SCENE_RENDERER_FORWARD_OPAQUE_BIT = 1 << 0,
@@ -84,4 +85,5 @@ protected:
 	                                 const Vulkan::RenderPassInfo &info, unsigned subpass,
 	                                 VkSubpassContents &contents) override;
 };
+
 }

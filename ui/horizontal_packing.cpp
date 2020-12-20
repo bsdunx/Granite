@@ -24,10 +24,9 @@
 #include "widget.hpp"
 #include "muglm/muglm_impl.hpp"
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 void HorizontalPacking::reconfigure_to_canvas(vec2, vec2 size)
 {
 	vec2 off = vec2(0.0f, geometry.margin);
@@ -200,5 +199,5 @@ void HorizontalPacking::reconfigure()
 	geometry.target = target;
 	geometry.minimum = minimum;
 }
-}
+
 }

@@ -208,4 +208,5 @@ MaterialHandle MaterialManager::request_material(const std::string &path)
 	else
 		return itr->second;
 }
+
 }

@@ -28,6 +28,7 @@
 
 namespace Granite
 {
+
 class ShaderSuite
 {
 public:
@@ -50,4 +51,5 @@ private:
 	Util::ThreadSafeIntrusiveHashMapReadCached<Util::IntrusivePODWrapper<Vulkan::ShaderProgramVariant *>> variants;
 	std::vector<std::pair<std::string, int>> base_defines;
 };
+
 }

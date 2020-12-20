@@ -25,9 +25,11 @@
 
 namespace Granite
 {
+
 void quantize_color(uint8_t *v, const vec4 &color)
 {
 	for (unsigned i = 0; i < 4; i++)
 		v[i] = uint8_t(muglm::round(muglm::clamp(color[i] * 255.0f, 0.0f, 255.0f)));
 }
+
 }

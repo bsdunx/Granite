@@ -28,10 +28,9 @@
 #include <mutex>
 #include <vector>
 
-namespace Granite
+namespace Granite::Audio
 {
-namespace Audio
-{
+
 using StreamID = uint64_t;
 
 class MixerStream
@@ -157,5 +156,4 @@ private:
 	Util::LockFreeMessageQueue message_queue;
 };
 
-}
 }

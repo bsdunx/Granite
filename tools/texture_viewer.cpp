@@ -32,7 +32,7 @@
 using namespace Granite;
 using namespace Vulkan;
 
-struct TextureViewerApplication : Granite::Application, Granite::EventHandler
+struct TextureViewerApplication : Application, EventHandler
 {
 	TextureViewerApplication(std::string path_)
 	    : path(std::move(path_))
@@ -153,6 +153,7 @@ struct TextureViewerApplication : Granite::Application, Granite::EventHandler
 
 namespace Granite
 {
+
 Application *application_create(int argc, char **argv)
 {
 	application_dummy();
@@ -174,4 +175,5 @@ Application *application_create(int argc, char **argv)
 		return nullptr;
 	}
 }
+
 }

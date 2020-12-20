@@ -33,6 +33,7 @@
 
 namespace Granite
 {
+
 struct Material : public Util::IntrusivePtrEnabled<Material>
 {
 	virtual ~Material() = default;
@@ -107,4 +108,5 @@ enum MaterialShaderVariantFlagBits
 };
 
 using MaterialHandle = Util::IntrusivePtr<Material>;
+
 }

@@ -31,6 +31,7 @@
 
 namespace Granite
 {
+
 class MaterialFile : public Material, public Util::VolatileSource<MaterialFile>, public EventHandler
 {
 public:
@@ -58,4 +59,5 @@ private:
 	MaterialManager() = default;
 	std::unordered_map<std::string, MaterialHandle> materials;
 };
+
 }

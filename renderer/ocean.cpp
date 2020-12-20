@@ -33,6 +33,7 @@
 
 namespace Granite
 {
+
 static constexpr unsigned MaxLODIndirect = 8;
 static constexpr float G = 9.81f;
 

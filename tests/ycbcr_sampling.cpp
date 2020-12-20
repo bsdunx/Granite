@@ -187,6 +187,7 @@ struct YCbCrSamplingTest : Granite::Application, Granite::EventHandler
 
 namespace Granite
 {
+
 Application *application_create(int argc, char **argv)
 {
 	application_dummy();
@@ -220,4 +221,5 @@ Application *application_create(int argc, char **argv)
 		return nullptr;
 	}
 }
+
 }

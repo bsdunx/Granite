@@ -60,6 +60,7 @@ enum GlobalDescriptorSetBindings
 
 namespace Granite
 {
+
 void RendererSuite::set_renderer(Type type, RendererHandle handle)
 {
 	handles[Util::ecast(type)] = std::move(handle);

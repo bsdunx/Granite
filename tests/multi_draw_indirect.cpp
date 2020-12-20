@@ -121,6 +121,7 @@ struct MDIApplication : Granite::Application
 
 namespace Granite
 {
+
 Application *application_create(int, char **)
 {
 	application_dummy();
@@ -144,4 +145,5 @@ Application *application_create(int, char **)
 		return nullptr;
 	}
 }
+
 }

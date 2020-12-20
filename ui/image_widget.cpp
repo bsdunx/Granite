@@ -27,10 +27,9 @@
 
 using namespace Vulkan;
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 Image::Image(const std::string &path_)
 	: path(path_)
 {
@@ -95,5 +94,5 @@ void Image::on_device_destroyed(const DeviceCreatedEvent &)
 {
 	texture = nullptr;
 }
-}
+
 }

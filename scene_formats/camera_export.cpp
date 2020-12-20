@@ -27,6 +27,7 @@ using namespace rapidjson;
 
 namespace Granite
 {
+
 std::string export_cameras_to_json(const std::vector<RecordedCamera> &recorded_cameras)
 {
 	Document doc;
@@ -70,4 +71,5 @@ std::string export_cameras_to_json(const std::vector<RecordedCamera> &recorded_c
 	doc.Accept(writer);
 	return buffer.GetString();
 }
+
 }

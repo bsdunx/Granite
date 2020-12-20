@@ -523,5 +523,5 @@ Parser::Parser(const std::string &path)
 	flush_mesh();
 	nodes.push_back(std::move(root_node));
 }
-}
 
+}

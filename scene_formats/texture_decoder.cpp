@@ -26,6 +26,7 @@
 
 namespace Granite
 {
+
 static VkFormat compressed_format_to_decoded_format(VkFormat format)
 {
 	switch (format)
@@ -1331,4 +1332,5 @@ Vulkan::ImageHandle decode_compressed_image(Vulkan::CommandBuffer &cmd, const Vu
 	cmd.set_specialization_constant_mask(0);
 	return decoded_image;
 }
+
 }

@@ -25,6 +25,7 @@
 
 namespace Granite
 {
+
 SimpleRenderer::SimpleRenderer(const ShaderSuiteResolver *resolver)
 	: renderer(RendererType::GeneralForward, resolver)
 {
@@ -57,4 +58,5 @@ void SimpleRenderer::render_scene(const Camera &camera, Scene &scene, Vulkan::Co
 	queue.push_renderables(render_context, visible);
 	renderer.flush(cmd, queue, render_context);
 }
+
 }

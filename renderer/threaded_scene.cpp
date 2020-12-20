@@ -24,10 +24,9 @@
 #include "render_context.hpp"
 #include <algorithm>
 
-namespace Granite
+namespace Granite::Threaded
 {
-namespace Threaded
-{
+
 void scene_gather_opaque_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
                                      VisibilityList *lists, unsigned num_tasks)
 {
@@ -198,5 +197,5 @@ void scene_update_cached_transforms(Scene &scene, TaskComposer &composer, unsign
 		});
 	}
 }
-}
+
 }

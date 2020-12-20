@@ -27,6 +27,7 @@
 
 namespace Granite
 {
+
 class RenderQueue;
 class RenderContext;
 class ShaderSuite;
@@ -80,4 +81,5 @@ public:
 	RenderableFlags flags = 0;
 };
 using AbstractRenderableHandle = Util::IntrusivePtr<AbstractRenderable>;
+
 }

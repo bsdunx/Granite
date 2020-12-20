@@ -32,6 +32,7 @@ using namespace Util;
 
 namespace Granite
 {
+
 bool XInputManager::init(Granite::InputTracker *tracker_)
 {
 	if (!lib)

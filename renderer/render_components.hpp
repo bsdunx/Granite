@@ -33,6 +33,7 @@
 
 namespace Granite
 {
+
 class RenderGraph;
 class RendererSuite;
 class RenderQueue;

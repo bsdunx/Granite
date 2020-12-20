@@ -31,6 +31,7 @@
 #include "application_events.hpp"
 #include "render_graph.hpp"
 #include "simd.hpp"
+
 #include <cstring>
 
 using namespace Vulkan;
@@ -39,6 +40,7 @@ using namespace Granite::SceneFormats;
 
 namespace Granite
 {
+
 ImportedSkinnedMesh::ImportedSkinnedMesh(const Mesh &mesh_, const MaterialInfo &info_)
 	: mesh(mesh_), info(info_)
 {

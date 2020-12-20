@@ -151,6 +151,7 @@ struct RenderGraphSandboxApplication : Granite::Application, Granite::EventHandl
 
 namespace Granite
 {
+
 Application *application_create(int, char **)
 {
 	application_dummy();
@@ -174,4 +175,5 @@ Application *application_create(int, char **)
 		return nullptr;
 	}
 }
+
 }

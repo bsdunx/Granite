@@ -24,6 +24,7 @@
 
 namespace Granite
 {
+
 Entity *EntityPool::create_entity()
 {
 	Util::Hasher hasher;
@@ -135,4 +136,5 @@ void ComponentSet::insert(ComponentType type)
 {
 	set.emplace_yield(type);
 }
+
 }

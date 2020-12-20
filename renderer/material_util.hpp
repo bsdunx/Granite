@@ -28,6 +28,7 @@
 
 namespace Granite
 {
+
 class StockMaterials : public EventHandler
 {
 public:
@@ -41,4 +42,5 @@ private:
 
 	MaterialHandle checkerboard;
 };
+
 }

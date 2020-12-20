@@ -35,10 +35,9 @@
 using namespace rapidjson;
 using namespace Util;
 
-namespace Granite
+namespace Granite::SceneFormats
 {
-namespace SceneFormats
-{
+
 template<typename T>
 struct Remap
 {
@@ -2362,5 +2361,5 @@ bool export_scene_to_glb(const SceneInformation &scene, const std::string &path,
 	file->unmap();
 	return true;
 }
-}
+
 }

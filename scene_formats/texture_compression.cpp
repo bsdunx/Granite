@@ -1109,4 +1109,5 @@ bool compress_texture(ThreadGroup &group, const CompressorArguments &args, const
 
 	return true;
 }
+
 }

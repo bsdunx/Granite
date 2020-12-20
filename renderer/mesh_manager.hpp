@@ -25,17 +25,19 @@
 // A scene loader which is design to load "template" glTF scenes and meshes, which can be instantiated
 // with its own nodes and entities on-demand.
 
-#include <string>
-#include <unordered_map>
-#include <vector>
 #include "abstract_renderable.hpp"
 #include "scene_formats.hpp"
 #include "scene.hpp"
 #include "intrusive_hash_map.hpp"
 #include "animation_system.hpp"
 
+#include <string>
+#include <unordered_map>
+#include <vector>
+
 namespace Granite
 {
+
 class MeshManager
 {
 private:
@@ -87,4 +89,5 @@ private:
 	};
 	Util::IntrusiveHashMap<MeshGroup> groups;
 };
+
 }

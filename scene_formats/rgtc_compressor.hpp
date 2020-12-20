@@ -26,7 +26,9 @@
 
 namespace Granite
 {
+
 void compress_rgtc_red_block(uint8_t *output_r, const uint8_t *input_r);
 void compress_rgtc_red_green_block(uint8_t *output_rg, const uint8_t *input_r, const uint8_t *input_g);
 void decompress_rgtc_red_block(uint8_t *output_r, const uint8_t *block);
+
 }

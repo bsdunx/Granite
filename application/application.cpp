@@ -32,6 +32,7 @@ using namespace Vulkan;
 
 namespace Granite
 {
+
 Application::Application()
 {
 }
@@ -98,4 +99,5 @@ void Application::run_frame()
 	render_frame(application_wsi.get_smooth_frame_time(), application_wsi.get_smooth_elapsed_time());
 	application_wsi.end_frame();
 }
+
 }

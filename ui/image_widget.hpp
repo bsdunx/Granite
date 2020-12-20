@@ -27,10 +27,9 @@
 #include "application_wsi_events.hpp"
 #include "sampler.hpp"
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 class Image : public Widget, public EventHandler
 {
 public:
@@ -68,5 +67,5 @@ private:
 
 	bool keep_aspect = true;
 };
-}
+
 }

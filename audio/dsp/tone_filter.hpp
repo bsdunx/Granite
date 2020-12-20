@@ -34,9 +34,7 @@
 
 namespace Util
 {
-
 class LockFreeMessageQueue;
-
 }
 
 namespace Granite::Audio::DSP

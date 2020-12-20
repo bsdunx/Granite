@@ -139,6 +139,7 @@ void AABenchApplication::on_device_destroyed(const DeviceCreatedEvent &)
 
 namespace Granite
 {
+
 Application *application_create(int argc, char **argv)
 {
 	if (argc < 1)
@@ -188,4 +189,5 @@ Application *application_create(int argc, char **argv)
 		return nullptr;
 	}
 }
+
 }

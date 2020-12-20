@@ -26,10 +26,9 @@
 #include <memory>
 #include <string>
 
-namespace Granite
+namespace Granite::Audio
 {
-namespace Audio
-{
+
 class BackendCallback
 {
 public:
@@ -90,5 +89,5 @@ private:
 	struct Impl;
 	std::unique_ptr<Impl> impl;
 };
-}
+
 }

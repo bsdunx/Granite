@@ -27,12 +27,12 @@
 #include "task_composer.hpp"
 #include "render_queue.hpp"
 #include "hash.hpp"
+
 #include <functional>
 
-namespace Granite
+namespace Granite::Threaded
 {
-namespace Threaded
-{
+
 void scene_gather_opaque_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
                                      VisibilityList *lists, unsigned num_tasks);
 void scene_gather_transparent_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
@@ -52,5 +52,5 @@ void compose_parallel_push_renderables(TaskComposer &composer, const RenderConte
                                        RenderQueue *queues, VisibilityList *visibility, unsigned count);
 
 void scene_update_cached_transforms(Scene &scene, TaskComposer &composer, unsigned num_tasks);
-}
+
 }

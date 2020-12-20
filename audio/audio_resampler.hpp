@@ -24,12 +24,12 @@
 
 #include "audio_mixer.hpp"
 #include "dsp/sinc_resampler.hpp"
+
 #include <memory>
 
-namespace Granite
+namespace Granite::Audio
 {
-namespace Audio
-{
+
 class ResampledStream : public MixerStream
 {
 public:
@@ -58,5 +58,5 @@ private:
 	std::vector<float> input_buffer[Backend::MaxAudioChannels];
 	std::unique_ptr<DSP::SincResampler> resamplers[Backend::MaxAudioChannels];
 };
-}
+
 }

@@ -34,6 +34,7 @@
 
 namespace Granite
 {
+
 class ShaderSuite;
 class RenderContext;
 class AbstractRenderable;
@@ -257,4 +258,5 @@ private:
 	Util::IntrusiveHashMapHolder<QueueDataWrappedErased> render_infos;
 	void recycle_blocks();
 };
+
 }

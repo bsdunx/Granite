@@ -28,6 +28,7 @@
 
 namespace Granite
 {
+
 Vulkan::ImageHandle decode_compressed_image(Vulkan::CommandBuffer &cmd, const Vulkan::TextureFormatLayout &layout,
                                             const VkComponentMapping &swizzle = {
 	                                            VK_COMPONENT_SWIZZLE_R,
@@ -35,4 +36,5 @@ Vulkan::ImageHandle decode_compressed_image(Vulkan::CommandBuffer &cmd, const Vu
 	                                            VK_COMPONENT_SWIZZLE_B,
 	                                            VK_COMPONENT_SWIZZLE_A,
                                             });
+
 }

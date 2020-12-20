@@ -24,10 +24,9 @@
 #include "ui_manager.hpp"
 #include "widget.hpp"
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 void Slider::set_text(std::string text_)
 {
 	text = std::move(text_);
@@ -245,5 +244,5 @@ float Slider::render(FlatRenderer &renderer, float layer, vec2 offset, vec2)
 		return layer;
 	}
 }
-}
+
 }

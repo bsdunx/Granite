@@ -28,6 +28,7 @@
 
 namespace Granite
 {
+
 static const int range_threshold = 16;
 static const int div_7 = (0x100000) / 7;
 static const int div_5 = (0x100000) / 5;

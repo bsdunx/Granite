@@ -79,9 +79,9 @@ struct WASAPIBackend : Backend
 
 	void thread_runner() noexcept;
 
-	thread thr;
-	mutex lock;
-	condition_variable cond;
+	std::thread thr;
+	std::mutex lock;
+	std::condition_variable cond;
 	std::atomic<bool> dead;
 
 	IMMDeviceEnumerator *pEnumerator = nullptr;
@@ -217,7 +217,7 @@ bool WASAPIBackend::start()
 	dead = false;
 
 	callback.on_backend_start();
-	thr = thread(&WASAPIBackend::thread_runner, this);
+	thr = std::thread(&WASAPIBackend::thread_runner, this);
 	return true;
 }
 
@@ -380,4 +380,3 @@ Backend *create_wasapi_backend(BackendCallback &callback, float sample_rate, uns
 }
 
 }
-

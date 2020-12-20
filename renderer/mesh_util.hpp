@@ -30,6 +30,7 @@
 
 namespace Granite
 {
+
 class FrameTickEvent;
 class ImportedMesh : public StaticMesh, public EventHandler
 {
@@ -337,4 +338,5 @@ private:
 
 	void render_main_pass(Vulkan::CommandBuffer &cmd, const mat4 &proj, const mat4 &view);
 };
+
 }

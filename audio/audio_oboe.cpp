@@ -28,10 +28,9 @@
 #include <algorithm>
 #include <oboe/Oboe.h>
 
-namespace Granite
+namespace Granite::Audio
 {
-namespace Audio
-{
+
 void set_oboe_low_latency_parameters(unsigned sample_rate, unsigned block_frames)
 {
 	// For OpenSL ES fallback path.
@@ -352,5 +351,5 @@ Backend *create_oboe_backend(BackendCallback &callback, float sample_rate, unsig
 	}
 	return oboe;
 }
-}
+
 }

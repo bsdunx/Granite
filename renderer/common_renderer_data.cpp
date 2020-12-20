@@ -23,10 +23,12 @@
 #include "common_renderer_data.hpp"
 #include "mesh_util.hpp"
 #include "muglm/muglm_impl.hpp"
+
 #include <random>
 
 namespace Granite
 {
+
 PersistentFrameEvent::PersistentFrameEvent()
 {
 	EVENT_MANAGER_REGISTER(PersistentFrameEvent, on_frame_time, FrameTickEvent);
@@ -200,4 +202,5 @@ Vulkan::Texture *BRDFTables::get_texture() const
 {
 	return texture;
 }
+
 }

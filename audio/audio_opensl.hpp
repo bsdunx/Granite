@@ -24,11 +24,8 @@
 
 #include "audio_interface.hpp"
 
-namespace Granite
-{
-namespace Audio
+namespace Granite::Audio
 {
 Backend *create_opensl_backend(BackendCallback &callback, float sample_rate, unsigned channels);
 void set_opensl_low_latency_parameters(unsigned sample_rate, unsigned block_frames);
-}
 }

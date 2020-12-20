@@ -35,6 +35,7 @@ class Texture;
 
 namespace Granite
 {
+
 class PersistentFrameEvent : public EventHandler
 {
 public:
@@ -102,4 +103,5 @@ public:
 	SSAOLookupTables ssao_luts;
 	BRDFTables brdf_tables;
 };
+
 }

@@ -30,9 +30,11 @@ namespace Granite
 {
 class MouseButtonEvent;
 class FlatRenderer;
+}
 
-namespace UI
+namespace Granite::UI
 {
+
 enum class Alignment
 {
 	TopLeft,
@@ -212,5 +214,5 @@ protected:
 };
 
 using WidgetHandle = Util::IntrusivePtr<Widget>;
-}
+
 }

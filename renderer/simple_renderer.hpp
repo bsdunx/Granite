@@ -30,6 +30,7 @@
 
 namespace Granite
 {
+
 class Scene;
 class Camera;
 
@@ -49,4 +50,5 @@ private:
 	VisibilityList visible;
 	RenderQueue queue;
 };
+
 }

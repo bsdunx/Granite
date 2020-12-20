@@ -22,10 +22,9 @@
 
 #include "texture_utils.hpp"
 
-namespace Granite
+namespace Granite::SceneFormats
 {
-namespace SceneFormats
-{
+
 struct TextureFormatUnorm8
 {
 	inline vec4 sample(const Vulkan::TextureFormatLayout &layout, const uvec2 &coord,
@@ -504,5 +503,5 @@ TransparencyType image_slice_contains_transparency(const Vulkan::TextureFormatLa
 		throw std::logic_error("Unsupported format for image_layer_contains_transparency.");
 	}
 }
-}
+
 }

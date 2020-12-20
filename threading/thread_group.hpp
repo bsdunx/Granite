@@ -191,4 +191,5 @@ private:
 
 	std::unique_ptr<Util::TimelineTraceFile> timeline_trace_file;
 };
+
 }

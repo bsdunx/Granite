@@ -28,6 +28,7 @@
 
 namespace Granite
 {
+
 class Ground;
 class GroundPatch : public AbstractRenderable, public PerFrameRefreshableTransform
 {
@@ -176,4 +177,5 @@ private:
 
 	vec2 tiling_factor = vec2(1.0f);
 };
+
 }

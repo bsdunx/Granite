@@ -27,6 +27,7 @@
 
 namespace Granite
 {
+
 class AABB
 {
 public:
@@ -98,4 +99,5 @@ private:
 		vec4 v4;
 	} minimum, maximum;
 };
+
 }

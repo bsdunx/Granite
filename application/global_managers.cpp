@@ -41,9 +41,7 @@
 #include "physics_system.hpp"
 #endif
 
-namespace Granite
-{
-namespace Global
+namespace Granite::Global
 {
 
 // Could use unique_ptr here, but would be nice to avoid global ctor/dtor.
@@ -316,5 +314,3 @@ void stop_audio_system()
 }
 
 }
-}
-

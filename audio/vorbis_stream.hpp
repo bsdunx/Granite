@@ -23,13 +23,11 @@
 #pragma once
 
 #include "audio_mixer.hpp"
+
 #include <string>
 
-namespace Granite
-{
-namespace Audio
+namespace Granite::Audio
 {
 MixerStream *create_vorbis_stream(const std::string &path, bool looping = false);
 MixerStream *create_decoded_vorbis_stream(const std::string &path, bool looping = false);
-}
 }

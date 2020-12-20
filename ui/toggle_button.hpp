@@ -27,10 +27,9 @@
 #include "ui_manager.hpp"
 #include <functional>
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 class ToggleButton : public Widget
 {
 public:
@@ -90,5 +89,5 @@ private:
 	std::function<void (bool)> toggle_cb;
 	FontSize font_size = FontSize::Small;
 };
-}
+
 }

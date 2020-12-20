@@ -24,10 +24,9 @@
 
 #include "widget.hpp"
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 class HorizontalPacking : public Widget
 {
 public:
@@ -36,5 +35,5 @@ protected:
 	void reconfigure() override;
 	void reconfigure_to_canvas(vec2 offset, vec2 size) override;
 };
-}
+
 }

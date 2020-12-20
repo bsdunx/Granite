@@ -21,11 +21,14 @@
  */
 
 #pragma once
+
 #include "math.hpp"
+
 #include <vector>
 
 namespace Granite
 {
+
 struct VoxelizedBitmap
 {
 	std::vector<vec3> positions;
@@ -40,4 +43,5 @@ struct VoxelizeBitmapOptions
 
 bool voxelize_bitmap(VoxelizedBitmap &bitmap, const uint8_t *components, unsigned component, unsigned pixel_stride,
                      unsigned width, unsigned height, unsigned row_stride, const VoxelizeBitmapOptions &options);
+
 }

@@ -25,10 +25,9 @@
 #include <cstring>
 #include <cassert>
 
-namespace Granite
+namespace Granite::Audio
 {
-namespace Audio
-{
+
 ResampledStream::ResampledStream(Granite::Audio::MixerStream *source_)
 	: source(source_)
 {
@@ -82,5 +81,4 @@ size_t ResampledStream::accumulate_samples(float *const *channels, const float *
 	return source_input ? num_frames : 0;
 }
 
-}
 }

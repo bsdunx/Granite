@@ -28,6 +28,7 @@
 
 namespace Granite
 {
+
 class TaskComposer
 {
 public:

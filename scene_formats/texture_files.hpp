@@ -27,6 +27,7 @@
 
 namespace Granite
 {
+
 enum class ColorSpace
 {
 	Linear,

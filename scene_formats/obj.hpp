@@ -22,13 +22,15 @@
 
 #pragma once
 
-#include <string>
-#include <vector>
 #include "math.hpp"
 #include "scene_formats.hpp"
 
+#include <string>
+#include <vector>
+
 namespace OBJ
 {
+
 using namespace Granite;
 using namespace Granite::SceneFormats;
 
@@ -75,4 +77,5 @@ private:
 	void emit_gltf_base_color(const std::string &metallic, const std::string &roughness);
 	Node root_node;
 };
+
 }

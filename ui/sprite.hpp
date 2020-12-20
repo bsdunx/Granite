@@ -95,4 +95,5 @@ struct Sprite : AbstractRenderable
 		return pipeline;
 	}
 };
+
 }

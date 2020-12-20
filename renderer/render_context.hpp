@@ -81,4 +81,5 @@ private:
 	const LightingParameters *lighting;
 	Frustum frustum;
 };
+
 }

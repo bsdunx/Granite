@@ -32,6 +32,7 @@
 
 namespace Granite
 {
+
 bool StdioFile::init(const std::string &path, FileMode mode_)
 {
 	mode = mode_;

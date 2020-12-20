@@ -27,10 +27,9 @@
 #include "ui_manager.hpp"
 #include <functional>
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 class ClickButton : public Widget
 {
 public:
@@ -72,5 +71,5 @@ private:
 	std::function<void ()> click_cb;
 	FontSize font_size = FontSize::Small;
 };
-}
+
 }

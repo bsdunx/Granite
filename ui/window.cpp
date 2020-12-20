@@ -25,10 +25,9 @@
 #include "ui_manager.hpp"
 #include "widget.hpp"
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 Window::Window()
 {
 	bg_color = vec4(1.0f);
@@ -161,5 +160,5 @@ void Window::reconfigure()
 		geometry.minimum = minimum;
 	}
 }
-}
+
 }

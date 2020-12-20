@@ -39,6 +39,7 @@
 
 namespace Granite
 {
+
 class RenderGraph;
 class RenderPass;
 class TaskComposer;
@@ -1003,4 +1004,5 @@ private:
 	void physical_pass_handle_gpu_timeline(ThreadGroup &group, Vulkan::Device &device,
 	                                       const PhysicalPass &pass, PassSubmissionState &state);
 };
+
 }

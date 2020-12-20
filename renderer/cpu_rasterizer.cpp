@@ -23,10 +23,9 @@
 #include "cpu_rasterizer.hpp"
 #include "simd.hpp"
 
-namespace Granite
+namespace Granite::Rasterizer
 {
-namespace Rasterizer
-{
+
 static unsigned get_clip_code_low(float a, float b, float c, float limit)
 {
 	bool clip_a = a < limit;
@@ -355,5 +354,5 @@ void transform_vertices(vec4 *clip_position, const vec4 *positions, unsigned num
 	for (unsigned i = 0; i < num_positions; i++)
 		SIMD::mul(clip_position[i], mvp, positions[i]);
 }
-}
+
 }

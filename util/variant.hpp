@@ -26,6 +26,7 @@
 
 namespace Granite
 {
+
 class Variant
 {
 public:
@@ -74,4 +75,5 @@ private:
 	};
 	std::shared_ptr<Holder> value;
 };
+
 }

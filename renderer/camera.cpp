@@ -31,6 +31,7 @@ using namespace Vulkan;
 
 namespace Granite
 {
+
 void Camera::set_depth_range(float znear_, float zfar_)
 {
 	znear = znear_;
@@ -234,4 +235,5 @@ bool FPSCamera::on_orientation(const OrientationEvent &o)
 		rotation = conjugate(o.get_rotation());
 	return !ignore_orientation;
 }
+
 }

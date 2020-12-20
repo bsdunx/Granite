@@ -25,6 +25,7 @@
 
 namespace Granite
 {
+
 void RenderPassSceneRenderer::init(const Setup &setup)
 {
 	setup_data = setup;
@@ -209,4 +210,5 @@ bool RenderPassSceneRenderer::get_clear_color(unsigned, VkClearColorValue *value
 		*value = clear_color_value;
 	return true;
 }
+
 }

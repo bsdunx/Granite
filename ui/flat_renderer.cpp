@@ -32,6 +32,7 @@ using namespace Util;
 
 namespace Granite
 {
+
 FlatRenderer::FlatRenderer(const ShaderSuiteResolver *resolver_)
 	: resolver(resolver_)
 {

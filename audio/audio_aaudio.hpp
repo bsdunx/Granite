@@ -24,10 +24,7 @@
 
 #include "audio_interface.hpp"
 
-namespace Granite
-{
-namespace Audio
+namespace Granite::Audio
 {
 Backend *create_aaudio_backend(BackendCallback &callback, float sample_rate, unsigned channels);
-}
 }

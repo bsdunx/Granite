@@ -28,6 +28,7 @@
 
 namespace Granite
 {
+
 enum class TextureMode
 {
 	RGB,
@@ -62,4 +63,5 @@ VkFormat string_to_format(const std::string &s);
 bool compress_texture(ThreadGroup &group, const CompressorArguments &args,
                       const std::shared_ptr<SceneFormats::MemoryMappedTexture> &input,
                       TaskGroupHandle &dep, TaskSignal *signal);
+
 }

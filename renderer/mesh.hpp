@@ -32,6 +32,7 @@
 
 namespace Granite
 {
+
 struct RenderQueueData;
 
 enum class MeshAttribute : unsigned
@@ -198,4 +199,5 @@ struct SkinnedMesh : public StaticMesh
 	void get_render_info(const RenderContext &context, const RenderInfoComponent *transform,
 	                     RenderQueue &queue) const override;
 };
+
 }

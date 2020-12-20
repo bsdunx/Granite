@@ -26,6 +26,7 @@
 
 namespace Granite
 {
+
 enum class ApplicationLifecycle
 {
 	Running,
@@ -77,4 +78,5 @@ private:
 	double frame_time;
 	double elapsed_time;
 };
+
 }

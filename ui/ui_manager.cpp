@@ -25,10 +25,9 @@
 
 using namespace Util;
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 UIManager::UIManager()
 {
 }
@@ -246,5 +245,4 @@ bool UIManager::filter_input_event(const OrientationEvent &)
 	return true;
 }
 
-}
 }

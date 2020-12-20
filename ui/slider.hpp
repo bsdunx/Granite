@@ -25,10 +25,9 @@
 #include "widget.hpp"
 #include <functional>
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 class Slider : public Widget
 {
 public:
@@ -137,5 +136,5 @@ private:
 
 	std::function<void (float)> value_cb;
 };
-}
+
 }

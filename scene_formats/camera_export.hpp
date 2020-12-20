@@ -26,6 +26,7 @@
 
 namespace Granite
 {
+
 struct RecordedCamera
 {
 	vec3 position;
@@ -37,4 +38,5 @@ struct RecordedCamera
 	float zfar;
 };
 std::string export_cameras_to_json(const std::vector<RecordedCamera> &cameras);
+
 }

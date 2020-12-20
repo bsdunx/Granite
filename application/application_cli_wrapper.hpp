@@ -25,11 +25,13 @@
 #include "application.hpp"
 #include "flat_renderer.hpp"
 #include "event.hpp"
+
 #include <future>
 #include <functional>
 
 namespace Granite
 {
+
 class ApplicationCLIWrapper : public Application, public EventHandler
 {
 public:
@@ -48,4 +50,5 @@ private:
 	FlatRenderer renderer;
 	std::vector<std::string> messages;
 };
+
 }

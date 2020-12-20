@@ -25,10 +25,9 @@
 #include "vertical_packing.hpp"
 #include <string>
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 using WindowContainer = VerticalPacking;
 class Window : public WindowContainer
 {
@@ -76,5 +75,5 @@ private:
 	float render(FlatRenderer &renderer, float layer, vec2 offset, vec2 size) override;
 	void reconfigure() override;
 };
-}
+
 }

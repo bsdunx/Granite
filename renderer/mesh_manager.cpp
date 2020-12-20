@@ -28,6 +28,7 @@
 
 namespace Granite
 {
+
 MeshManager::MeshGroup *MeshManager::register_mesh(const std::string &path, AnimationSystem *animation_system)
 {
 	return register_mesh([](const SceneFormats::Mesh &mesh, const SceneFormats::MaterialInfo *materials) {
@@ -152,4 +153,5 @@ MeshManager::MultiHandle MeshManager::instantiate_renderables(Scene &scene, Mesh
 
 	return handles;
 }
+
 }

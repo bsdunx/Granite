@@ -143,4 +143,5 @@ void Frustum::build_planes(const mat4 &inv_view_projection_)
 		if (dot(center, p) < 0.0f)
 			p = -p;
 }
+
 }

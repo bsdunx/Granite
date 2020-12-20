@@ -24,6 +24,7 @@
 
 namespace Granite
 {
+
 TaskComposer::TaskComposer(ThreadGroup &group_)
 	: group(group_)
 {
@@ -71,4 +72,5 @@ ThreadGroup &TaskComposer::get_thread_group()
 {
 	return group;
 }
+
 }

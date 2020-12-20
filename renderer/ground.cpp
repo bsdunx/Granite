@@ -493,4 +493,5 @@ Ground::Handles Ground::add_to_scene(Scene &scene, unsigned size, float tiling_f
 
 	return handles;
 }
+
 }

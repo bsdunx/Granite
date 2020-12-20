@@ -217,4 +217,5 @@ void Sprite::get_sprite_render_info(const SpriteTransformInfo &transform, Render
 		*sprite_data = sprite;
 	}
 }
+
 }

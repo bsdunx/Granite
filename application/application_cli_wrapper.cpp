@@ -26,10 +26,12 @@
 #include "thread_id.hpp"
 #include "device.hpp"
 #include "ui_manager.hpp"
+
 #include <algorithm>
 
 namespace Granite
 {
+
 void ApplicationCLIWrapper::on_device_created(const Vulkan::DeviceCreatedEvent &e)
 {
 	LOGI("Begin main function ...\n");
@@ -131,4 +133,5 @@ ApplicationCLIWrapper::ApplicationCLIWrapper(int (*func_)(int, char **),
 	Global::message_queue()->uncork();
 	EVENT_MANAGER_REGISTER_LATCH(ApplicationCLIWrapper, on_device_created, on_device_destroyed, Vulkan::DeviceCreatedEvent);
 }
+
 }

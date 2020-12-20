@@ -25,10 +25,12 @@
 #include "renderer.hpp"
 #include "font.hpp"
 #include "sprite.hpp"
+
 #include <vector>
 
 namespace Granite
 {
+
 struct SpriteTransformInfo
 {
 	SpriteTransformInfo() = default;
@@ -120,4 +122,5 @@ private:
 
 	void build_scissor(ivec4 &clip, const vec2 &minimum, const vec2 &maximum) const;
 };
+
 }

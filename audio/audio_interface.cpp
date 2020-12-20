@@ -40,9 +40,7 @@
 #include "audio_wasapi.hpp"
 #endif
 
-namespace Granite
-{
-namespace Audio
+namespace Granite::Audio
 {
 using BackendCreationCallback = Backend *(*)(BackendCallback &, float, unsigned);
 
@@ -206,5 +204,4 @@ const char *DumpBackend::get_backend_name()
 	return "dump";
 }
 
-}
 }

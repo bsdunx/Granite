@@ -23,12 +23,14 @@
 #include "material_util.hpp"
 #include "device.hpp"
 #include "texture_manager.hpp"
+
 #include <cstring>
 
 using namespace Vulkan;
 
 namespace Granite
 {
+
 StockMaterials &StockMaterials::get()
 {
 	static StockMaterials stock;

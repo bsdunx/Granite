@@ -26,10 +26,9 @@
 #include "font.hpp"
 #include "ui_manager.hpp"
 
-namespace Granite
+namespace Granite::UI
 {
-namespace UI
-{
+
 class Label : public Widget
 {
 public:
@@ -73,5 +72,5 @@ private:
 	void reconfigure() override;
 	void reconfigure_to_canvas(vec2 offset, vec2 size) override;
 };
-}
+
 }

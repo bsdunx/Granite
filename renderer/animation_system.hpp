@@ -32,6 +32,7 @@
 
 namespace Granite
 {
+
 class AnimationUnrolled : public Util::IntrusiveHashMapEnabled<AnimationUnrolled>
 {
 public:
@@ -128,4 +129,5 @@ private:
 	Util::GenerationalHandlePool<AnimationState> animation_state_pool;
 	Util::IntrusiveList<AnimationState> active_animation;
 };
+
 }

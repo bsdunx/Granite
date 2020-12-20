@@ -24,10 +24,9 @@
 #include <string>
 #include <utility>
 
-namespace Granite
+namespace Granite::Path
 {
-namespace Path
-{
+
 std::string join(const std::string &base, const std::string &path);
 std::string basedir(const std::string &path);
 std::string basename(const std::string &path);
@@ -47,5 +46,5 @@ std::wstring to_utf16(const char *str, size_t len);
 std::string to_utf8(const std::wstring &wstr);
 std::wstring to_utf16(const std::string &str);
 #endif
-}
+
 }
