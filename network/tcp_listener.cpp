@@ -22,6 +22,21 @@
 
 #include "network.hpp"
 
+#ifdef _WIN32
+
+#else
+
+#include <cerrno>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <signal.h>
+#include <string>
+
+#endif
+
 namespace Granite
 {
 #ifdef _WIN32
@@ -49,15 +64,6 @@ TCPListener::TCPListener(uint16_t port)
 }
 
 #else
-
-#include <cerrno>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <string>
 
 SocketGlobal::SocketGlobal()
 {
@@ -97,7 +103,7 @@ TCPListener::TCPListener(uint16_t port)
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
 
-	int res = getaddrinfo(nullptr, std::to_string(port).c_str(), &hints, &servinfo);
+	int res = ::getaddrinfo(nullptr, std::to_string(port).c_str(), &hints, &servinfo);
 	if (res < 0)
 		throw std::runtime_error("getaddrinfo");
 
@@ -113,35 +119,35 @@ TCPListener::TCPListener(uint16_t port)
 			continue;
 
 		int yes = 1;
-		if (setsockopt(fd, SOL_SOCKET,
+		if (::setsockopt(fd, SOL_SOCKET,
 		               SO_REUSEADDR, &yes, sizeof(int)) < 0)
 		{
-			close(fd);
+			::close(fd);
 			continue;
 		}
 
 		if (::bind(fd, walk->ai_addr, walk->ai_addrlen) < 0)
 		{
-			close(fd);
+			::close(fd);
 			break;
 		}
 
 		break;
 	}
 
-	freeaddrinfo(servinfo);
+	::freeaddrinfo(servinfo);
 
 	if (!walk)
 		throw std::runtime_error("bind");
 
-	if (listen(fd, 64) < 0)
+	if (::listen(fd, 64) < 0)
 	{
-		close(fd);
+		::close(fd);
 		throw std::runtime_error("listen");
 	}
 
 	socket = std::unique_ptr<Socket>(new Socket(fd));
 }
+#endif
 
 }
-#endif
