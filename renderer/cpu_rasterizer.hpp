@@ -42,6 +42,5 @@ void rasterize_conservative_triangles(std::vector<uvec2> &coverage,
                                       uvec2 resolution, CullMode cull);
 
 void transform_vertices(vec4 *clip_position, const vec4 *positions, unsigned num_positions, const mat4 &mvp);
-}
 
 }
