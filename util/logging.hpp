@@ -117,11 +117,6 @@ extern retro_log_printf_t libretro_log;
     OutputDebugStringA(buffer); \
     QUEUED_LOGI(__VA_ARGS__); \
 } while(false)
-#elif defined(ANDROID)
-#include <android/log.h>
-#define LOGE(...) do { __android_log_print(ANDROID_LOG_ERROR, "Granite", __VA_ARGS__); QUEUED_LOGE(__VA_ARGS__); } while(0)
-#define LOGW(...) do { __android_log_print(ANDROID_LOG_WARN, "Granite", __VA_ARGS__); QUEUED_LOGW(__VA_ARGS__); } while(0)
-#define LOGI(...) do { __android_log_print(ANDROID_LOG_INFO, "Granite", __VA_ARGS__); QUEUED_LOGI(__VA_ARGS__); } while(0)
 #else
 #define LOGE(...)                                 \
 	do                                            \

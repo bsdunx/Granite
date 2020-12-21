@@ -58,8 +58,6 @@ def main():
     parser.add_argument('--images',
                         help = 'The 2 input images to test',
                         nargs = '+')
-    parser.add_argument('--android-binary',
-                        help = 'Path to android binary')
     parser.add_argument('--binary',
                         help = 'Path to binary')
     parser.add_argument('--width',
@@ -96,30 +94,6 @@ def main():
     sweep_image0 = args.images[0]
     sweep_image1 = args.images[1]
 
-    if args.android_binary is not None:
-        if args.builtin is None:
-            sys.stderr.write('--builtin must be defined when sweeping on Android.\n')
-            sys.exit(1)
-
-        print('Setting up directories ...')
-        subprocess.check_call(['adb', 'shell', 'mkdir', '-p', '/data/local/tmp/granite'])
-        subprocess.check_call(['adb', 'shell', 'mkdir', '-p', '/data/local/tmp/granite/cache'])
-        subprocess.check_call(['adb', 'shell', 'mkdir', '-p', '/data/local/tmp/granite/assets'])
-        print('Pushing granite binary ...')
-        subprocess.check_call(['adb', 'push', args.android_binary, '/data/local/tmp/granite/aa-bench-headless'])
-        subprocess.check_call(['adb', 'shell', 'chmod', '+x', '/data/local/tmp/granite/aa-bench-headless'])
-
-        if args.hw_counter_lib is not None:
-            print('Pushing HW counter library.')
-            subprocess.check_call(['adb', 'push', args.hw_counter_lib, '/data/local/tmp/granite/hwcounter.so'])
-
-        print('Pushing test scene ...')
-        subprocess.check_call(['adb', 'push', sweep_image0, '/data/local/tmp/granite/image0.png'])
-        subprocess.check_call(['adb', 'push', sweep_image1, '/data/local/tmp/granite/image1.png'])
-        print('Pushing builtin assets ...')
-
-        subprocess.check_call(['adb', 'push', args.builtin, '/data/local/tmp/granite/'])
-
     f, stat_file = tempfile.mkstemp()
     f_c, config_file = tempfile.mkstemp()
     os.close(f)
@@ -129,26 +103,14 @@ def main():
         sys.stderr.write('Need width, height and frames.\n')
         sys.exit(1)
 
-    if args.android_binary is not None:
-        base_sweep = ['adb', 'shell', '/data/local/tmp/granite/aa-bench-headless', '--frames', str(args.frames),
-                      '--width', str(args.width),
-                      '--height', str(args.height), '--input-images', '/data/local/tmp/granite/image0.png', '/data/local/tmp/granite/image1.png',
-                      '--stat', '/data/local/tmp/granite/stat.json',
-                      '--fs-builtin /data/local/tmp/granite/assets',
-                      '--fs-assets /data/local/tmp/granite/assets',
-                      '--fs-cache /data/local/tmp/granite/cache']
-        if args.hw_counter_lib is not None:
-            base_sweep.append('--hw-counter-lib')
-            base_sweep.append('/data/local/tmp/granite/hwcounter.so')
-    else:
-        binary = args.binary if args.binary is not None else './tools/aa-bench-headless'
-        base_sweep = [binary, '--frames', str(args.frames),
-                      '--width', str(args.width),
-                      '--height', str(args.height), '--input-images', sweep_image0, sweep_image1,
-                      '--stat', stat_file]
-        if args.hw_counter_lib is not None:
-            base_sweep.append('--hw-counter-lib')
-            base_sweep.append('/data/local/tmp/granite/hwcounter.so')
+    binary = args.binary if args.binary is not None else './tools/aa-bench-headless'
+    base_sweep = [binary, '--frames', str(args.frames),
+                    '--width', str(args.width),
+                    '--height', str(args.height), '--input-images', sweep_image0, sweep_image1,
+                    '--stat', stat_file]
+    if args.hw_counter_lib is not None:
+        base_sweep.append('--hw-counter-lib')
+        base_sweep.append('/data/local/tmp/granite/hwcounter.so')
 
     results = []
     iterations = args.iterations if args.iterations is not None else 1
@@ -161,7 +123,7 @@ def main():
 
     for method in methods:
         sweep = base_sweep + ['--aa-method', method]
-        avg, stddev, gpu, version, gpu_cycles, bw_read, bw_write = run_test(sweep, method, iterations, stat_file, args.android_binary is not None)
+        avg, stddev, gpu, version, gpu_cycles, bw_read, bw_write = run_test(sweep, method, iterations, stat_file, is not None)
         results.append((method, avg, stddev, gpu_cycles, bw_read, bw_write))
 
     for res in results:
@@ -172,10 +134,6 @@ def main():
     if args.results is not None:
         with open(args.results, 'w') as f:
             json.dump({ 'runs': [map_result_to_json(x, args.width, args.height, gpu, version) for x in results] }, f, indent = 4)
-
-    if args.cleanup is not None:
-        if args.android_binary is not None:
-            subprocess.check_call(['adb', 'shell', 'rm', '-r', '/data/local/tmp/granite'])
 
 if __name__ == '__main__':
     main()

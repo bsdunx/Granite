@@ -146,11 +146,6 @@ Filesystem::Filesystem()
 	register_protocol("file", std::unique_ptr<FilesystemBackend>(new OSFilesystem(".")));
 	register_protocol("memory", std::unique_ptr<FilesystemBackend>(new ScratchFilesystem));
 
-#ifdef ANDROID
-	register_protocol("assets", std::unique_ptr<FilesystemBackend>(new NetworkFilesystem));
-	register_protocol("builtin", std::unique_ptr<FilesystemBackend>(new NetworkFilesystem));
-	register_protocol("cache", std::unique_ptr<FilesystemBackend>(new NetworkFilesystem));
-#else
 	if (getenv("GRANITE_USE_NETFS"))
 	{
 		register_protocol("assets", std::unique_ptr<FilesystemBackend>(new NetworkFilesystem));
@@ -183,7 +178,6 @@ Filesystem::Filesystem()
 		if (cache_dir)
 			register_protocol("cache", std::unique_ptr<FilesystemBackend>(new OSFilesystem(cache_dir)));
 	}
-#endif
 }
 
 void Filesystem::register_protocol(const std::string &proto, std::unique_ptr<FilesystemBackend> fs)

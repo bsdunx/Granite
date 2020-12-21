@@ -316,13 +316,6 @@ bool WSI::begin_frame()
 		                                      fence ? fence->get_fence() : VK_NULL_HANDLE, &swapchain_index);
 		device->register_time_interval("WSI", std::move(acquire_ts), device->write_calibrated_timestamp(), "acquire");
 
-#if defined(ANDROID) && 0
-		// Android 10 can return suboptimal here, only because of pre-transform.
-		// We don't care about that, and treat this as success.
-		if (result == VK_SUBOPTIMAL_KHR)
-			result = VK_SUCCESS;
-#endif
-
 		if (result == VK_SUCCESS && fence)
 			fence->wait();
 
@@ -445,15 +438,6 @@ bool WSI::end_frame()
 		auto present_ts = device->write_calibrated_timestamp();
 		VkResult overall = table->vkQueuePresentKHR(context->get_graphics_queue(), &info);
 		device->register_time_interval("WSI", std::move(present_ts), device->write_calibrated_timestamp(), "present");
-
-#if defined(ANDROID) && 0
-		// Android 10 can return suboptimal here, only because of pre-transform.
-		// We don't care about that, and treat this as success.
-		if (overall == VK_SUBOPTIMAL_KHR)
-			overall = VK_SUCCESS;
-		if (result == VK_SUBOPTIMAL_KHR)
-			result = VK_SUCCESS;
-#endif
 
 		if (overall == VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT ||
 		    result == VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT)

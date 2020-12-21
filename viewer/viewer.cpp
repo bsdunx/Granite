@@ -40,7 +40,7 @@ Application *application_create(int argc, char **argv)
 	std::string quirks;
 	std::string path;
 
-#ifdef ANDROID
+#ifdef 0
 	config = "assets://config.json";
 	quirks = "assets://quirks.json";
 #endif

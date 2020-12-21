@@ -50,8 +50,6 @@ bool Device::init_renderdoc_capture()
 
 #ifdef _WIN32
 	renderdoc_module = GetModuleHandleA("renderdoc.dll");
-#elif defined(ANDROID)
-	renderdoc_module = dlopen("libVkLayer_GLES_RenderDoc.so", RTLD_NOW | RTLD_NOLOAD);
 #else
 	renderdoc_module = dlopen("librenderdoc.so", RTLD_NOW | RTLD_NOLOAD);
 #endif

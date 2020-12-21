@@ -426,7 +426,7 @@ bool Context::create_instance(const char **instance_ext, uint32_t instance_ext_c
 
 	volkLoadInstance(instance);
 
-#if defined(VULKAN_DEBUG) && !defined(ANDROID)
+#if defined(VULKAN_DEBUG)
 	if (ext.supports_debug_utils)
 	{
 		VkDebugUtilsMessengerCreateInfoEXT debug_info = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
@@ -440,7 +440,6 @@ bool Context::create_instance(const char **instance_ext, uint32_t instance_ext_c
 		                         VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT;
 		debug_info.pUserData = this;
 
-		// For some reason, this segfaults Android, sigh ... We get relevant output in logcat anyways.
 		vkCreateDebugUtilsMessengerEXT(instance, &debug_info, nullptr, &debug_messenger);
 	}
 #endif
@@ -899,8 +898,6 @@ bool Context::create_device(VkPhysicalDevice gpu_, VkSurfaceKHR surface, const c
 			if (strtol(use_timeline, nullptr, 0) != 0)
 				use_timeline_semaphore = true;
 		}
-#elif defined(ANDROID)
-		constexpr bool use_timeline_semaphore = false;
 #else
 		constexpr bool use_timeline_semaphore = true;
 #endif

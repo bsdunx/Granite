@@ -90,8 +90,6 @@ def main():
     parser = argparse.ArgumentParser(description = 'Script for running automated performance tests.')
     parser.add_argument('--scene',
                         help = 'The glTF/glB scene to test')
-    parser.add_argument('--android-viewer-binary',
-                        help = 'Path to android binary')
     parser.add_argument('--viewer-binary',
                         help = 'Path to viewer binary')
     parser.add_argument('--repacker-binary',
@@ -236,39 +234,6 @@ def main():
     else:
         sweep_path = args.scene
 
-    if args.android_viewer_binary is not None:
-        if args.builtin is None:
-            sys.stderr.write('--builtin must be defined when sweeping on Android.\n')
-            sys.exit(1)
-
-        print('Setting up directories ...')
-        subprocess.check_call(['adb', 'shell', 'mkdir', '-p', '/data/local/tmp/granite'])
-        subprocess.check_call(['adb', 'shell', 'mkdir', '-p', '/data/local/tmp/granite/cache'])
-        subprocess.check_call(['adb', 'shell', 'mkdir', '-p', '/data/local/tmp/granite/assets'])
-        print('Pushing granite binary ...')
-        subprocess.check_call(['adb', 'push', args.android_viewer_binary, '/data/local/tmp/granite/gltf-viewer-headless'])
-        subprocess.check_call(['adb', 'shell', 'chmod', '+x', '/data/local/tmp/granite/gltf-viewer-headless'])
-
-        print('Pushing test scene ...')
-        subprocess.check_call(['adb', 'push', sweep_path, '/data/local/tmp/granite/scene.glb'])
-        print('Pushing builtin assets ...')
-
-        if args.quirks is not None:
-            print('Pushing quirks config.')
-            subprocess.check_call(['adb', 'push', args.quirks, '/data/local/tmp/granite/quirks.json'])
-
-        if args.hw_counter_lib is not None:
-            subprocess.check_call(['adb', 'push', args.hw_counter_lib, '/data/local/tmp/granite/hwcounter.so'])
-
-        subprocess.check_call(['adb', 'push', args.builtin, '/data/local/tmp/granite/'])
-
-        asset_dir = os.path.dirname(sweep_path)
-        for dir, subdir, file_list in os.walk(asset_dir):
-            for f in file_list:
-                if os.path.splitext(f)[1] == '.gtx':
-                    print('Pushing texture: ', os.path.join(dir, f), 'to', os.path.basename(f))
-                    subprocess.check_call(['adb', 'push', os.path.join(dir, f), '/data/local/tmp/granite/' + os.path.basename(f)])
-
     f, stat_file = tempfile.mkstemp()
     f_c, config_file = tempfile.mkstemp()
     os.close(f)
@@ -282,32 +247,17 @@ def main():
         sys.stderr.write('Need width, height and frames.\n')
         sys.exit(1)
 
-    if args.android_viewer_binary is not None:
-        base_sweep = ['adb', 'shell', '/data/local/tmp/granite/gltf-viewer-headless', '--frames', str(args.frames),
-                      '--width', str(args.width),
-                      '--height', str(args.height), '/data/local/tmp/granite/scene.glb',
-                      '--stat', '/data/local/tmp/granite/stat.json',
-                      '--fs-builtin /data/local/tmp/granite/assets',
-                      '--fs-assets /data/local/tmp/granite/assets',
-                      '--fs-cache /data/local/tmp/granite/cache']
-        if args.quirks is not None:
-            base_sweep.append('--quirks')
-            base_sweep.append('/data/local/tmp/granite/quirks.json')
-        if args.hw_counter_lib is not None:
-            base_sweep.append('--hw-counter-lib')
-            base_sweep.append('/data/local/tmp/granite/hwcounter.so')
-    else:
-        binary = args.viewer_binary if args.viewer_binary is not None else './viewer/gltf-viewer-headless'
-        base_sweep = [binary, '--frames', str(args.frames),
-                      '--width', str(args.width),
-                      '--height', str(args.height), sweep_path,
-                      '--stat', stat_file]
-        if args.quirks is not None:
-            base_sweep.append('--quirks')
-            base_sweep.append(args.quirks)
-        if args.hw_counter_lib is not None:
-            base_sweep.append('--hw-counter-lib')
-            base_sweep.append(args.hw_counter_lib)
+    binary = args.viewer_binary if args.viewer_binary is not None else './viewer/gltf-viewer-headless'
+    base_sweep = [binary, '--frames', str(args.frames),
+                    '--width', str(args.width),
+                    '--height', str(args.height), sweep_path,
+                    '--stat', stat_file]
+    if args.quirks is not None:
+        base_sweep.append('--quirks')
+        base_sweep.append(args.quirks)
+    if args.hw_counter_lib is not None:
+        base_sweep.append('--hw-counter-lib')
+        base_sweep.append(args.hw_counter_lib)
 
     results = []
     iterations = args.iterations if args.iterations is not None else 1
@@ -325,29 +275,15 @@ def main():
             point_lights = l[1]
             for config in args.configs:
                 rewrite_config(config_file, config, spot_lights, point_lights)
-                if args.android_viewer_binary is not None:
-                    sweep = base_sweep + ['--config', '/data/local/tmp/granite/config.json']
-                    if args.png_result_dir:
-                        sweep.append('--png-reference-path')
-                        sweep.append('/data/local/tmp/granite/ref.png')
-                    subprocess.check_call(['adb', 'push', config_file, '/data/local/tmp/granite/config.json'])
-                else:
-                    sweep = base_sweep + ['--config', config_file]
-                    if args.png_result_dir:
-                        sweep.append('--png-reference-path')
-                        sweep.append(os.path.join(args.png_result_dir,
-                                                  os.path.splitext(os.path.basename(config))[0]) + '_{}_{}.png'.format(spot_lights, point_lights))
+                sweep = base_sweep + ['--config', config_file]
+                if args.png_result_dir:
+                    sweep.append('--png-reference-path')
+                    sweep.append(os.path.join(args.png_result_dir,
+                                            os.path.splitext(os.path.basename(config))[0]) + '_{}_{}.png'.format(spot_lights, point_lights))
 
                 avg, stddev, gpu, version, gpu_cycles, bw_read, bw_write = run_test(sweep, config_file,
-                                                                                    iterations, stat_file, args.sleep,
-                                                                                    args.android_viewer_binary is not None)
-
-                if (args.android_viewer_binary is not None) and (args.png_result_dir is not None):
-                    subprocess.check_call(['adb', 'pull',
-                                           '/data/local/tmp/granite/ref.png',
-                                           os.path.join(args.png_result_dir,
-                                                        os.path.splitext(os.path.basename(config))[0]) + '_{}_{}.png'.format(spot_lights, point_lights)])
-
+                                                                                    iterations, stat_file, args.sleep
+                                                                                    is not None)
                 c = {}
                 c['configFile'] = config
                 c['maxSpotLights'] = spot_lights
@@ -416,22 +352,12 @@ def main():
             with open(config_file, 'w') as f:
                 json.dump(c, f)
 
-            if args.android_viewer_binary is not None:
-                sweep = base_sweep + ['--config', '/data/local/tmp/granite/config.json']
-                subprocess.check_call(['adb', 'push', config_file, '/data/local/tmp/granite/config.json'])
-                if args.png_result_dir:
-                    sweep.append('--png-reference-path')
-                    sweep.append('/data/local/tmp/granite/ref.png')
-            else:
-                sweep = base_sweep + ['--config', config_file]
-                if args.png_result_dir:
-                    sweep.append('--png-reference-path')
-                    sweep.append(os.path.join(args.png_result_dir, config_to_path(c)) + '.png')
+            sweep = base_sweep + ['--config', config_file]
+            if args.png_result_dir:
+                sweep.append('--png-reference-path')
+                sweep.append(os.path.join(args.png_result_dir, config_to_path(c)) + '.png')
 
-            avg, stddev, gpu, version, gpu_cycles, bw_read, bw_write = run_test(sweep, config_file, iterations, stat_file, args.sleep, args.android_viewer_binary is not None)
-
-            if (args.android_viewer_binary  is not None) and (args.png_result_dir is not None):
-                subprocess.check_call(['adb', 'pull', '/data/local/tmp/granite/ref.png', os.path.join(args.png_result_dir, config_to_path(c)) + '.png'])
+            avg, stddev, gpu, version, gpu_cycles, bw_read, bw_write = run_test(sweep, config_file, iterations, stat_file, args.sleep is not None)
 
             config_name = {}
             config_name['renderer'] = renderer
@@ -461,10 +387,6 @@ def main():
     if args.results is not None:
         with open(args.results, 'w') as f:
             json.dump({ 'runs': [map_result_to_json(x, args.width, args.height, gpu, version) for x in results] }, f, indent = 4)
-
-    if args.cleanup is not None:
-        if args.android_viewer_binary is not None:
-            subprocess.check_call(['adb', 'shell', 'rm', '-r', '/data/local/tmp/granite'])
 
 if __name__ == '__main__':
     main()

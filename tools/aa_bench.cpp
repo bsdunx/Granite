@@ -151,11 +151,6 @@ Application *application_create(int argc, char **argv)
 	std::string input_image0;
 	std::string input_image1;
 
-#ifdef ANDROID
-	input_image0 = "assets://image0.png";
-	input_image1 = "assets://image1.png";
-#endif
-
 	CLICallbacks cbs;
 	cbs.add("--aa-method", [&](CLIParser &parser) { aa_method = parser.next_string(); });
 	cbs.add("--input-images", [&](CLIParser &parser) { input_image0 = parser.next_string(); input_image1 = parser.next_string(); });
