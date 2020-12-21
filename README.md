@@ -65,7 +65,7 @@ Fancy rendering is not the real motivation behind this project.
 
 Fairly straight forward FXAA, SMAA and TAA (no true velocity buffer though).
 
-## Automatic shader recompile and texture reload (Linux/Android only)
+## Automatic shader recompile and texture reload (Linux only)
 
 Immediately when shaders are modified or textures are changed, the resources are automatically reloaded.
 The implementation uses inotify to do this,
@@ -73,8 +73,7 @@ so it's exclusive to Linux unless a backend is implemented on Windows (no).
 
 ## Network VFS
 
-For Linux host and Android device,
-assets and shaders can be pulled over TCP (via ADB port-forwarding) with `network/netfs_server.cpp`.
+For Linux host, assets and shaders can be pulled over TCP with `network/netfs_server.cpp`.
 Quite convenient.
 
 ## Validation
@@ -150,7 +149,6 @@ Tested on GCC, Clang, and MSVC 2017.
 - libretro Vulkan HW interface
 - Headless (benchmarking)
 - Custom surface plugin
-- Android
 
 ## Vulkan implementations tested
 
@@ -158,8 +156,6 @@ Tested on GCC, Clang, and MSVC 2017.
 - Intel Linux (Mesa)
 - AMD Windows
 - nVidia Linux
-- Arm Mali (Galaxy S7/S8/S9)
-- Pixel C tablet (Tegra X1)
 
 ## Build
 
@@ -177,15 +173,6 @@ There aren't any real samples yet, so not much to do unless you use Granite as a
 
 `viewer/gltf-viewer` is a basic glTF viewer used as my sandbox for more complex testing.
 Try some models from glTF-Sample-Models.
-
-### Android
-
-Something ala:
-```
-cd viewer
-gradle build
-```
-Assets used in the default `gltf-viewer` target are pulled from `viewer/assets`.
 
 ### Third party software
 

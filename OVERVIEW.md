@@ -22,40 +22,6 @@ A Python installation is probably necessary for SPIRV-Tools to build.
 Granite uses submodules to pull in third party modules. Make sure that
 `git submodule update --init` is called when checking out new versions of Granite.
 
-### Building Android apps with Granite
-
-There is no builtin way of building Android apps, but it's fairly straight forward to set up.
-You can use the `gltf-viewer` as an example.
-
-#### Setting up the Gradle app folder
-
-You'll need an app folder. This is found under `viewer/app`, but you will need to make your own.
-Here you place the Android manifest. The manifest needs to point to the GraniteActivity.
-This activity is basically just NativeActivity with a few extra utility functions.
-The lib_name needs to point to a particular native library which is the
-CMake target you have chosen to use for your CMake `add_granite_application()`.
-See `viewer/CMakeLists.txt` for how to use `add_granite_application()`.
-
-See `viewer/app/AndroidManifest.xml` for an example manifest file.
-`viewer/app/build.gradle` connects CMake, the manifest, where to pull assets from, etc.
-Make sure that the builtin resources in assets/ are pulled in as well as your own assets.
-The viewer application has its own asset folder in `viewer/assets`.
-For example, to try the Android version of the `gltf-viewer`, place a scene called `scene.glb`
-into `viewer/assets` and build. By default, the Android app will load from `assets://scene.glb`, which will
-point to the APKs asset manager. You can place `android.json`, `config.json` and `quirks.json` into the assets folder as well.
-See the code for more detail.
-
-In `viewer/app/res`, various icons and string resources should go as normal.
-The default `AndroidManifest.xml` points to a built-in Android icon, so you'll probably have to add that.
-
-In `viewer/app/build.gradle` replace what is needed. Likely, only the `targets` line.
-Otherwise, it can mostly be copy-pasted.
-`viewer/build.gradle` is weird magic that has to be there.
-The gradle plugin version might depend a bit on your Android Studio installation.
-`viewer/settings.gradle` pulls in your app as well as the simple, common GraniteActivity Java cruft.
-
-Once you've set it up, a normal gradle build should suffice.
-
 ### Using Granite as a dependency
 
 Granite is designed to be used as a statically linked library, but can be built with position independent code if you need
@@ -68,17 +34,15 @@ It's mostly just a convenience script to link in relevant targets.
 
 ```
 cmake_minimum_required(VERSION 3.5)
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 11)
 project(AppBringup LANGUAGES CXX C)
 
 add_subdirectory(Granite EXCLUDE_FROM_ALL)
 
 add_granite_application(app-bringup app_bringup.cpp)
 target_link_libraries(app-bringup renderer)
-if (NOT ANDROID)
-    target_compile_definitions(app-bringup PRIVATE ASSET_DIRECTORY=\"${CMAKE_CURRENT_SOURCE_DIR}/assets\")
-endif()
+target_compile_definitions(app-bringup PRIVATE ASSET_DIRECTORY=\"${CMAKE_CURRENT_SOURCE_DIR}/assets\")
 ```
 
 ### Using Granite as a pure Vulkan backend
@@ -108,7 +72,6 @@ This module implements anything related to an applications lifecycle.
 Platform specific application things go in here as well, like various backends for `VkSurfaceKHR`,
 and input handling.
 
-- Android
 - GLFW
 - Headless (no WSI, used for benchmarking)
 - VK_KHR_display
@@ -192,7 +155,6 @@ but I haven't had any issues except that removing components is quite costly.
 
 This implements a filesystem.
 The design here is a bit radical. The only file operations supported are `mmap()` or `MapViewOfFile()`. No stream API exists.
-On Android, the APK buffer mapping feature is used (which should basically map to mmap anyways for uncompressed files).
 
 The path system is based around protocols where a path is `protocol://path/inside/protocol`. The builtin protocols are:
 - `builtin://`. Should always refer to `assets/` in some shape or form, where you can find the Granite builtin shaders and so on.
