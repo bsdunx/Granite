@@ -32,6 +32,7 @@
 #include "sampler.hpp"
 #include "shader.hpp"
 #include "vulkan_common.hpp"
+
 #include <cstring>
 
 namespace Vulkan

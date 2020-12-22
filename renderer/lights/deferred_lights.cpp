@@ -24,6 +24,7 @@
 #include "renderer.hpp"
 #include "unstable_remove_if.hpp"
 #include "lights.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <cfloat>
 #include <algorithm>

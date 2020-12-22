@@ -26,7 +26,10 @@
 #include "../filesystem.hpp"
 #include "netfs.hpp"
 
+#include <functional>
+#include <vector>
 #include <unordered_map>
+#include <mutex>
 #include <future>
 #include <thread>
 

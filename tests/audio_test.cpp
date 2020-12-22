@@ -6,9 +6,9 @@
 #include "filesystem.hpp"
 #include "os_filesystem.hpp"
 
+#include <cstdlib>
 #include <chrono>
 #include <thread>
-#include <cmath>
 
 using namespace Granite;
 using namespace Granite::Audio;
@@ -17,8 +17,13 @@ int main()
 {
 	Global::init();
 	Global::filesystem()->register_protocol("assets", std::make_unique<OSFilesystem>(ASSET_DIRECTORY));
-
+ 
 	auto *stream = create_vorbis_stream("assets://test.ogg");
+	if (stream == nullptr)
+	{
+		return EXIT_FAILURE;
+	}
+
 	Global::audio_backend()->start();
 
 	StreamID id = 0;
@@ -35,4 +40,6 @@ int main()
 	std::this_thread::sleep_for(std::chrono::seconds(3));
 	Global::audio_backend()->start();
 	std::this_thread::sleep_for(std::chrono::seconds(100));
+
+	return EXIT_SUCCESS;
 }

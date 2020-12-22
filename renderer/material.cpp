@@ -20,43 +20,30 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#pragma once
+#include "material.hpp"
+#include "muglm/muglm_impl.hpp"
 
-#include <cstddef>
-#include <new>
-
-namespace Util
+namespace Granite
 {
 
-void *memalign_alloc(size_t boundary, size_t size);
-void *memalign_calloc(size_t boundary, size_t size);
-void memalign_free(void *ptr);
-
-template <typename T>
-struct AlignedAllocation
+void Material::bake()
 {
-    static void *operator new(size_t size)
-    {
-        void *ret = ::Util::memalign_alloc(alignof(T), size);
-        if (!ret) throw std::bad_alloc();
-        return ret;
-    }
+	Util::Hasher h;
+	for (auto &tex : textures)
+		h.pointer(tex);
+	for (unsigned i = 0; i < 4; i++)
+		h.f32(base_color[i]);
+	for (unsigned i = 0; i < 3; i++)
+		h.f32(emissive[i]);
+	h.f32(roughness);
+	h.f32(metallic);
+	h.f32(normal_scale);
+	h.u32(Util::ecast(pipeline));
+	h.u32(Util::ecast(sampler));
+	h.u32(two_sided);
+	h.u32(shader_variant);
+	hash = h.get();
+	needs_emissive = any(notEqual(emissive, vec3(0.0f)));
+}
 
-    static void *operator new[](size_t size)
-    {
-        void *ret = ::Util::memalign_alloc(alignof(T), size);
-        if (!ret) throw std::bad_alloc();
-        return ret;
-    }
-
-    static void operator delete(void *ptr)
-    {
-        return ::Util::memalign_free(ptr);
-    }
-
-    static void operator delete[](void *ptr)
-    {
-        return ::Util::memalign_free(ptr);
-    }
-};
 }

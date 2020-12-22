@@ -24,6 +24,8 @@
 #include "shader_suite.hpp"
 #include "render_context.hpp"
 #include "renderer.hpp"
+#include "muglm/muglm_impl.hpp"
+
 #include <cstring>
 
 using namespace Util;

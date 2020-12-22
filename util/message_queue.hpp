@@ -22,11 +22,9 @@
 
 #pragma once
 
-#include <cstddef>
 #include <cassert>
 #include <atomic>
 #include <vector>
-#include <utility>
 #include <memory>
 #include <mutex>
 #include <condition_variable>

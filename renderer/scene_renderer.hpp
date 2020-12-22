@@ -22,15 +22,14 @@
 
 #pragma once
 
-#include "scene.hpp"
 #include "renderer.hpp"
-#include "render_queue.hpp"
-#include "render_context.hpp"
 #include "render_graph.hpp"
-#include "lights/deferred_lights.hpp"
 
 namespace Granite
 {
+
+class Scene;
+class DeferredLights;
 
 enum SceneRendererFlagBits : uint32_t
 {

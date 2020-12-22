@@ -23,6 +23,8 @@
 #include "transforms.hpp"
 #include "aabb.hpp"
 #include "simd.hpp"
+
+#include "muglm/muglm_impl.hpp"
 #include "muglm/matrix_helper.hpp"
 
 #include <cassert>

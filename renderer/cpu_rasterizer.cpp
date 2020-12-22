@@ -21,6 +21,7 @@
  */
 
 #include "cpu_rasterizer.hpp"
+#include "muglm/muglm_impl.hpp"
 #include "simd.hpp"
 
 namespace Granite::Rasterizer

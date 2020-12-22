@@ -24,7 +24,11 @@
 
 #include "shader_manager.hpp"
 #include "intrusive_hash_map.hpp"
-#include "mesh.hpp"
+#include "render_context.hpp"
+
+#include <string>
+#include <vector>
+#include <utility>
 
 namespace Granite
 {

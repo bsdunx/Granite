@@ -23,12 +23,15 @@
 #pragma once
 
 #include "vulkan_headers.hpp"
+
 #include <unordered_set>
 #include <vector>
 
 namespace Vulkan
 {
+
 class Device;
+
 class CommandPool
 {
 public:
@@ -58,4 +61,5 @@ private:
 	unsigned index = 0;
 	unsigned secondary_index = 0;
 };
+
 }

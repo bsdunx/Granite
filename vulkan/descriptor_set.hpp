@@ -27,14 +27,17 @@
 #include "temporary_hashmap.hpp"
 #include "vulkan_headers.hpp"
 #include "sampler.hpp"
+#include "cookie.hpp"
 #include "limits.hpp"
+
 #include <utility>
 #include <vector>
-#include "cookie.hpp"
 
 namespace Vulkan
 {
+
 class Device;
+
 struct DescriptorSetLayout
 {
 	uint32_t sampled_image_mask = 0;
@@ -167,4 +170,5 @@ private:
 	std::vector<VkDescriptorPoolSize> pool_size;
 	bool bindless = false;
 };
+
 }

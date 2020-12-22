@@ -21,6 +21,8 @@
  */
 
 #include "physics_system.hpp"
+#include "muglm/muglm_impl.hpp"
+
 #include <btBulletDynamicsCommon.h>
 #include <btBulletCollisionCommon.h>
 #include <BulletCollision/CollisionDispatch/btGhostObject.h>

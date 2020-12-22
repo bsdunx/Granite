@@ -22,6 +22,7 @@
 
 #include "label.hpp"
 #include "widget.hpp"
+#include "muglm/muglm_impl.hpp"
 
 namespace Granite::UI
 {

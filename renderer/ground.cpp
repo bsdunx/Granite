@@ -25,6 +25,7 @@
 #include "renderer.hpp"
 #include "render_context.hpp"
 #include "muglm/matrix_helper.hpp"
+#include "muglm/muglm_impl.hpp"
 #include "transforms.hpp"
 
 using namespace Vulkan;

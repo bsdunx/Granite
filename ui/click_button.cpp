@@ -23,6 +23,7 @@
 #include "click_button.hpp"
 #include "ui_manager.hpp"
 #include "widget.hpp"
+#include "muglm/muglm_impl.hpp"
 
 namespace Granite::UI
 {

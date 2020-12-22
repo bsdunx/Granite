@@ -27,12 +27,12 @@
 #include "image.hpp"
 #include "intrusive.hpp"
 #include "limits.hpp"
-#include "object_pool.hpp"
 #include "temporary_hashmap.hpp"
 #include "vulkan_headers.hpp"
 
 namespace Vulkan
 {
+
 enum RenderPassOp
 {
 	RENDER_PASS_OP_CLEAR_DEPTH_STENCIL_BIT = 1 << 0,
@@ -293,4 +293,3 @@ public:
 };
 
 }
-

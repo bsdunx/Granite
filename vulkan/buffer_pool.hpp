@@ -24,11 +24,13 @@
 
 #include "vulkan_headers.hpp"
 #include "intrusive.hpp"
+
 #include <vector>
 #include <algorithm>
 
 namespace Vulkan
 {
+
 class Device;
 class Buffer;
 
@@ -97,4 +99,5 @@ private:
 	BufferBlock allocate_block(VkDeviceSize size);
 	bool need_device_local = false;
 };
+
 }

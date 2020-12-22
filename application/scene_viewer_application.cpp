@@ -23,6 +23,7 @@
 #include "scene_viewer_application.hpp"
 #include "light_export.hpp"
 #include "muglm/matrix_helper.hpp"
+#include "muglm/muglm_impl.hpp"
 #include "post/hdr.hpp"
 #include "post/ssao.hpp"
 #include "rapidjson_wrapper.hpp"

@@ -27,6 +27,7 @@
 #include "device.hpp"
 #include "ui_manager.hpp"
 
+#include <cmath>
 #include <algorithm>
 
 namespace Granite
@@ -87,9 +88,9 @@ void ApplicationCLIWrapper::render_frame(double, double elapsed_time)
 
 	auto cmd = device.request_command_buffer();
 	auto rp = device.get_swapchain_render_pass(Vulkan::SwapchainRenderPass::ColorOnly);
-	rp.clear_color[0].float32[0] = 0.05 * std::sin(elapsed_time * 1.5) + 0.05;
-	rp.clear_color[0].float32[1] = 0.05 * std::sin(elapsed_time * 1.6) + 0.05;
-	rp.clear_color[0].float32[2] = 0.05 * std::sin(elapsed_time * 1.7) + 0.05;
+	rp.clear_color[0].float32[0] = 0.05 * sin(elapsed_time * 1.5) + 0.05;
+	rp.clear_color[0].float32[1] = 0.05 * sin(elapsed_time * 1.6) + 0.05;
+	rp.clear_color[0].float32[2] = 0.05 * sin(elapsed_time * 1.7) + 0.05;
 	cmd->begin_render_pass(rp);
 	renderer.begin();
 

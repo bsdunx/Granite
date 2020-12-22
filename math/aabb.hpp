@@ -23,7 +23,6 @@
 #pragma once
 
 #include "math.hpp"
-#include "muglm/muglm_impl.hpp"
 
 namespace Granite
 {
@@ -31,18 +30,17 @@ namespace Granite
 class AABB
 {
 public:
-	AABB(vec3 minimum_, vec3 maximum_)
-	{
-		minimum.v4 = vec4(minimum_, 1.0f);
-		maximum.v4 = vec4(maximum_, 1.0f);
-	}
-
+	AABB(vec3 minimum_, vec3 maximum_);
 	AABB() = default;
 
 	vec3 get_coord(float dx, float dy, float dz) const;
 	AABB transform(const mat4 &m) const;
 
 	void expand(const AABB &aabb);
+	float get_radius() const;
+
+	vec3 get_corner(unsigned i) const;
+	vec3 get_center() const;
 
 	const vec3 &get_minimum() const
 	{
@@ -72,24 +70,6 @@ public:
 	vec4 &get_maximum4()
 	{
 		return maximum.v4;
-	}
-
-	vec3 get_corner(unsigned i) const
-	{
-		float x = i & 1 ? maximum.v3.x : minimum.v3.x;
-		float y = i & 2 ? maximum.v3.y : minimum.v3.y;
-		float z = i & 4 ? maximum.v3.z : minimum.v3.z;
-		return vec3(x, y, z);
-	}
-
-	vec3 get_center() const
-	{
-		return minimum.v3 + (maximum.v3 - minimum.v3) * vec3(0.5f);
-	}
-
-	float get_radius() const
-	{
-		return 0.5f * distance(minimum.v3, maximum.v3);
 	}
 
 private:

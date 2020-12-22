@@ -24,6 +24,7 @@
 #include "flat_renderer.hpp"
 #include "ui_manager.hpp"
 #include "widget.hpp"
+#include "muglm/muglm_impl.hpp"
 
 namespace Granite::UI
 {

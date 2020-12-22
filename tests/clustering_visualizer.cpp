@@ -24,6 +24,7 @@
 #include "os_filesystem.hpp"
 #include "mesh_util.hpp"
 #include "device.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <cstring>
 

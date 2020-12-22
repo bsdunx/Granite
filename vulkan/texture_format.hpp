@@ -27,7 +27,6 @@
 
 #include <cstddef>
 #include <cassert>
-#include <vector>
 
 namespace Vulkan
 {
@@ -176,4 +175,5 @@ private:
 
 	void fill_mipinfo(uint32_t width, uint32_t height, uint32_t depth);
 };
+
 }

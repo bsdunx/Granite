@@ -282,4 +282,5 @@ private:
 
 	void update_cached_transforms_range(size_t start_index, size_t end_index);
 };
+
 }

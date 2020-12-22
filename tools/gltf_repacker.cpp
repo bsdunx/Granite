@@ -25,6 +25,7 @@
 #include "logging.hpp"
 #include "cli_parser.hpp"
 #include "rapidjson_wrapper.hpp"
+#include "muglm/muglm_impl.hpp"
 
 using namespace Granite;
 using namespace Util;

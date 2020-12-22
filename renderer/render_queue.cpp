@@ -22,6 +22,7 @@
 
 #include "render_queue.hpp"
 #include "render_context.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <cassert>
 #include <cstring>

@@ -27,6 +27,7 @@
 #include "mesh_util.hpp"
 #include "enum_cast.hpp"
 #include "ground.hpp"
+#include "muglm/muglm_impl.hpp"
 
 using namespace rapidjson;
 using namespace Util;

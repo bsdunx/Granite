@@ -22,6 +22,7 @@
 
 #include "widget.hpp"
 #include "flat_renderer.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <algorithm>
 

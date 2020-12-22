@@ -54,7 +54,7 @@ private:
 	ApplicationLifecycle lifecycle;
 };
 
-class FrameTickEvent : public Granite::Event
+class FrameTickEvent : public Event
 {
 public:
 	GRANITE_EVENT_TYPE_DECL(FrameTickEvent)

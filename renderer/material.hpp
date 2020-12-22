@@ -60,25 +60,7 @@ struct Material : public Util::IntrusivePtrEnabled<Material>
 	bool two_sided = false;
 	bool needs_emissive = false;
 
-	void bake()
-	{
-		Util::Hasher h;
-		for (auto &tex : textures)
-			h.pointer(tex);
-		for (unsigned i = 0; i < 4; i++)
-			h.f32(base_color[i]);
-		for (unsigned i = 0; i < 3; i++)
-			h.f32(emissive[i]);
-		h.f32(roughness);
-		h.f32(metallic);
-		h.f32(normal_scale);
-		h.u32(Util::ecast(pipeline));
-		h.u32(Util::ecast(sampler));
-		h.u32(two_sided);
-		h.u32(shader_variant);
-		hash = h.get();
-		needs_emissive = any(notEqual(emissive, vec3(0.0f)));
-	}
+	void bake();
 
 	uint64_t get_hash() const
 	{

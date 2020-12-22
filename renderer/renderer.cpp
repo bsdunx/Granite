@@ -29,6 +29,7 @@
 #include "render_parameters.hpp"
 #include "global_managers.hpp"
 #include "common_renderer_data.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <cstring>
 

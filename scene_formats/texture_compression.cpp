@@ -23,6 +23,7 @@
 #include "texture_compression.hpp"
 #include "texture_files.hpp"
 #include "format.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <vector>
 

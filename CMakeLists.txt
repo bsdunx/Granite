@@ -27,7 +27,7 @@ if (${CMAKE_VERSION} VERSION_GREATER "3.13.0")
    cmake_policy(SET CMP0077 NEW)
 endif()
 
-option(GRANITE_SHARED "Build Granite as a shared library." OFF)
+option(GRANITE_SHARED "Build Granite as a shared library." ON)
 option(GRANITE_ISPC_TEXTURE_COMPRESSION "Enable ISPC texture compression" ON)
 option(GRANITE_ASTC_ENCODER_COMPRESSION "Enable astc-encoder texture compression" ON)
 option(GRANITE_TOOLS "Build Granite tools." ON)
@@ -38,15 +38,17 @@ option(GRANITE_VULKAN_SHADER_MANAGER_RUNTIME_COMPILER "Enable Vulkan GLSL runtim
 option(GRANITE_SPIRV_DUMP "Dump compiled SPIR-V modules to cache." OFF)
 option(GRANITE_VULKAN_MT "Make Vulkan backend thread-safe." ON)
 option(GRANITE_VULKAN_FOSSILIZE "Enable support for Fossilize." OFF)
-option(GRANITE_AUDIO "Enable Audio support." OFF)
+option(GRANITE_AUDIO "Enable Audio support." ON)
 option(GRANITE_PLATFORM "Granite Platform" "GLFW")
 option(GRANITE_HIDDEN "Declare symbols as hidden by default. Useful if you build Granite as a static library and you link to it in your shared library." OFF)
 option(GRANITE_SANITIZE_ADDRESS "Sanitize address" OFF)
 option(GRANITE_SANITIZE_THREADS "Sanitize threads" OFF)
 option(GRANITE_SANITIZE_MEMORY "Sanitize memory" OFF)
-option(GRANITE_TARGET_NATIVE "Target native arch (-march=native)" OFF)
+option(GRANITE_TARGET_NATIVE "Target native arch (-march=native)" ON)
 option(GRANITE_BULLET "Enable Bullet support." OFF)
 option(GRANITE_RENDERDOC_CAPTURE "Enable support for RenderDoc capture from API." ON)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 if (GRANITE_HIDDEN)
     if (CMAKE_COMPILER_IS_GNUCXX OR (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"))
@@ -113,8 +115,10 @@ add_library(volk STATIC third_party/volk/volk.c third_party/volk/volk.h)
 if (NOT WIN32)
     target_link_libraries(volk PRIVATE dl)
 endif()
-target_include_directories(volk PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/volk)
-target_include_directories(volk PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/khronos/vulkan-headers/include)
+target_include_directories(volk PUBLIC 
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/volk
+        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/khronos/vulkan-headers/include
+)
 
 if (NOT GRANITE_VULKAN_ONLY)
     add_subdirectory(third_party/shaderc EXCLUDE_FROM_ALL)
@@ -143,11 +147,7 @@ if (GRANITE_SHARED)
     endif()
 else()
     add_library(granite STATIC)
-    if (${GRANITE_PLATFORM} MATCHES "libretro")
-        set_target_properties(${NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    elseif (GRANITE_POSITION_INDEPENDENT)
-        set_target_properties(${NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
-    elseif (GRANITE_SHARED)
+    if (GRANITE_POSITION_INDEPENDENT OR GRANITE_SHARED OR ${GRANITE_PLATFORM} MATCHES "libretro")
         set_target_properties(${NAME} PROPERTIES POSITION_INDEPENDENT_CODE ON)
     else()
         set_target_properties(${NAME} PROPERTIES POSITION_INDEPENDENT_CODE OFF)
@@ -389,7 +389,7 @@ if (NOT GRANITE_VULKAN_ONLY)
             renderer/shader_suite.hpp renderer/shader_suite.cpp
             renderer/render_context.hpp renderer/render_context.cpp
             renderer/camera.hpp renderer/camera.cpp
-            renderer/material.hpp
+            renderer/material.hpp renderer/material.cpp
             renderer/abstract_renderable.hpp
             renderer/render_components.hpp
             renderer/mesh_util.hpp renderer/mesh_util.cpp
@@ -553,7 +553,13 @@ if (NOT GRANITE_VULKAN_ONLY)
         set(BUILD_PYBULLET OFF CACHE BOOL "" FORCE)
         set(USE_GRAPHICAL_BENCHMARK OFF CACHE BOOL "" FORCE)
         set(USE_DOUBLE_PRECISION OFF CACHE BOOL "" FORCE)
+        set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+        set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+        set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
         set(BUILD_CPU_DEMOS OFF CACHE BOOL "" FORCE)
+        set(BUILD_OPENGL3_DEMOS OFF CACHE BOOL "" FORCE)
+        set(BUILD_ENET OFF CACHE BOOL "" FORCE)
+        set(BUILD_CLSOCKET OFF CACHE BOOL "" FORCE)
         set(INSTALL_LIBS ON CACHE BOOL "" FORCE)
         option(GRANITE_BULLET_ROOT "" "Path to a Bullet library checkout.")
         if (NOT GRANITE_BULLET_ROOT)
@@ -633,7 +639,7 @@ if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
 endif()
 
 if (CMAKE_COMPILER_IS_GNUCXX OR (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"))
-    set_source_files_properties(vulkan/managers/texture_manager.cpp PROPERTIES COMPILE_FLAGS "-Wno-type-limits -Wno-pedantic -Wno-ignored-qualifiers -Wno-unused-parameter")
+    set_source_files_properties(vulkan/managers/texture_manager.cpp PROPERTIES COMPILE_FLAGS "-Wno-type-limits -Wno-ignored-qualifiers -Wno-unused-parameter")
 endif()
 
 if (GRANITE_SPIRV_DUMP)

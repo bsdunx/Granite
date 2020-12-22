@@ -27,10 +27,9 @@
 #include "simd_headers.hpp"
 #include "muglm/matrix_helper.hpp"
 
-namespace Granite
+namespace Granite::SIMD
 {
-namespace SIMD
-{
+
 static inline bool frustum_cull(const AABB &aabb, const vec4 *planes)
 {
 #if defined(__SSE3__)
@@ -367,5 +366,5 @@ static inline void convert_quaternion_with_scale(vec4 *cols, const quat &q, cons
 	cols[2] = vec4(m[2] * scale.z, 0.0f);
 #endif
 }
-}
+
 }

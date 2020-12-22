@@ -28,11 +28,8 @@
 #include "compile_time_hash.hpp"
 #include "enum_cast.hpp"
 
-#include <cassert>
 #include <tuple>
 #include <vector>
-#include <memory>
-#include <algorithm>
 
 namespace Granite
 {

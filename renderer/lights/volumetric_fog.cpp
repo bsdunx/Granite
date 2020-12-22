@@ -23,9 +23,9 @@
 #include "volumetric_fog.hpp"
 #include "render_graph.hpp"
 #include "render_context.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <random>
-#include <cmath>
 
 using namespace Vulkan;
 

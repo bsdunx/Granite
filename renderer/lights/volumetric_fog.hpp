@@ -30,6 +30,9 @@
 #include "clusterer.hpp"
 #include "application_events.hpp"
 
+#include <string>
+#include <vector>
+
 namespace Granite
 {
 

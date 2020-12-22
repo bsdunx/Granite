@@ -22,6 +22,7 @@
 
 #include "ssao.hpp"
 #include "muglm/matrix_helper.hpp"
+#include "muglm/muglm_impl.hpp"
 #include "global_managers.hpp"
 #include "common_renderer_data.hpp"
 

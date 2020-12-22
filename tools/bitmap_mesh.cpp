@@ -26,6 +26,8 @@
 #include "texture_files.hpp"
 #include "cli_parser.hpp"
 #include "gltf_export.hpp"
+#include "muglm/muglm_impl.hpp"
+
 #include <cstring>
 
 using namespace Granite;

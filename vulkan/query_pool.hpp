@@ -28,6 +28,7 @@
 
 namespace Vulkan
 {
+
 class Device;
 
 class PerformanceQueryPool
@@ -167,4 +168,5 @@ public:
 private:
 	Util::IntrusiveHashMap<TimestampInterval> timestamps;
 };
+
 }

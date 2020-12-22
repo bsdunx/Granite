@@ -22,6 +22,7 @@
 
 #include "ui_manager.hpp"
 #include "window.hpp"
+#include "muglm/muglm_impl.hpp"
 
 using namespace Util;
 

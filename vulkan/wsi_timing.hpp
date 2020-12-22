@@ -23,10 +23,10 @@
 #pragma once
 
 #include "vulkan_headers.hpp"
-#include <vector>
 
 namespace Vulkan
 {
+
 enum class LatencyLimiter
 {
 	None,

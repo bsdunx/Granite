@@ -29,9 +29,12 @@
 namespace muglm
 {
 
-#define MUGLM_IMPL_SWIZZLE(ret_type, self_type, swiz, ...) template <typename T> t##ret_type<T> t##self_type<T>::swiz() const { return t##ret_type<T>(__VA_ARGS__); }
+#define MUGLM_IMPL_SWIZZLE(ret_type, self_type, swiz, ...) \
+template <typename T> inline t##ret_type<T> t##self_type<T>::swiz() const { return t##ret_type<T>(__VA_ARGS__); }
 
-// vec2
+// ex: MUGLM_IMPL_SWIZZLE(vec2, vec2, xx, x, x) ->
+// template <typename T> inline tvec2<T> tvec2<T>::xx() const { return tvec2<T>(x, x); }
+
 MUGLM_IMPL_SWIZZLE(vec2, vec2, xx, x, x)
 MUGLM_IMPL_SWIZZLE(vec2, vec2, xy, x, y)
 MUGLM_IMPL_SWIZZLE(vec2, vec2, yx, y, x)

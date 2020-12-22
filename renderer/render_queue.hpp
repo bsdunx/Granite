@@ -22,15 +22,14 @@
 
 #pragma once
 
-#include <vector>
-#include <list>
-#include <type_traits>
-#include <stdexcept>
 #include "command_buffer.hpp"
 #include "hash.hpp"
 #include "enum_cast.hpp"
 #include "intrusive_hash_map.hpp"
 #include "math.hpp"
+
+#include <vector>
+#include <type_traits>
 
 namespace Granite
 {

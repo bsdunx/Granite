@@ -23,6 +23,7 @@
 #include "scene_formats.hpp"
 #include "meshoptimizer.h"
 #include "mikktspace.h"
+#include "muglm/muglm_impl.hpp"
 
 #include <mikktspace/mikktspace.h>
 

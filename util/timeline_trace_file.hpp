@@ -22,16 +22,18 @@
 
 #pragma once
 
+#include "object_pool.hpp"
+
+#include <cstdint>
 #include <string>
 #include <thread>
 #include <condition_variable>
 #include <mutex>
-#include <memory>
 #include <queue>
-#include "object_pool.hpp"
 
 namespace Util
 {
+
 class TimelineTraceFile
 {
 public:
@@ -67,4 +69,5 @@ private:
 	ThreadSafeObjectPool<Event> event_pool;
 	std::queue<Event *> queued_events;
 };
+
 }

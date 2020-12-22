@@ -23,6 +23,8 @@
 #include "sprite.hpp"
 #include "device.hpp"
 #include "render_context.hpp"
+#include "muglm/muglm_impl.hpp"
+
 #include <cstring>
 
 using namespace Util;

@@ -22,6 +22,8 @@
 
 #include "threaded_scene.hpp"
 #include "render_context.hpp"
+#include "muglm/muglm_impl.hpp"
+
 #include <algorithm>
 
 namespace Granite::Threaded

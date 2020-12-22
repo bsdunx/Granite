@@ -30,7 +30,6 @@
 #include "bitops.hpp"
 #include "enum_cast.hpp"
 
-#include <cassert>
 #include <cstddef>
 #include <cstdint>
 #include <memory>

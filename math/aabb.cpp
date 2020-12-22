@@ -21,11 +21,18 @@
  */
 
 #include "aabb.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <cfloat>
 
 namespace Granite
 {
+
+AABB::AABB(vec3 minimum_, vec3 maximum_)
+{
+	minimum.v4 = vec4(minimum_, 1.0f);
+	maximum.v4 = vec4(maximum_, 1.0f);
+}
 
 AABB AABB::transform(const mat4 &m) const
 {
@@ -53,6 +60,24 @@ void AABB::expand(const AABB &aabb)
 {
 	minimum.v3 = min(minimum.v3, aabb.minimum.v3);
 	maximum.v3 = max(maximum.v3, aabb.maximum.v3);
+}
+
+float AABB::get_radius() const
+{
+	return 0.5f * distance(minimum.v3, maximum.v3);
+}
+
+vec3 AABB::get_corner(unsigned i) const
+{
+	float x = i & 1 ? maximum.v3.x : minimum.v3.x;
+	float y = i & 2 ? maximum.v3.y : minimum.v3.y;
+	float z = i & 4 ? maximum.v3.z : minimum.v3.z;
+	return vec3(x, y, z);
+}
+
+vec3 AABB::get_center() const
+{
+	return minimum.v3 + (maximum.v3 - minimum.v3) * vec3(0.5f);
 }
 
 }

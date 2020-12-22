@@ -23,8 +23,7 @@
 #pragma once
 
 #include "vulkan_headers.hpp"
-#include "logging.hpp"
-#include <memory>
+
 #include <functional>
 
 namespace Util
@@ -34,6 +33,7 @@ class TimelineTraceFile;
 
 namespace Vulkan
 {
+
 struct DeviceFeatures
 {
 	bool supports_physical_device_properties2 = false;
@@ -262,4 +262,5 @@ private:
 	void check_descriptor_indexing_features();
 	bool force_no_validation = false;
 };
+
 }

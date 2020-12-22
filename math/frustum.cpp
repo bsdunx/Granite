@@ -21,6 +21,7 @@
  */
 
 #include "frustum.hpp"
+#include "muglm/muglm_impl.hpp"
 
 namespace Granite
 {

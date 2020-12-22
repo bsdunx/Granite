@@ -24,17 +24,18 @@
 
 #include "vulkan_common.hpp"
 #include "vulkan_headers.hpp"
-#include "object_pool.hpp"
 #include "cookie.hpp"
+
 #ifdef GRANITE_VULKAN_MT
 #include <mutex>
 #endif
 
 namespace Vulkan
 {
-class Device;
 
+class Device;
 class FenceHolder;
+
 struct FenceHolderDeleter
 {
 	void operator()(FenceHolder *fence);
@@ -82,4 +83,5 @@ private:
 };
 
 using Fence = Util::IntrusivePtr<FenceHolder>;
+
 }

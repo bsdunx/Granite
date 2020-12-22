@@ -24,6 +24,7 @@
 #include "filesystem.hpp"
 #include "device.hpp"
 #include "sprite.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <cstring>
 #include <cfloat>

@@ -24,6 +24,7 @@
 #include "device.hpp"
 #include "event.hpp"
 #include "sprite.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <cfloat>
 

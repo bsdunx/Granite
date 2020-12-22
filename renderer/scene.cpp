@@ -25,6 +25,7 @@
 #include "lights/lights.hpp"
 #include "simd.hpp"
 #include "task_composer.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <cfloat>
 

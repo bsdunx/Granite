@@ -24,7 +24,6 @@
 
 #include "event.hpp"
 
-#include <cstdio>
 #include <vector>
 #include <string>
 #include <memory>

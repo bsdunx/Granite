@@ -270,14 +270,10 @@ public:
 		scale_y = y;
 	}
 
-	vec4 get_plane() const
-	{
-		return vec4(normal, -dot(normal, position));
-	}
-
 	void get_render_info(const RenderContext &context, const RenderInfoComponent *transform,
 	                     RenderQueue &queue) const override;
 
+	vec4 get_plane() const;
 	void set_plane(const vec3 &position, const vec3 &normal, const vec3 &up, float extent_up, float extent_across);
 	void set_base_emissive(const vec3 &color)
 	{

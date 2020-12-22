@@ -29,6 +29,7 @@
 #include "clusterer.hpp"
 #include "quirks.hpp"
 #include "muglm/matrix_helper.hpp"
+#include "muglm/muglm_impl.hpp"
 #include "common_renderer_data.hpp"
 
 #include <cfloat>

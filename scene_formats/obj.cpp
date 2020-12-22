@@ -25,6 +25,7 @@
 #include "memory_mapped_texture.hpp"
 #include "texture_files.hpp"
 #include "string_helpers.hpp"
+#include "muglm/muglm_impl.hpp"
 
 using namespace Util;
 

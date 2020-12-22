@@ -31,6 +31,7 @@
 #include "application_events.hpp"
 #include "render_graph.hpp"
 #include "simd.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <cstring>
 
@@ -1191,6 +1192,11 @@ void TexturePlane::setup_render_pass_dependencies(RenderGraph &, RenderPass &tar
 void TexturePlane::set_scene(Scene *scene_)
 {
 	scene = scene_;
+}
+
+vec4 TexturePlane::get_plane() const
+{
+	return vec4(normal, -dot(normal, position));
 }
 
 void TexturePlane::render_main_pass(Vulkan::CommandBuffer &cmd, const mat4 &proj, const mat4 &view)

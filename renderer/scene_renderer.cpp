@@ -21,6 +21,7 @@
  */
 
 #include "scene_renderer.hpp"
+#include "lights/deferred_lights.hpp"
 #include "threaded_scene.hpp"
 
 namespace Granite

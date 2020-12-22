@@ -21,6 +21,7 @@
  */
 
 #include "animation_system.hpp"
+#include "muglm/muglm_impl.hpp"
 
 namespace Granite
 {

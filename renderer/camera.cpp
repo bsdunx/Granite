@@ -26,6 +26,7 @@
 #include "input.hpp"
 #include "scene.hpp"
 #include "muglm/matrix_helper.hpp"
+#include "muglm/muglm_impl.hpp"
 
 using namespace Vulkan;
 

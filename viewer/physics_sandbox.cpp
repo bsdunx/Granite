@@ -31,6 +31,7 @@
 #include "global_managers.hpp"
 #include "physics_system.hpp"
 #include "muglm/matrix_helper.hpp"
+#include "muglm/muglm_impl.hpp"
 #include "gltf.hpp"
 
 using namespace Granite;

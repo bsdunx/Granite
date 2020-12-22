@@ -42,18 +42,18 @@
 #include <cstdio>
 #include <memory>
 #include <vector>
-#include <functional>
 #include <unordered_map>
-
-#ifdef GRANITE_VULKAN_FILESYSTEM
-#include "shader_manager.hpp"
-#include "texture_manager.hpp"
-#endif
+#include <functional>
 
 #ifdef GRANITE_VULKAN_MT
 #include <atomic>
 #include <mutex>
 #include <condition_variable>
+#endif
+
+#ifdef GRANITE_VULKAN_FILESYSTEM
+#include "shader_manager.hpp"
+#include "texture_manager.hpp"
 #endif
 
 #ifdef GRANITE_VULKAN_FOSSILIZE
@@ -71,6 +71,7 @@ class TimelineTraceFile;
 
 namespace Vulkan
 {
+
 enum class SwapchainRenderPass
 {
 	ColorOnly,
@@ -740,4 +741,5 @@ private:
 	bool allocate_image_memory(DeviceAllocation *allocation, const ImageCreateInfo &info,
 	                           VkImage image, VkImageTiling tiling);
 };
+
 }

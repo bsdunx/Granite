@@ -27,6 +27,7 @@
 #include "render_context.hpp"
 #include "render_graph.hpp"
 #include "muglm/matrix_helper.hpp"
+#include "muglm/muglm_impl.hpp"
 #include "timer.hpp"
 
 #include <random>

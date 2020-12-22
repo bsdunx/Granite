@@ -28,6 +28,7 @@
 #include "application_wsi_events.hpp"
 #include "quirks.hpp"
 #include "muglm/matrix_helper.hpp"
+#include "muglm/muglm_impl.hpp"
 #include "thread_group.hpp"
 #include "cpu_rasterizer.hpp"
 #include "simd.hpp"

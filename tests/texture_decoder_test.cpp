@@ -27,6 +27,7 @@
 #include "memory_mapped_texture.hpp"
 #include "math.hpp"
 #include "muglm/muglm_impl.hpp"
+
 #include <random>
 
 #ifdef HAVE_ASTC_DECODER

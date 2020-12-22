@@ -23,6 +23,7 @@
 #include "input.hpp"
 #include "ui_manager.hpp"
 #include "event.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <cstring>
 #include <algorithm>

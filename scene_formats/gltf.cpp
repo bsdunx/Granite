@@ -26,6 +26,7 @@
 #include "mesh.hpp"
 #include "rapidjson_wrapper.hpp"
 #include "muglm/matrix_helper.hpp"
+#include "muglm/muglm_impl.hpp"
 
 #include <unordered_map>
 #include <algorithm>

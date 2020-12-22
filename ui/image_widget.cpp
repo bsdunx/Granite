@@ -24,6 +24,7 @@
 #include "device.hpp"
 #include "flat_renderer.hpp"
 #include "widget.hpp"
+#include "muglm/muglm_impl.hpp"
 
 using namespace Vulkan;
 

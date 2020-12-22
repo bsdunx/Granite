@@ -23,11 +23,14 @@
 #pragma once
 
 #include "vulkan_headers.hpp"
+
 #include <vector>
 
 namespace Vulkan
 {
+
 class Device;
+
 class SemaphoreManager
 {
 public:
@@ -42,4 +45,5 @@ private:
 	const VolkDeviceTable *table = nullptr;
 	std::vector<VkSemaphore> semaphores;
 };
+
 }
