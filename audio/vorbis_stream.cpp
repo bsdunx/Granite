@@ -25,6 +25,7 @@
 #include "dsp/dsp.hpp"
 #include "stb_vorbis.h"
 #include "logging.hpp"
+#include "audio_mixer.hpp"
 
 #include <cstring>
 #include <algorithm>
