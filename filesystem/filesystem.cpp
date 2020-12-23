@@ -244,6 +244,25 @@ bool Filesystem::read_file_to_string(const std::string &path, std::string &str, 
 	return true;
 }
 
+bool Filesystem::read_file_to_string_view(const std::string &path, std::string_view &str)
+{
+	auto file = open(path, FileMode::ReadOnly);
+	if (!file)
+		return false;
+
+	auto size = file->get_size();
+	if (size == 0)
+		return false;
+
+	auto *mapped = static_cast<const char *>(file->map());
+	if (!mapped)
+		return false;
+
+	str = std::string_view(mapped, size);
+
+	return true;
+}
+
 bool Filesystem::write_buffer_to_file(const std::string &path, const void *data, size_t size)
 {
 	auto file = open(path, FileMode::WriteOnly);

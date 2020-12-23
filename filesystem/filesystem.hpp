@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <string>
+#include <string_view>
 #include <memory>
 #include <unordered_map>
 #include <functional>
@@ -197,6 +198,8 @@ public:
 	std::string get_filesystem_path(const std::string &path);
 
 	bool read_file_to_string(const std::string &path, std::string &str, bool strip_eol = false);
+	bool read_file_to_string_view(const std::string &path, std::string_view &str);
+
 	bool write_string_to_file(const std::string &path, const std::string &str);
 	bool write_buffer_to_file(const std::string &path, const void *data, size_t size);
 
