@@ -60,8 +60,8 @@ Scene::NodeHandle SceneLoader::load_scene_to_root_node(const std::string &path)
 	}
 	else
 	{
-		std::string json;
-		if (!Global::filesystem()->read_file_to_string(path, json))
+		std::string_view json;
+		if (!Global::filesystem()->read_file_to_string_view(path, json))
 			throw std::runtime_error("Failed to load GLTF file.");
 		return parse_scene_format(path, json);
 	}
@@ -182,15 +182,15 @@ Scene::NodeHandle SceneLoader::build_tree_for_subscene(const SubsceneData &subsc
 
 void SceneLoader::load_animation(const std::string &path, SceneFormats::Animation &animation)
 {
-	std::string str;
-	if (!Global::filesystem()->read_file_to_string(path, str))
+	std::string_view str;
+	if (!Global::filesystem()->read_file_to_string_view(path, str))
 	{
 		LOGE("Failed to load file: %s\n", path.c_str());
 		return;
 	}
 
 	Document doc;
-	doc.Parse(str);
+	doc.Parse(str.data());
 	if (doc.HasParseError())
 		throw std::logic_error("Failed to parse.");
 
@@ -310,10 +310,10 @@ Scene::NodeHandle SceneLoader::parse_gltf(const std::string &path)
 	return build_tree_for_subscene(subscene);
 }
 
-Scene::NodeHandle SceneLoader::parse_scene_format(const std::string &path, const std::string &json)
+Scene::NodeHandle SceneLoader::parse_scene_format(const std::string &path, const std::string_view &json)
 {
 	Document doc;
-	doc.Parse(json);
+	doc.Parse(json.data());
 
 	if (doc.HasParseError())
 		throw std::logic_error("Failed to parse.");
@@ -656,11 +656,11 @@ Scene::NodeHandle SceneLoader::parse_scene_format(const std::string &path, const
 		if (terrain.HasMember("patchData"))
 		{
 			auto patch_path = Path::relpath(path, terrain["patchData"].GetString());
-			std::string patch_json;
-			if (Global::filesystem()->read_file_to_string(patch_path, patch_json))
+			std::string_view patch_json;
+			if (Global::filesystem()->read_file_to_string_view(patch_path, patch_json))
 			{
 				Document patch_doc;
-				patch_doc.Parse(patch_json);
+				patch_doc.Parse(patch_json.data());
 				auto &bias = patch_doc["bias"];
 				for (auto itr = bias.Begin(); itr != bias.End(); ++itr)
 					info.patch_lod_bias.push_back(itr->GetFloat());

@@ -25,8 +25,10 @@
 #include "scene.hpp"
 #include "gltf.hpp"
 #include "animation_system.hpp"
+
 #include <memory>
 #include <string>
+#include <string_view>
 
 namespace Granite
 {
@@ -61,7 +63,7 @@ private:
 
 	std::unique_ptr<Scene> scene;
 	std::unique_ptr<AnimationSystem> animation_system;
-	Scene::NodeHandle parse_scene_format(const std::string &path, const std::string &json);
+	Scene::NodeHandle parse_scene_format(const std::string &path, const std::string_view &json);
 	Scene::NodeHandle parse_gltf(const std::string &path);
 
 	Scene::NodeHandle build_tree_for_subscene(const SubsceneData &subscene);
