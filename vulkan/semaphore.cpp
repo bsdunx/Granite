@@ -22,6 +22,7 @@
 
 #include "semaphore.hpp"
 #include "device.hpp"
+#include "vulkan_headers.hpp"
 
 namespace Vulkan
 {

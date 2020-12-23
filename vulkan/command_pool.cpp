@@ -20,6 +20,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "vulkan_headers.hpp"
 #include "command_pool.hpp"
 #include "device.hpp"
 

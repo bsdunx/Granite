@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "vulkan_headers.hpp"
+#include "vulkan_fwd.hpp"
 
 #include <unordered_set>
 #include <vector>

@@ -22,28 +22,38 @@
 
 #pragma once
 
-#include "vulkan_fwd.hpp"
+#include <cstdint>
 
-#include <vector>
+struct VolkDeviceTable;
 
-namespace Vulkan
-{
+struct VkCommandBuffer_T;
+typedef VkCommandBuffer_T *VkCommandBuffer;
 
-class Device;
+struct VkCommandPool_T;
+typedef VkCommandPool_T *VkCommandPool;
 
-class FenceManager
-{
-public:
-	void init(Device *device);
-	~FenceManager();
+struct VkDeviceMemory_T;
+typedef VkDeviceMemory_T *VkDeviceMemory;
 
-	VkFence request_cleared_fence();
-	void recycle_fence(VkFence fence);
+struct VkEvent_T;
+typedef VkEvent_T *VkEvent;
 
-private:
-	Device *device = nullptr;
-	const VolkDeviceTable *table = nullptr;
-	std::vector<VkFence> fences;
-};
+struct VkFence_T;
+typedef VkFence_T *VkFence;
 
-}
+struct VkImage_T;
+typedef VkImage_T *VkImage;
+
+struct VkSemaphore_T;
+typedef VkSemaphore_T *VkSemaphore;
+
+struct VkPhysicalDeviceMemoryProperties;
+struct VkPhysicalDeviceSubgroupProperties;
+
+typedef uint64_t VkDeviceSize;
+
+typedef uint32_t VkFlags;
+typedef VkFlags VkBufferUsageFlags;
+typedef VkFlags VkPipelineStageFlags;
+
+#define VK_NULL_HANDLE 0

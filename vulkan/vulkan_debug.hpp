@@ -22,28 +22,27 @@
 
 #pragma once
 
-#include "vulkan_fwd.hpp"
+#include "logging.hpp"
 
-#include <vector>
+#include <cstdlib>
+#include <utility>
 
-namespace Vulkan
-{
+#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
+// Workaround silly Xlib headers that define macros for these globally :(
+#undef None
+#undef Bool
+#endif
 
-class Device;
-
-class FenceManager
-{
-public:
-	void init(Device *device);
-	~FenceManager();
-
-	VkFence request_cleared_fence();
-	void recycle_fence(VkFence fence);
-
-private:
-	Device *device = nullptr;
-	const VolkDeviceTable *table = nullptr;
-	std::vector<VkFence> fences;
-};
-
-}
+#ifdef VULKAN_DEBUG
+#define VK_ASSERT(x)                                                \
+	do                                                              \
+	{                                                               \
+		if (!bool(x))                                               \
+		{                                                           \
+			LOGE("Vulkan error at %s:%d.\n", __FILE__, __LINE__);   \
+			abort();                                                \
+		}                                                           \
+	} while (0)
+#else
+#define VK_ASSERT(x) ((void)0)
+#endif

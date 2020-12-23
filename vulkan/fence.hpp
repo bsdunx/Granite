@@ -23,7 +23,9 @@
 #pragma once
 
 #include "vulkan_common.hpp"
-#include "vulkan_headers.hpp"
+#include "vulkan_fwd.hpp"
+#include "vulkan_debug.hpp"
+#include "object_pool.hpp"
 #include "cookie.hpp"
 
 #ifdef GRANITE_VULKAN_MT
