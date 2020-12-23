@@ -221,13 +221,16 @@ std::vector<ListEntry> Filesystem::list(const std::string &path)
 	return backend->list(paths.second);
 }
 
-bool Filesystem::read_file_to_string(const std::string &path, std::string &str)
+bool Filesystem::read_file_to_string(const std::string &path, std::string &str, bool strip_eol)
 {
 	auto file = open(path, FileMode::ReadOnly);
 	if (!file)
 		return false;
 
 	auto size = file->get_size();
+	if (size == 0)
+		return false;
+
 	auto *mapped = static_cast<const char *>(file->map());
 	if (!mapped)
 		return false;
@@ -235,7 +238,8 @@ bool Filesystem::read_file_to_string(const std::string &path, std::string &str)
 	str = std::string(mapped, mapped + size);
 
 	// Remove DOS EOL.
-	str.erase(std::remove_if(std::begin(str), std::end(str), [](char c) { return c == '\r'; }), std::end(str));
+	if (strip_eol)
+		str.erase(std::remove_if(std::begin(str), std::end(str), [](char c) { return c == '\r'; }), std::end(str));
 
 	return true;
 }
