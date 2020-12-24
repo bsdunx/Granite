@@ -23,6 +23,9 @@
 #pragma once
 
 #include "vulkan_headers.hpp"
+#ifdef VULKAN_DEBUG
+#include "vulkan_debug.hpp"
+#endif
 
 #include <functional>
 
