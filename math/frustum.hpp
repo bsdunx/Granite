@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "math.hpp"
+#include "muglm/muglm.hpp"
 #include "aabb.hpp"
 
 namespace Granite

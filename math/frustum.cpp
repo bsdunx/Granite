@@ -93,7 +93,7 @@ vec4 Frustum::get_bounding_sphere(const mat4 &inv_projection, const mat4 &inv_vi
 	// N + x^2 == F + C^2 - 2Cx + x^2.
 	// x = (F - N + C^2) / 2C
 	float center_distance = (F - N + C * C) / (2.0f * C);
-	float radius = muglm::sqrt(center_distance * center_distance + N);
+	float radius = sqrt(center_distance * center_distance + N);
 	vec3 view_space_center = center_near + center_distance * normalize(center_far - center_near);
 	vec3 center = (inv_view * vec4(view_space_center, 1.0f)).xyz();
 	return vec4(center, radius);
@@ -101,43 +101,47 @@ vec4 Frustum::get_bounding_sphere(const mat4 &inv_projection, const mat4 &inv_vi
 
 void Frustum::build_planes(const mat4 &inv_view_projection_)
 {
-	inv_view_projection = inv_view_projection_;
-	static const vec4 tln(-1.0f, -1.0f, 0.0f, 1.0f);
-	static const vec4 tlf(-1.0f, -1.0f, 1.0f, 1.0f);
-	static const vec4 bln(-1.0f, +1.0f, 0.0f, 1.0f);
-	static const vec4 blf(-1.0f, +1.0f, 1.0f, 1.0f);
-	static const vec4 trn(+1.0f, -1.0f, 0.0f, 1.0f);
-	static const vec4 trf(+1.0f, -1.0f, 1.0f, 1.0f);
-	static const vec4 brn(+1.0f, +1.0f, 0.0f, 1.0f);
-	static const vec4 brf(+1.0f, +1.0f, 1.0f, 1.0f);
-	static const vec4 c(0.0f, 0.0f, 0.5f, 1.0f);
-
 	const auto project = [](const vec4 &v) {
 		return v.xyz() / vec3(v.w);
 	};
 
-	vec3 TLN = project(inv_view_projection * tln);
-	vec3 BLN = project(inv_view_projection * bln);
-	vec3 BLF = project(inv_view_projection * blf);
-	vec3 TRN = project(inv_view_projection * trn);
-	vec3 TRF = project(inv_view_projection * trf);
-	vec3 BRN = project(inv_view_projection * brn);
-	vec3 BRF = project(inv_view_projection * brf);
-	vec4 center = inv_view_projection * c;
+	inv_view_projection = inv_view_projection_;
+	const vec4 center = inv_view_projection * vec4{0.0f, 0.0f, 0.5f, 1.0f};
 
-	vec3 l = normalize(cross(BLF - BLN, TLN - BLN));
-	vec3 r = normalize(cross(TRF - TRN, BRN - TRN));
-	vec3 n = normalize(cross(BLN - BRN, TRN - BRN));
-	vec3 f = normalize(cross(TRF - BRF, BLF - BRF));
-	vec3 t = normalize(cross(TLN - TRN, TRF - TRN));
-	vec3 b = normalize(cross(BRF - BRN, BLN - BRN));
+/*
+ *	top-left near 		-1.0, -1.0, 0.0, 1.0
+ *	top-left far  		-1.0, -1.0, 1.0, 1.0
+ *	bottom-left near 	-1.0, +1.0, 0.0, 1.0
+ *	bottom-left far 	-1.0, +1.0, 1.0, 1.0
+ *	top-right near 		+1.0, -1.0, 0.0, 1.0
+ *	top-rigt far 		+1.0, -1.0, 1.0, 1.0
+ *	bottom-right near 	+1.0, +1.0, 0.0, 1.0
+ *	bottom-right far 	+1.0, +1.0, 1.0, 1.0
+ *
+ *	center 				 0.0,  0.0, 0.5, 1.0
+ */
 
-	planes[0] = vec4(l, -dot(l, BLN));
-	planes[1] = vec4(r, -dot(r, TRN));
-	planes[2] = vec4(n, -dot(n, BRN));
-	planes[3] = vec4(f, -dot(f, BRF));
-	planes[4] = vec4(t, -dot(t, TRN));
-	planes[5] = vec4(b, -dot(b, BRN));
+	const vec3 tln = project(inv_view_projection * vec4{-1.0f, -1.0f, 0.0f, 1.0f});
+	const vec3 bln = project(inv_view_projection * vec4{-1.0f, +1.0f, 0.0f, 1.0f});
+	const vec3 blf = project(inv_view_projection * vec4{-1.0f, +1.0f, 1.0f, 1.0f});
+	const vec3 trn = project(inv_view_projection * vec4{+1.0f, -1.0f, 0.0f, 1.0f});
+	const vec3 trf = project(inv_view_projection * vec4{+1.0f, -1.0f, 1.0f, 1.0f});
+	const vec3 brn = project(inv_view_projection * vec4{+1.0f, +1.0f, 0.0f, 1.0f});
+	const vec3 brf = project(inv_view_projection * vec4{+1.0f, +1.0f, 1.0f, 1.0f});
+
+	const vec3 l = normalize(cross(blf - bln, tln - bln));
+	const vec3 r = normalize(cross(trf - trn, brn - trn));
+	const vec3 n = normalize(cross(bln - brn, trn - brn));
+	const vec3 f = normalize(cross(trf - brf, blf - brf));
+	const vec3 t = normalize(cross(tln - trn, trf - trn));
+	const vec3 b = normalize(cross(brf - brn, bln - brn));
+
+	planes[0] = vec4(l, -dot(l, bln));
+	planes[1] = vec4(r, -dot(r, trn));
+	planes[2] = vec4(n, -dot(n, brn));
+	planes[3] = vec4(f, -dot(f, brf));
+	planes[4] = vec4(t, -dot(t, trn));
+	planes[5] = vec4(b, -dot(b, brn));
 
 	// Winding order checks.
 	for (auto &p : planes)
