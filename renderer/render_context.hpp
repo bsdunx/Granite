@@ -22,14 +22,11 @@
 
 #pragma once
 
-#include "math.hpp"
 #include "scene.hpp"
-#include "render_queue.hpp"
 #include "camera.hpp"
 #include "render_parameters.hpp"
 #include "frustum.hpp"
 #include "device.hpp"
-#include "application_wsi_events.hpp"
 
 namespace Granite
 {
@@ -37,7 +34,7 @@ namespace Granite
 class RenderContext
 {
 public:
-	void set_scene(Scene *scene_)
+	void set_scene(const Scene *scene_)
 	{
 		scene = scene_;
 	}
