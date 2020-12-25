@@ -24,10 +24,14 @@
 
 #include "material.hpp"
 #include "volatile_source.hpp"
-#include "device.hpp"
 #include "event.hpp"
 #include "scene_formats.hpp"
 #include "application_wsi_events.hpp"
+
+namespace Vulkan
+{
+class Device;
+}
 
 namespace Granite
 {

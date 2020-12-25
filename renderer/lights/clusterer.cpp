@@ -21,6 +21,7 @@
  */
 
 #include "clusterer.hpp"
+#include "device.hpp"
 #include "render_graph.hpp"
 #include "scene.hpp"
 #include "render_context.hpp"

@@ -21,6 +21,7 @@
  */
 
 #include "device.hpp"
+#include "vulkan_headers.hpp"
 #include "format.hpp"
 #include "timeline_trace_file.hpp"
 #include "type_to_string.hpp"

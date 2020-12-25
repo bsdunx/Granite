@@ -21,6 +21,9 @@
  */
 
 #include "application.hpp"
+#include "buffer.hpp"
+#include "wsi.hpp"
+#include "os_filesystem.hpp"
 #include "rapidjson_wrapper.hpp"
 #include "light_export.hpp"
 #include "thread_group.hpp"

@@ -22,17 +22,27 @@
 
 #pragma once
 
-#include "device.hpp"
+#include "context.hpp"
+#include "image.hpp"
+#include "semaphore.hpp"
 #include "semaphore_manager.hpp"
 #include "vulkan_headers.hpp"
+#include "vulkan_common.hpp"
 #include "timer.hpp"
 #include "wsi_timing.hpp"
 
 #include <memory>
 #include <vector>
 
+namespace Util
+{
+class TimelineTraceFile;
+}
+
 namespace Vulkan
 {
+
+class Device;
 class WSI;
 
 class WSIPlatform

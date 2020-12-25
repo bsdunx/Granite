@@ -21,6 +21,7 @@
  */
 
 #include "mesh.hpp"
+#include "device.hpp"
 #include "shader_suite.hpp"
 #include "render_context.hpp"
 #include "renderer.hpp"

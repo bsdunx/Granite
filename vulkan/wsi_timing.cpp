@@ -25,6 +25,7 @@
 
 #include "wsi_timing.hpp"
 #include "wsi.hpp"
+#include "device.hpp"
 
 #ifndef _WIN32
 #include <ctime>
@@ -37,6 +38,7 @@
 
 namespace Vulkan
 {
+
 void WSITiming::init(WSIPlatform *platform_, Device *device_, VkSwapchainKHR swapchain_, const WSITimingOptions &options_)
 {
 	platform = platform_;

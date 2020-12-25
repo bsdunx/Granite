@@ -23,6 +23,7 @@
 #include "application.hpp"
 #include "application_events.hpp"
 #include "application_wsi.hpp"
+#include "device.hpp"
 #include "vulkan_headers.hpp"
 #include "stb_image_write.h"
 #include "cli_parser.hpp"

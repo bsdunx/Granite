@@ -22,6 +22,7 @@
 
 #pragma once
 
+#include "vulkan_fwd.hpp"
 #include "buffer.hpp"
 #include "command_buffer.hpp"
 #include "command_pool.hpp"
@@ -38,7 +39,6 @@
 #include "context.hpp"
 #include "query_pool.hpp"
 #include "buffer_pool.hpp"
-#include "vulkan_headers.hpp"
 
 #include <cstdio>
 #include <memory>

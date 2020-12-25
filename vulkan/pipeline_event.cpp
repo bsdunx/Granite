@@ -25,6 +25,7 @@
 
 namespace Vulkan
 {
+
 EventHolder::~EventHolder()
 {
 	if (event)
@@ -40,4 +41,5 @@ void EventHolderDeleter::operator()(Vulkan::EventHolder *event)
 {
 	event->device->handle_pool.events.free(event);
 }
+
 }

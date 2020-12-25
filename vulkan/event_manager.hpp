@@ -23,10 +23,13 @@
 #pragma once
 
 #include "vulkan_headers.hpp"
+
+#include <cstdint>
 #include <vector>
 
 namespace Vulkan
 {
+
 class Device;
 class EventManager
 {
@@ -44,4 +47,5 @@ private:
 	uint64_t workaround_counter = 0;
 	bool workaround = false;
 };
+
 }

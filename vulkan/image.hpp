@@ -32,7 +32,9 @@
 
 namespace Vulkan
 {
+
 class Device;
+class Context;
 
 static inline VkPipelineStageFlags image_usage_to_possible_stages(VkImageUsageFlags usage)
 {
@@ -707,4 +709,5 @@ private:
 	size_t row_offset;
 };
 using LinearHostImageHandle = Util::IntrusivePtr<LinearHostImage>;
+
 }

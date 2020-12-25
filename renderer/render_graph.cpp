@@ -21,6 +21,7 @@
  */
 
 #include "render_graph.hpp"
+#include "device.hpp"
 #include "type_to_string.hpp"
 #include "format.hpp"
 #include "quirks.hpp"

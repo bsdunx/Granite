@@ -21,6 +21,7 @@
  */
 
 #include "volumetric_fog.hpp"
+#include "device.hpp"
 #include "render_graph.hpp"
 #include "render_context.hpp"
 #include "muglm/muglm_impl.hpp"

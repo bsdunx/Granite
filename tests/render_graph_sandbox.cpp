@@ -21,6 +21,7 @@
  */
 
 #include "application.hpp"
+#include "device.hpp"
 #include "render_graph.hpp"
 #include "os_filesystem.hpp"
 #include "task_composer.hpp"

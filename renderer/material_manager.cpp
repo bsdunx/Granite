@@ -21,6 +21,7 @@
  */
 
 #include "material_manager.hpp"
+#include "device.hpp"
 #include "application_wsi_events.hpp"
 #include "rapidjson_wrapper.hpp"
 #include "scene_formats.hpp"

@@ -22,6 +22,18 @@
 
 #pragma once
 
+#include "vulkan_headers.hpp"
+#include "buffer.hpp"
+#include "command_buffer.hpp"
+#include "semaphore.hpp"
+#include "render_pass.hpp"
+#include "pipeline_event.hpp"
+#include "small_vector.hpp"
+#include "stack_allocator.hpp"
+#include "application_wsi_events.hpp"
+#include "quirks.hpp"
+#include "thread_group.hpp"
+
 #include <vector>
 #include <memory>
 #include <unordered_map>
@@ -29,13 +41,14 @@
 #include <utility>
 #include <string>
 #include <functional>
-#include "vulkan_headers.hpp"
-#include "device.hpp"
-#include "small_vector.hpp"
-#include "stack_allocator.hpp"
-#include "application_wsi_events.hpp"
-#include "quirks.hpp"
-#include "thread_group.hpp"
+
+namespace Vulkan
+{
+class Device;
+class RenderPass;
+class CommandBuffer;
+class ImageView;
+}
 
 namespace Granite
 {

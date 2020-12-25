@@ -23,6 +23,7 @@
 #include "application.hpp"
 #include "command_buffer.hpp"
 #include "device.hpp"
+#include "input.hpp"
 #include "os_filesystem.hpp"
 #include "math.hpp"
 #include "muglm/muglm_impl.hpp"

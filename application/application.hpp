@@ -24,8 +24,6 @@
 
 #include "wsi.hpp"
 #include "application_wsi_events.hpp"
-#include "input.hpp"
-#include "camera.hpp"
 
 namespace Granite
 {

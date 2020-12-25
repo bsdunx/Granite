@@ -26,6 +26,7 @@
 #include "muglm/muglm_impl.hpp"
 #include "os_filesystem.hpp"
 
+using namespace muglm;
 using namespace Granite;
 using namespace Vulkan;
 

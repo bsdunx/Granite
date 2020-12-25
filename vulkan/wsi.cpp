@@ -22,6 +22,7 @@
 
 #include "wsi.hpp"
 #include "quirks.hpp"
+#include "device.hpp"
 
 #include <thread>
 

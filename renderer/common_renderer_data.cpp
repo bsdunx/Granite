@@ -21,6 +21,7 @@
  */
 
 #include "common_renderer_data.hpp"
+#include "device.hpp"
 #include "mesh_util.hpp"
 #include "muglm/muglm_impl.hpp"
 

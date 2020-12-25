@@ -22,11 +22,15 @@
 
 #include "application.hpp"
 #include "os_filesystem.hpp"
+#include "device.hpp"
+#include "input.hpp"
+#include "camera.hpp"
 #include "muglm/matrix_helper.hpp"
 #include "muglm/muglm_impl.hpp"
 
 #include <cstring>
 
+using namespace muglm;
 using namespace Granite;
 using namespace Vulkan;
 

@@ -1,6 +1,7 @@
 #include "application.hpp"
 #include "os_filesystem.hpp"
 #include "cli_parser.hpp"
+#include "device.hpp"
 #include "post/aa.hpp"
 #include "post/temporal.hpp"
 #include "post/hdr.hpp"

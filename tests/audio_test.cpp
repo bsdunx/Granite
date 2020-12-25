@@ -3,7 +3,6 @@
 #include "vorbis_stream.hpp"
 #include "logging.hpp"
 #include "global_managers.hpp"
-#include "filesystem.hpp"
 #include "os_filesystem.hpp"
 
 #include <cstdlib>
@@ -26,9 +25,7 @@ int main()
 
 	Global::audio_backend()->start();
 
-	StreamID id = 0;
-	if (stream)
-		id = Global::audio_mixer()->add_mixer_stream(stream);
+	StreamID id = Global::audio_mixer()->add_mixer_stream(stream);
 
 	for (unsigned i = 0; i < 10000; i++)
 	{

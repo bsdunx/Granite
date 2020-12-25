@@ -26,7 +26,11 @@
 #include "camera.hpp"
 #include "render_parameters.hpp"
 #include "frustum.hpp"
-#include "device.hpp"
+
+namespace Vulkan
+{
+class Device;
+}
 
 namespace Granite
 {

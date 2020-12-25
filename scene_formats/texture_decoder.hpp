@@ -24,7 +24,7 @@
 
 #include "texture_format.hpp"
 #include "command_buffer.hpp"
-#include "device.hpp"
+#include "image.hpp"
 
 namespace Granite
 {

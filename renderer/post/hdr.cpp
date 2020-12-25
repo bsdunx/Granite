@@ -21,6 +21,7 @@
  */
 
 #include "hdr.hpp"
+#include "device.hpp"
 #include "math.hpp"
 #include "application_events.hpp"
 #include "common_renderer_data.hpp"

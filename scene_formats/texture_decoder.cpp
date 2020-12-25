@@ -23,6 +23,7 @@
 #include "texture_decoder.hpp"
 #include "global_managers.hpp"
 #include "logging.hpp"
+#include "device.hpp"
 
 namespace Granite
 {

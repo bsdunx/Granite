@@ -22,15 +22,20 @@
 
 #include "application.hpp"
 #include "os_filesystem.hpp"
+#include "device.hpp"
+#include "input.hpp"
 #include "muglm/matrix_helper.hpp"
 #include "audio_events.hpp"
 #include "vorbis_stream.hpp"
 #include "dsp/tone_filter_stream.hpp"
 #include "dsp/tone_filter.hpp"
 #include "muglm/muglm_impl.hpp"
-#include <cstring>
+
 #include <dsp/dsp.hpp>
 
+#include <cstring>
+
+using namespace muglm;
 using namespace Granite;
 using namespace Granite::Audio;
 using namespace Vulkan;

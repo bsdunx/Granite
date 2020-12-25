@@ -21,6 +21,7 @@
  */
 
 #include "application_cli_wrapper.hpp"
+#include "buffer.hpp"
 #include "global_managers.hpp"
 #include "message_queue.hpp"
 #include "thread_id.hpp"

@@ -21,6 +21,7 @@
  */
 
 #include "smaa.hpp"
+#include "device.hpp"
 #include "math.hpp"
 #include "temporal.hpp"
 #include "muglm/matrix_helper.hpp"
