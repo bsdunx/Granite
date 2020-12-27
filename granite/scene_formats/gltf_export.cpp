@@ -551,7 +551,7 @@ unsigned RemapState::emit_accessor(unsigned view_index, VkFormat format, unsigne
 	h.u32(offset);
 	h.u32(count);
 
-	auto itr = accessor_hash.find(h.get());
+	const auto itr = accessor_hash.find(h.get());
 	if (itr == end(accessor_hash))
 	{
 		unsigned index = accessor_cache.size();
@@ -573,8 +573,8 @@ unsigned RemapState::emit_sampler(Vulkan::StockSampler sampler)
 {
 	Hasher h;
 	h.u32(ecast(sampler));
-	auto itr = sampler_hash.find(h.get());
 
+	const auto itr = sampler_hash.find(h.get());
 	if (itr == end(sampler_hash))
 	{
 		unsigned index = sampler_cache.size();
@@ -647,8 +647,7 @@ unsigned RemapState::emit_image(const MaterialInfo::Texture &texture, Material::
 	h.u32(quality);
 	h.s32(ecast(mode));
 
-	auto itr = image_hash.find(h.get());
-
+	const auto itr = image_hash.find(h.get());
 	if (itr == end(image_hash))
 	{
 		unsigned index = image_cache.size();
@@ -668,16 +667,16 @@ unsigned RemapState::emit_texture(const MaterialInfo::Texture &texture,
                                   Vulkan::StockSampler sampler, Material::Textures type,
                                   TextureCompressionFamily compression, unsigned quality, TextureMode mode)
 {
-	unsigned image_index = emit_image(texture, type, compression, quality, mode);
-	unsigned sampler_index = emit_sampler(sampler);
+	const unsigned image_index = emit_image(texture, type, compression, quality, mode);
+	const unsigned sampler_index = emit_sampler(sampler);
 	Hasher h;
 	h.u32(image_index);
 	h.u32(sampler_index);
-	auto itr = texture_hash.find(h.get());
 
+	const auto itr = texture_hash.find(h.get());
 	if (itr == end(texture_hash))
 	{
-		unsigned index = texture_cache.size();
+		const unsigned index = texture_cache.size();
 		texture_hash[h.get()] = index;
 		texture_cache.push_back({ image_index, sampler_index });
 		return index;
@@ -719,7 +718,7 @@ void RemapState::emit_environment(const std::string &cube, const std::string &re
 
 void RemapState::emit_material(unsigned remapped_material)
 {
-	auto &mat = *material.info[remapped_material];
+	const auto &mat = *material.info[remapped_material];
 	material_cache.resize(std::max<size_t>(material_cache.size(), remapped_material + 1));
 	auto &output = material_cache[remapped_material];
 
@@ -774,7 +773,7 @@ static void quantize_attribute_fp32_fp16(uint8_t *output,
 	{
 		vec4 input(0.0f, 0.0f, 0.0f, 1.0f);
 		memcpy(input.data, buffer + stride * i, stride);
-		u16vec4 packed = floatToHalf(input);
+		const u16vec4 packed = floatToHalf(input);
 		memcpy(output + sizeof(u16vec4) * i, packed.data, sizeof(packed.data));
 	}
 }
@@ -790,7 +789,7 @@ static void quantize_attribute_fp32_unorm16(uint8_t *output,
 		memcpy(input.data, buffer + stride * i, stride);
 		input *= float(0xffff);
 		input = clamp(round(input), vec4(0.0f), vec4(0xffff));
-		u16vec4 packed = u16vec4(input);
+		const u16vec4 packed = u16vec4(input);
 		memcpy(output + sizeof(u16vec4) * i, packed.data, sizeof(packed.data));
 	}
 }
@@ -806,7 +805,7 @@ static void quantize_attribute_fp32_snorm16(uint8_t *output,
 		memcpy(input.data, buffer + stride * i, stride);
 		input *= float(0x7fff);
 		input = clamp(round(input), vec4(-0x7fff), vec4(0x7fff));
-		i16vec4 packed = i16vec4(input);
+		const i16vec4 packed = i16vec4(input);
 		memcpy(output + sizeof(u16vec4) * i, packed.data, sizeof(packed.data));
 	}
 }
@@ -820,7 +819,7 @@ static void quantize_attribute_rg32f_rg16unorm(uint8_t *output, const uint8_t *b
 
 		input *= float(0xffff);
 		input = clamp(round(input), vec2(0.0f), vec2(0xffff));
-		u16vec2 result(input);
+		const u16vec2 result(input);
 		memcpy(output + i * sizeof(u16vec2), result.data, sizeof(u16vec2));
 	}
 }
@@ -834,7 +833,7 @@ static void quantize_attribute_rg32f_rg16snorm(uint8_t *output, const uint8_t *b
 
 		input *= float(0x7fff);
 		input = clamp(round(input), vec2(-0x7fff), vec2(0x7fff));
-		i16vec2 result(input);
+		const i16vec2 result(input);
 		memcpy(output + i * sizeof(i16vec2), result.data, sizeof(i16vec2));
 	}
 }
@@ -845,7 +844,7 @@ static void quantize_attribute_rg32f_rg16f(uint8_t *output, const uint8_t *buffe
 	{
 		vec2 input;
 		memcpy(input.data, buffer + sizeof(vec2) * i, sizeof(vec2));
-		u16vec2 result = floatToHalf(input);
+		const u16vec2 result = floatToHalf(input);
 		memcpy(output + i * sizeof(u16vec2), result.data, sizeof(u16vec2));
 	}
 }
@@ -860,7 +859,7 @@ static void quantize_attribute_fp32_a2bgr10snorm(uint8_t *output, const uint8_t 
 		input *= vec4(0x1ff, 0x1ff, 0x1ff, 1);
 		input = round(input);
 		input = clamp(input, vec4(-0x1ff, -0x1ff, -0x1ff, -1), vec4(0x1ff, 0x1ff, 0x1ff, 1));
-		ivec4 quantized(input);
+		const ivec4 quantized(input);
 
 		uint32_t result = uint32_t(quantized.w & 3) << 30;
 		result |= uint32_t(quantized.z & 0x3ff) << 20;
@@ -898,7 +897,7 @@ void RemapState::emit_mesh(unsigned remapped_index)
 
 	if (!output_mesh.indices.empty())
 	{
-		unsigned index = emit_buffer(output_mesh.indices);
+		const unsigned index = emit_buffer(output_mesh.indices);
 		emit.index_accessor = emit_accessor(index,
 		                                    output_mesh.index_type == VK_INDEX_TYPE_UINT16 ? VK_FORMAT_R16_UINT
 		                                                                            : VK_FORMAT_R32_UINT,
@@ -935,7 +934,7 @@ void RemapState::emit_mesh(unsigned remapped_index)
 
 	if (output_mesh.has_material)
 	{
-		unsigned remapped_material = material.to_index[output_mesh.material_index];
+		const unsigned remapped_material = material.to_index[output_mesh.material_index];
 		if (!material_hash.count(remapped_material))
 		{
 			emit_material(remapped_material);
@@ -949,11 +948,11 @@ void RemapState::emit_mesh(unsigned remapped_index)
 	if (!output_mesh.positions.empty())
 	{
 		uint32_t buffer_index = 0;
-		uint32_t count = uint32_t(output_mesh.positions.size() / output_mesh.position_stride);
+		const uint32_t count = uint32_t(output_mesh.positions.size() / output_mesh.position_stride);
 		int &acc = emit.attribute_accessor[ecast(MeshAttribute::Position)];
-		VkFormat format = layout[ecast(MeshAttribute::Position)].format;
+		const VkFormat format = layout[ecast(MeshAttribute::Position)].format;
 
-		bool format_is_fp32 = format == VK_FORMAT_R32G32B32_SFLOAT ||
+		const bool format_is_fp32 = format == VK_FORMAT_R32G32B32_SFLOAT ||
 		                      format == VK_FORMAT_R32G32B32A32_SFLOAT;
 
 		if (options->quantize_attributes && format_is_fp32 &&
@@ -1006,17 +1005,17 @@ void RemapState::emit_mesh(unsigned remapped_index)
 
 	if (!output_mesh.attributes.empty())
 	{
-		auto attr_count = unsigned(output_mesh.attributes.size() / output_mesh.attribute_stride);
+		const auto attr_count = unsigned(output_mesh.attributes.size() / output_mesh.attribute_stride);
 
 		for (unsigned i = 0; i < ecast(MeshAttribute::Count); i++)
 		{
-			auto attr = static_cast<MeshAttribute>(i);
+			const auto attr = static_cast<MeshAttribute>(i);
 			if (layout[i].format == VK_FORMAT_UNDEFINED || i == ecast(MeshAttribute::Position))
 				continue;
 
 			emit.attribute_mask |= 1u << i;
 
-			auto format_size = Vulkan::TextureFormatLayout::format_block_size(layout[i].format, 0);
+			const auto format_size = Vulkan::TextureFormatLayout::format_block_size(layout[i].format, 0);
 			std::vector<uint8_t> unpacked_buffer(attr_count * format_size);
 
 			extract_attribute(unpacked_buffer.data(), format_size,
@@ -1033,7 +1032,7 @@ void RemapState::emit_mesh(unsigned remapped_index)
 				unpacked_buffer = move(quantized);
 
 				remapped_format = VK_FORMAT_A2B10G10R10_SNORM_PACK32;
-				format_size = sizeof(uint32_t);
+				// format_size = sizeof(uint32_t); FIXME
 			}
 			else if (options->quantize_attributes &&
 			         attr == MeshAttribute::UV &&
@@ -1057,7 +1056,7 @@ void RemapState::emit_mesh(unsigned remapped_index)
 					quantize_attribute_rg32f_rg16unorm(quantized.data(), unpacked_buffer.data(), attr_count);
 					unpacked_buffer = move(quantized);
 					remapped_format = VK_FORMAT_R16G16_UNORM;
-					format_size = sizeof(u16vec2);
+					// format_size = sizeof(u16vec2); FIXME
 				}
 				else if (all(lessThanEqual(max_uv, vec2(1.0f))) && all(greaterThanEqual(min_uv, vec2(-1.0f))))
 				{
@@ -1065,7 +1064,7 @@ void RemapState::emit_mesh(unsigned remapped_index)
 					quantize_attribute_rg32f_rg16snorm(quantized.data(), unpacked_buffer.data(), attr_count);
 					unpacked_buffer = move(quantized);
 					remapped_format = VK_FORMAT_R16G16_SNORM;
-					format_size = sizeof(i16vec2);
+					// format_size = sizeof(i16vec2); FIXME
 				}
 				else if (all(lessThan(max_uv, vec2(0x8000))) && all(greaterThan(min_uv, vec2(-0x8000))))
 				{
@@ -1073,11 +1072,11 @@ void RemapState::emit_mesh(unsigned remapped_index)
 					quantize_attribute_rg32f_rg16f(quantized.data(), unpacked_buffer.data(), attr_count);
 					unpacked_buffer = move(quantized);
 					remapped_format = VK_FORMAT_R16G16_SFLOAT;
-					format_size = sizeof(u16vec2);
+					// format_size = sizeof(u16vec2); FIXME
 				}
 			}
 
-			auto buffer_index = emit_buffer(unpacked_buffer);
+			const auto buffer_index = emit_buffer(unpacked_buffer);
 			emit.attribute_accessor[i] = emit_accessor(buffer_index, remapped_format, 0, attr_count);
 		}
 	}
@@ -1091,7 +1090,7 @@ unsigned RemapState::emit_meshes(ArrayView<const unsigned> meshes)
 
 	for (auto &remapped_mesh : meshes)
 	{
-		unsigned remapped_index = mesh.to_index[remapped_mesh];
+		const unsigned remapped_index = mesh.to_index[remapped_mesh];
 		emit_hash.u32(remapped_index);
 		mesh_group.push_back(remapped_index);
 
@@ -1103,7 +1102,7 @@ unsigned RemapState::emit_meshes(ArrayView<const unsigned> meshes)
 	}
 
 	unsigned index;
-	auto itr = mesh_group_hash.find(emit_hash.get());
+	const auto itr = mesh_group_hash.find(emit_hash.get());
 	if (itr == end(mesh_group_hash))
 	{
 		index = mesh_group_cache.size();
@@ -1128,10 +1127,10 @@ void RemapState::emit_animations(ArrayView<const Animation> animation_list)
 		for (auto &channel : animation.channels)
 		{
 			EmittedAnimation::Channel chan;
-			unsigned timestamp_view = emit_buffer({ reinterpret_cast<const uint8_t *>(channel.timestamps.data()),
+			const unsigned timestamp_view = emit_buffer({ reinterpret_cast<const uint8_t *>(channel.timestamps.data()),
 			                                        channel.timestamps.size() * sizeof(float) });
 
-			unsigned timestamp_accessor = emit_accessor(timestamp_view, VK_FORMAT_R32_SFLOAT, 0,
+			const unsigned timestamp_accessor = emit_accessor(timestamp_view, VK_FORMAT_R32_SFLOAT, 0,
 			                                            channel.timestamps.size());
 
 			unsigned data_view = 0;
@@ -1189,13 +1188,13 @@ void RemapState::emit_animations(ArrayView<const Animation> animation_list)
 			sampler_index++;
 		}
 
-		this->animations.push_back(std::move(anim));
+		animations.push_back(std::move(anim));
 	}
 }
 
 static VkFormat get_compression_format(TextureCompression compression, TextureMode mode)
 {
-	bool srgb = mode == TextureMode::sRGB || mode == TextureMode::sRGBA;
+	const bool srgb = mode == TextureMode::sRGB || mode == TextureMode::sRGBA;
 
 	switch (compression)
 	{
@@ -1243,14 +1242,14 @@ static VkFormat get_compression_format(TextureCompression compression, TextureMo
 
 AnalysisResult::MetallicRoughnessMode AnalysisResult::deduce_metallic_roughness_mode()
 {
-	auto &layout = image->get_layout();
+	const auto &layout = image->get_layout();
 	if (layout.get_layers() > 1)
 		return MetallicRoughnessMode::Default;
 
-	auto *src = static_cast<const u8vec4 *>(layout.data(0, 0));
-	int width = layout.get_width();
-	int height = layout.get_height();
-	int count = width * height;
+	const auto *src = static_cast<const u8vec4 *>(layout.data(0, 0));
+	const int width = layout.get_width();
+	const int height = layout.get_height();
+	const int count = width * height;
 
 	bool metallic_zero_only = true;
 	bool metallic_one_only = true;
@@ -1418,7 +1417,7 @@ void AnalysisResult::deduce_compression(TextureCompressionFamily family)
 		case Material::Textures::MetallicRoughness:
 		{
 			mode = TextureMode::Mask;
-			auto mr_mode = deduce_metallic_roughness_mode();
+			const auto mr_mode = deduce_metallic_roughness_mode();
 			switch (mr_mode)
 			{
 			case MetallicRoughnessMode::Default:
@@ -2323,7 +2322,7 @@ bool export_scene_to_glb(const SceneInformation &scene, const std::string &path,
 	}
 	else
 	{
-		size_t glb_size = 12 + 8 + aligned_size(buffer.GetLength()) + 8 + aligned_size(state.glb_buffer_data.size());
+		const size_t glb_size = 12 + 8 + aligned_size(buffer.GetLength()) + 8 + aligned_size(state.glb_buffer_data.size());
 
 		uint8_t *mapped = static_cast<uint8_t *>(file->map_write(glb_size));
 		if (!mapped)
