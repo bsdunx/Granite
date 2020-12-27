@@ -1,7 +1,8 @@
 #include "smaa/AreaTex.h"
 #include "smaa/SearchTex.h"
-#include "logging.hpp"
-#include "memory_mapped_texture.hpp"
+#include "scene_formats/memory_mapped_texture.hpp"
+#include "util/logging.hpp"
+
 #include <cstring>
 
 using namespace Granite;

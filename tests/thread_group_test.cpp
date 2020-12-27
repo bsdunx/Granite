@@ -20,8 +20,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "thread_group.hpp"
-#include "logging.hpp"
+#include "threading/thread_group.hpp"
+#include "util/logging.hpp"
 
 using namespace Granite;
 

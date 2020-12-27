@@ -20,12 +20,12 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <texture_files.hpp>
-#include "cli_parser.hpp"
-#include "logging.hpp"
-#include "texture_compression.hpp"
-#include "memory_mapped_texture.hpp"
-#include "texture_utils.hpp"
+#include "scene_formats/texture_files.hpp"
+#include "scene_formats/texture_compression.hpp"
+#include "scene_formats/memory_mapped_texture.hpp"
+#include "scene_formats/texture_utils.hpp"
+#include "util/logging.hpp"
+#include "util/cli_parser.hpp"
 
 using namespace Granite;
 using namespace Granite::SceneFormats;

@@ -20,11 +20,17 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "application.hpp"
-#include "device.hpp"
-#include "render_graph.hpp"
-#include "os_filesystem.hpp"
-#include "task_composer.hpp"
+#include "application/application.hpp"
+#include "vulkan/device.hpp"
+#include "renderer/render_graph.hpp"
+#include "threading/task_composer.hpp"
+
+#ifdef _WIN32
+#include "filesystem/windows/os_filesystem.hpp"
+#else
+#include "filesystem/linux/os_filesystem.hpp"
+#endif
+
 #include <cstring>
 
 using namespace Granite;

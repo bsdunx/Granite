@@ -20,8 +20,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "cooperative_task.hpp"
-#include "logging.hpp"
+#include "util/cooperative_task.hpp"
+#include "util/logging.hpp"
 
 using namespace Util;
 

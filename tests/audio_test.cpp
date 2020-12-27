@@ -1,9 +1,14 @@
-#include "audio_mixer.hpp"
-#include "timer.hpp"
-#include "vorbis_stream.hpp"
-#include "logging.hpp"
-#include "global_managers.hpp"
-#include "os_filesystem.hpp"
+#include "application/global_managers.hpp"
+#include "audio/audio_mixer.hpp"
+#include "audio/vorbis_stream.hpp"
+#include "util/logging.hpp"
+#include "util/timer.hpp"
+
+#ifdef _WIN32
+#include "filesystem/windows/os_filesystem.hpp"
+#else
+#include "filesystem/linux/os_filesystem.hpp"
+#endif
 
 #include <cstdlib>
 #include <chrono>

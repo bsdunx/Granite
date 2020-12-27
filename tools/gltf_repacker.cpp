@@ -20,12 +20,13 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "gltf.hpp"
-#include "gltf_export.hpp"
-#include "logging.hpp"
-#include "cli_parser.hpp"
+#include "scene_formats/gltf.hpp"
+#include "scene_formats/gltf_export.hpp"
+#include "util/logging.hpp"
+#include "util/cli_parser.hpp"
+#include "math/muglm/muglm_impl.hpp"
+
 #include "rapidjson_wrapper.hpp"
-#include "muglm/muglm_impl.hpp"
 
 using namespace Granite;
 using namespace Util;

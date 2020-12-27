@@ -20,10 +20,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "vulkan_headers.hpp"
-#include "device.hpp"
-#include "utils/image_utils.hpp"
-#include "cli_parser.hpp"
+#include "vulkan/vulkan_headers.hpp"
+#include "vulkan/device.hpp"
+#include "renderer/utils/image_utils.hpp"
+#include "util/cli_parser.hpp"
 
 using namespace Vulkan;
 using namespace Granite;

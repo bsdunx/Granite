@@ -20,19 +20,24 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "application.hpp"
-#include "os_filesystem.hpp"
-#include "scene.hpp"
-#include "device.hpp"
-#include "mesh_util.hpp"
-#include "renderer.hpp"
-#include "render_context.hpp"
-#include "render_components.hpp"
-#include "global_managers.hpp"
-#include "physics_system.hpp"
-#include "muglm/matrix_helper.hpp"
-#include "muglm/muglm_impl.hpp"
-#include "gltf.hpp"
+#include "application/application.hpp"
+#include "application/global_managers.hpp"
+#include "vulkan/device.hpp"
+#include "renderer/scene.hpp"
+#include "renderer/mesh_util.hpp"
+#include "renderer/renderer.hpp"
+#include "renderer/render_context.hpp"
+#include "renderer/render_components.hpp"
+#include "scene_formats/gltf.hpp"
+#include "physics/physics_system.hpp"
+#include "math/muglm/matrix_helper.hpp"
+#include "math/muglm/muglm_impl.hpp"
+
+#ifdef _WIN32
+#include "filesystem/windows/os_filesystem.hpp"
+#else
+#include "filesystem/linux/os_filesystem.hpp"
+#endif
 
 using namespace Granite;
 

@@ -20,12 +20,17 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "application.hpp"
-#include "command_buffer.hpp"
-#include "device.hpp"
-#include "os_filesystem.hpp"
-#include "math.hpp"
-#include "thread_group.hpp"
+#include "application/application.hpp"
+#include "vulkan/command_buffer.hpp"
+#include "vulkan/device.hpp"
+#include "math/math.hpp"
+#include "threading/thread_group.hpp"
+
+#ifdef _WIN32
+#include "filesystem/windows/os_filesystem.hpp"
+#else
+#include "filesystem/linux/os_filesystem.hpp"
+#endif
 
 using namespace Granite;
 using namespace Vulkan;

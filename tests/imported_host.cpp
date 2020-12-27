@@ -20,9 +20,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "vulkan_headers.hpp"
-#include "device.hpp"
-#include "global_managers.hpp"
+#include "vulkan/vulkan_headers.hpp"
+#include "vulkan/device.hpp"
+#include "application/global_managers.hpp"
+
 #include <cstring>
 
 using namespace Vulkan;

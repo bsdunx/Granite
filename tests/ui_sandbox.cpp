@@ -20,14 +20,19 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <click_button.hpp>
-#include <slider.hpp>
-#include <toggle_button.hpp>
-#include "application.hpp"
-#include "device.hpp"
-#include "os_filesystem.hpp"
-#include "ui_manager.hpp"
-#include "window.hpp"
+#include "application/application.hpp"
+#include "ui/click_button.hpp"
+#include "ui/slider.hpp"
+#include "ui/toggle_button.hpp"
+#include "ui/ui_manager.hpp"
+#include "ui/window.hpp"
+#include "vulkan/device.hpp"
+
+#ifdef _WIN32
+#include "filesystem/windows/os_filesystem.hpp"
+#else
+#include "filesystem/linux/os_filesystem.hpp"
+#endif
 
 using namespace Granite;
 using namespace Vulkan;

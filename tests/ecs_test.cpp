@@ -1,5 +1,5 @@
-#include "ecs.hpp"
-#include "logging.hpp"
+#include "ecs/ecs.hpp"
+#include "util/logging.hpp"
 
 using namespace Granite;
 

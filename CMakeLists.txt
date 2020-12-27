@@ -240,69 +240,69 @@ endfunction()
 set(GRANITE_ISPC_LIBRARY_DIR "" CACHE STRING "ISPC library directory." FORCE)
 set(GRANITE_ISPC_INCLUDE_DIR "" CACHE STRING "ISPC include directory." FORCE)
 
-target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/util ${CMAKE_CURRENT_SOURCE_DIR}/vulkan)
+target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/granite)
 
 target_sources(granite PRIVATE
-        application/application.hpp
-        application/application_wsi.hpp
+        granite/application/application.hpp
+        granite/application/application_wsi.hpp
 
-        util/logging.hpp util/logging.cpp
-        util/message_queue.hpp util/message_queue.cpp
-        util/aligned_alloc.cpp util/aligned_alloc.hpp
-        util/bitops.hpp
-        util/array_view.hpp
-        util/variant.hpp
-        util/enum_cast.hpp
-        util/hash.hpp
-        util/intrusive.hpp
-        util/intrusive_list.hpp
-        util/object_pool.hpp
-        util/stack_allocator.hpp
-        util/temporary_hashmap.hpp
-        util/volatile_source.hpp
-        util/read_write_lock.hpp
-        util/async_object_sink.hpp
-        util/unstable_remove_if.hpp
-        util/intrusive_hash_map.hpp
-        util/timer.hpp util/timer.cpp
-        util/small_vector.hpp
-        util/timeline_trace_file.hpp util/timeline_trace_file.cpp
-        util/thread_name.hpp util/thread_name.cpp
+        granite/util/logging.hpp granite/util/logging.cpp
+        granite/util/message_queue.hpp granite/util/message_queue.cpp
+        granite/util/aligned_alloc.cpp granite/util/aligned_alloc.hpp
+        granite/util/bitops.hpp
+        granite/util/array_view.hpp
+        granite/util/variant.hpp
+        granite/util/enum_cast.hpp
+        granite/util/hash.hpp
+        granite/util/intrusive.hpp
+        granite/util/intrusive_list.hpp
+        granite/util/object_pool.hpp
+        granite/util/stack_allocator.hpp
+        granite/util/temporary_hashmap.hpp
+        granite/util/volatile_source.hpp
+        granite/util/read_write_lock.hpp
+        granite/util/async_object_sink.hpp
+        granite/util/unstable_remove_if.hpp
+        granite/util/intrusive_hash_map.hpp
+        granite/util/timer.hpp granite/util/timer.cpp
+        granite/util/small_vector.hpp
+        granite/util/timeline_trace_file.hpp granite/util/timeline_trace_file.cpp
+        granite/util/thread_name.hpp granite/util/thread_name.cpp
 
-        vulkan/texture_format.cpp vulkan/texture_format.hpp
-        vulkan/context.cpp vulkan/context.hpp
-        vulkan/vulkan_headers.hpp vulkan/vulkan_prerotate.hpp
-        vulkan/device.cpp vulkan/device.hpp
-        vulkan/wsi.cpp vulkan/wsi.hpp
-        vulkan/wsi_timing.cpp vulkan/wsi_timing.hpp
-        vulkan/buffer_pool.cpp vulkan/buffer_pool.hpp
-        vulkan/image.cpp vulkan/image.hpp
-        vulkan/cookie.cpp vulkan/cookie.hpp
-        vulkan/sampler.cpp vulkan/sampler.hpp
-        vulkan/command_pool.cpp vulkan/command_pool.hpp
-        vulkan/fence_manager.cpp vulkan/fence_manager.hpp
-        vulkan/descriptor_set.cpp vulkan/descriptor_set.hpp
-        vulkan/semaphore_manager.cpp vulkan/semaphore_manager.hpp
-        vulkan/command_buffer.cpp vulkan/command_buffer.hpp
-        vulkan/shader.cpp vulkan/shader.hpp
-        vulkan/render_pass.cpp vulkan/render_pass.hpp
-        vulkan/buffer.cpp vulkan/buffer.hpp
-        vulkan/semaphore.cpp vulkan/semaphore.hpp
-        vulkan/memory_allocator.cpp vulkan/memory_allocator.hpp
-        vulkan/fence.hpp vulkan/fence.cpp
-        vulkan/format.hpp
-        vulkan/limits.hpp
-        vulkan/type_to_string.hpp
-        vulkan/quirks.hpp
-        vulkan/vulkan_common.hpp
-        vulkan/event_manager.cpp vulkan/event_manager.hpp
-        vulkan/pipeline_event.cpp vulkan/pipeline_event.hpp
-        vulkan/query_pool.cpp vulkan/query_pool.hpp)
+        granite/vulkan/texture_format.cpp granite/vulkan/texture_format.hpp
+        granite/vulkan/context.cpp granite/vulkan/context.hpp
+        granite/vulkan/vulkan_headers.hpp granite/vulkan/vulkan_prerotate.hpp
+        granite/vulkan/device.cpp granite/vulkan/device.hpp
+        granite/vulkan/wsi.cpp granite/vulkan/wsi.hpp
+        granite/vulkan/wsi_timing.cpp granite/vulkan/wsi_timing.hpp
+        granite/vulkan/buffer_pool.cpp granite/vulkan/buffer_pool.hpp
+        granite/vulkan/image.cpp granite/vulkan/image.hpp
+        granite/vulkan/cookie.cpp granite/vulkan/cookie.hpp
+        granite/vulkan/sampler.cpp granite/vulkan/sampler.hpp
+        granite/vulkan/command_pool.cpp granite/vulkan/command_pool.hpp
+        granite/vulkan/fence_manager.cpp granite/vulkan/fence_manager.hpp
+        granite/vulkan/descriptor_set.cpp granite/vulkan/descriptor_set.hpp
+        granite/vulkan/semaphore_manager.cpp granite/vulkan/semaphore_manager.hpp
+        granite/vulkan/command_buffer.cpp granite/vulkan/command_buffer.hpp
+        granite/vulkan/shader.cpp granite/vulkan/shader.hpp
+        granite/vulkan/render_pass.cpp granite/vulkan/render_pass.hpp
+        granite/vulkan/buffer.cpp granite/vulkan/buffer.hpp
+        granite/vulkan/semaphore.cpp granite/vulkan/semaphore.hpp
+        granite/vulkan/memory_allocator.cpp granite/vulkan/memory_allocator.hpp
+        granite/vulkan/fence.hpp granite/vulkan/fence.cpp
+        granite/vulkan/format.hpp
+        granite/vulkan/limits.hpp
+        granite/vulkan/type_to_string.hpp
+        granite/vulkan/quirks.hpp
+        granite/vulkan/vulkan_common.hpp
+        granite/vulkan/event_manager.cpp granite/vulkan/event_manager.hpp
+        granite/vulkan/pipeline_event.cpp granite/vulkan/pipeline_event.hpp
+        granite/vulkan/query_pool.cpp granite/vulkan/query_pool.hpp)
 
 if (GRANITE_RENDERDOC_CAPTURE)
     target_link_libraries(granite PRIVATE renderdoc-app)
     target_compile_definitions(granite PRIVATE GRANITE_RENDERDOC_CAPTURE)
-    target_sources(granite PRIVATE vulkan/renderdoc_capture.cpp)
+    target_sources(granite PRIVATE granite/vulkan/renderdoc_capture.cpp)
     if (NOT WIN32)
         target_link_libraries(granite PRIVATE dl)
     endif()
@@ -310,7 +310,7 @@ endif()
 
 if (GRANITE_VULKAN_MT)
     target_compile_definitions(granite PUBLIC GRANITE_VULKAN_MT)
-    target_sources(granite PRIVATE vulkan/thread_id.hpp vulkan/thread_id.cpp)
+    target_sources(granite PRIVATE granite/vulkan/thread_id.hpp granite/vulkan/thread_id.cpp)
 endif()
 
 if (WIN32)
@@ -318,11 +318,11 @@ if (WIN32)
 endif()
 
 if (NOT GRANITE_VULKAN_ONLY)
-    add_library(granite-application-entry STATIC application/application_entry.cpp)
+    add_library(granite-application-entry STATIC granite/application/application_entry.cpp)
     target_link_libraries(granite-application-entry granite)
     target_compile_options(granite-application-entry PRIVATE ${GRANITE_CXX_FLAGS})
 
-    add_library(granite-application-entry-headless STATIC application/application_entry.cpp)
+    add_library(granite-application-entry-headless STATIC granite/application/application_entry.cpp)
     target_link_libraries(granite-application-entry-headless granite)
     target_compile_definitions(granite-application-entry-headless PRIVATE APPLICATION_ENTRY_HEADLESS=1)
 
@@ -330,170 +330,149 @@ if (NOT GRANITE_VULKAN_ONLY)
     target_compile_definitions(granite PRIVATE GRANITE_DEFAULT_CACHE_DIRECTORY=\"${CMAKE_BINARY_DIR}/cache\")
     target_compile_definitions(granite PUBLIC NOMINMAX GRANITE_LOGGING_QUEUE)
 
-    target_include_directories(granite PUBLIC
-            ${CMAKE_CURRENT_SOURCE_DIR}/application
-            ${CMAKE_CURRENT_SOURCE_DIR}/application/input
-            ${CMAKE_CURRENT_SOURCE_DIR}/application/events
-            ${CMAKE_CURRENT_SOURCE_DIR}/application/platforms
-            ${CMAKE_CURRENT_SOURCE_DIR}/compiler
-            ${CMAKE_CURRENT_SOURCE_DIR}/event
-            ${CMAKE_CURRENT_SOURCE_DIR}/ecs
-            ${CMAKE_CURRENT_SOURCE_DIR}/math
-            ${CMAKE_CURRENT_SOURCE_DIR}/scene_formats
-            ${CMAKE_CURRENT_SOURCE_DIR}/vulkan/managers
-            ${CMAKE_CURRENT_SOURCE_DIR}/util
-            ${CMAKE_CURRENT_SOURCE_DIR}/renderer
-            ${CMAKE_CURRENT_SOURCE_DIR}/renderer/fft
-            ${CMAKE_CURRENT_SOURCE_DIR}/network
-            ${CMAKE_CURRENT_SOURCE_DIR}/ui
-            ${CMAKE_CURRENT_SOURCE_DIR}/filesystem
-            ${CMAKE_CURRENT_SOURCE_DIR}/filesystem/netfs
-            ${CMAKE_CURRENT_SOURCE_DIR}/threading
-    )
-
     target_sources(granite PRIVATE
-            application/global_managers.hpp application/global_managers.cpp
-            application/application.cpp
-            application/application_wsi.cpp application/application_wsi_events.hpp
-            application/platforms/application_headless.cpp application/platforms/hw_counters/hw_counter_interface.h
-            application/input/input.hpp application/input/input.cpp
-            application/events/application_events.hpp
-            application/scene_viewer_application.cpp application/scene_viewer_application.hpp
-            application/application_cli_wrapper.cpp application/application_cli_wrapper.hpp
+            granite/application/global_managers.hpp granite/application/global_managers.cpp
+            granite/application/application.cpp
+            granite/application/application_wsi.cpp granite/application/application_wsi_events.hpp
+            granite/application/platforms/application_headless.cpp granite/application/platforms/hw_counters/hw_counter_interface.h
+            granite/application/input/input.hpp granite/application/input/input.cpp
+            granite/application/events/application_events.hpp
+            granite/application/scene_viewer_application.cpp granite/application/scene_viewer_application.hpp
+            granite/application/application_cli_wrapper.cpp granite/application/application_cli_wrapper.hpp
 
-            event/event.cpp event/event.hpp
-            ecs/ecs.cpp ecs/ecs.hpp
+            granite/event/event.cpp granite/event/event.hpp
+            granite/ecs/ecs.cpp granite/ecs/ecs.hpp
 
-            filesystem/filesystem.cpp filesystem/filesystem.hpp
-            filesystem/path.cpp filesystem/path.hpp
-            filesystem/netfs/fs-netfs.cpp filesystem/netfs/fs-netfs.hpp
+            granite/filesystem/filesystem.cpp granite/filesystem/filesystem.hpp
+            granite/filesystem/path.cpp granite/filesystem/path.hpp
+            granite/filesystem/netfs/fs-netfs.cpp granite/filesystem/netfs/fs-netfs.hpp
 
-            network/looper.cpp network/netfs.hpp network/network.hpp
-            network/socket.cpp network/tcp_listener.cpp
+            granite/network/looper.cpp granite/network/netfs.hpp granite/network/network.hpp
+            granite/network/socket.cpp granite/network/tcp_listener.cpp
 
-            math/math.hpp math/math.cpp
-            math/frustum.hpp math/frustum.cpp
-            math/aabb.cpp math/aabb.hpp
-            math/render_parameters.hpp
-            math/interpolation.cpp math/interpolation.hpp
-            math/muglm/muglm.cpp math/muglm/muglm.hpp
-            math/muglm/muglm_impl.hpp math/muglm/matrix_helper.hpp
-            math/transforms.cpp math/transforms.hpp
-            math/simd.hpp math/simd_headers.hpp
+            granite/math/math.hpp granite/math/math.cpp
+            granite/math/frustum.hpp granite/math/frustum.cpp
+            granite/math/aabb.cpp granite/math/aabb.hpp
+            granite/math/interpolation.cpp granite/math/interpolation.hpp
+            granite/math/muglm/muglm.cpp granite/math/muglm/muglm.hpp
+            granite/math/muglm/muglm_impl.hpp granite/math/muglm/matrix_helper.hpp
+            granite/math/transforms.cpp granite/math/transforms.hpp
+            granite/math/simd.hpp granite/math/simd_headers.hpp
 
-            renderer/render_queue.hpp renderer/render_queue.cpp
-            renderer/simple_renderer.hpp renderer/simple_renderer.cpp
-            renderer/mesh.hpp renderer/mesh.cpp
-            renderer/scene.hpp renderer/scene.cpp
-            renderer/scene_renderer.hpp renderer/scene_renderer.cpp
-            renderer/shader_suite.hpp renderer/shader_suite.cpp
-            renderer/render_context.hpp renderer/render_context.cpp
-            renderer/camera.hpp renderer/camera.cpp
-            renderer/material.hpp renderer/material.cpp
-            renderer/abstract_renderable.hpp
-            renderer/render_components.hpp
-            renderer/mesh_util.hpp renderer/mesh_util.cpp
-            renderer/material_util.hpp renderer/material_util.cpp
-            renderer/renderer.hpp renderer/renderer.cpp
-            renderer/renderer_enums.hpp
-            renderer/material_manager.hpp renderer/material_manager.cpp
-            renderer/animation_system.hpp renderer/animation_system.cpp
-            renderer/render_graph.cpp renderer/render_graph.hpp
-            renderer/ground.hpp renderer/ground.cpp
-            renderer/post/hdr.hpp renderer/post/hdr.cpp
-            renderer/post/fxaa.hpp renderer/post/fxaa.cpp
-            renderer/post/smaa.hpp renderer/post/smaa.cpp
-            renderer/post/temporal.hpp renderer/post/temporal.cpp
-            renderer/post/aa.hpp renderer/post/aa.cpp
-            renderer/post/ssao.hpp renderer/post/ssao.cpp
-            renderer/utils/image_utils.hpp renderer/utils/image_utils.cpp
-            renderer/lights/lights.cpp renderer/lights/lights.hpp
-            renderer/lights/clusterer.cpp renderer/lights/clusterer.hpp
-            renderer/lights/volumetric_fog.cpp renderer/lights/volumetric_fog.hpp
-            renderer/lights/light_info.hpp
-            renderer/lights/deferred_lights.hpp renderer/lights/deferred_lights.cpp
-            renderer/scene_loader.cpp renderer/scene_loader.hpp
-            renderer/mesh_manager.cpp renderer/mesh_manager.hpp
-            renderer/common_renderer_data.cpp renderer/common_renderer_data.hpp
-            renderer/cpu_rasterizer.cpp renderer/cpu_rasterizer.hpp
-            renderer/threaded_scene.cpp renderer/threaded_scene.hpp
+            granite/renderer/render_parameters.hpp
+            granite/renderer/render_queue.hpp granite/renderer/render_queue.cpp
+            granite/renderer/simple_renderer.hpp granite/renderer/simple_renderer.cpp
+            granite/renderer/mesh.hpp granite/renderer/mesh.cpp
+            granite/renderer/scene.hpp granite/renderer/scene.cpp
+            granite/renderer/scene_renderer.hpp granite/renderer/scene_renderer.cpp
+            granite/renderer/shader_suite.hpp granite/renderer/shader_suite.cpp
+            granite/renderer/render_context.hpp granite/renderer/render_context.cpp
+            granite/renderer/camera.hpp granite/renderer/camera.cpp
+            granite/renderer/material.hpp granite/renderer/material.cpp
+            granite/renderer/abstract_renderable.hpp
+            granite/renderer/render_components.hpp
+            granite/renderer/mesh_util.hpp granite/renderer/mesh_util.cpp
+            granite/renderer/material_util.hpp granite/renderer/material_util.cpp
+            granite/renderer/renderer.hpp granite/renderer/renderer.cpp
+            granite/renderer/renderer_enums.hpp
+            granite/renderer/material_manager.hpp granite/renderer/material_manager.cpp
+            granite/renderer/animation_system.hpp granite/renderer/animation_system.cpp
+            granite/renderer/render_graph.cpp granite/renderer/render_graph.hpp
+            granite/renderer/ground.hpp granite/renderer/ground.cpp
+            granite/renderer/post/hdr.hpp granite/renderer/post/hdr.cpp
+            granite/renderer/post/fxaa.hpp granite/renderer/post/fxaa.cpp
+            granite/renderer/post/smaa.hpp granite/renderer/post/smaa.cpp
+            granite/renderer/post/temporal.hpp granite/renderer/post/temporal.cpp
+            granite/renderer/post/aa.hpp granite/renderer/post/aa.cpp
+            granite/renderer/post/ssao.hpp granite/renderer/post/ssao.cpp
+            granite/renderer/utils/image_utils.hpp granite/renderer/utils/image_utils.cpp
+            granite/renderer/lights/lights.cpp granite/renderer/lights/lights.hpp
+            granite/renderer/lights/clusterer.cpp granite/renderer/lights/clusterer.hpp
+            granite/renderer/lights/volumetric_fog.cpp granite/renderer/lights/volumetric_fog.hpp
+            granite/renderer/lights/light_info.hpp
+            granite/renderer/lights/deferred_lights.hpp granite/renderer/lights/deferred_lights.cpp
+            granite/renderer/scene_loader.cpp granite/renderer/scene_loader.hpp
+            granite/renderer/mesh_manager.cpp granite/renderer/mesh_manager.hpp
+            granite/renderer/common_renderer_data.cpp granite/renderer/common_renderer_data.hpp
+            granite/renderer/cpu_rasterizer.cpp granite/renderer/cpu_rasterizer.hpp
+            granite/renderer/threaded_scene.cpp granite/renderer/threaded_scene.hpp
 
-            scene_formats/texture_compression.hpp scene_formats/texture_compression.cpp
-            scene_formats/gltf.cpp scene_formats/gltf.hpp
-            scene_formats/obj.cpp scene_formats/obj.hpp
-            scene_formats/scene_formats.hpp scene_formats/scene_formats.cpp
-            scene_formats/light_export.cpp scene_formats/light_export.hpp
-            scene_formats/camera_export.cpp scene_formats/camera_export.hpp
-            scene_formats/memory_mapped_texture.cpp scene_formats/memory_mapped_texture.hpp
-            scene_formats/texture_utils.cpp scene_formats/texture_utils.hpp
-            scene_formats/texture_files.cpp scene_formats/texture_files.hpp
-            scene_formats/gltf_export.cpp scene_formats/gltf_export.hpp
-            scene_formats/rgtc_compressor.cpp scene_formats/rgtc_compressor.hpp
-            scene_formats/tmx_parser.cpp scene_formats/tmx_parser.hpp
-            scene_formats/texture_decoder.cpp scene_formats/texture_decoder.hpp
+            granite/scene_formats/texture_compression.hpp granite/scene_formats/texture_compression.cpp
+            granite/scene_formats/gltf.cpp granite/scene_formats/gltf.hpp
+            granite/scene_formats/obj.cpp granite/scene_formats/obj.hpp
+            granite/scene_formats/scene_formats.hpp granite/scene_formats/scene_formats.cpp
+            granite/scene_formats/light_export.cpp granite/scene_formats/light_export.hpp
+            granite/scene_formats/camera_export.cpp granite/scene_formats/camera_export.hpp
+            granite/scene_formats/memory_mapped_texture.cpp granite/scene_formats/memory_mapped_texture.hpp
+            granite/scene_formats/texture_utils.cpp granite/scene_formats/texture_utils.hpp
+            granite/scene_formats/texture_files.cpp granite/scene_formats/texture_files.hpp
+            granite/scene_formats/gltf_export.cpp granite/scene_formats/gltf_export.hpp
+            granite/scene_formats/rgtc_compressor.cpp granite/scene_formats/rgtc_compressor.hpp
+            granite/scene_formats/tmx_parser.cpp granite/scene_formats/tmx_parser.hpp
+            granite/scene_formats/texture_decoder.cpp granite/scene_formats/texture_decoder.hpp
 
-            threading/thread_group.cpp threading/thread_group.hpp
-            threading/task_composer.cpp threading/task_composer.hpp
+            granite/threading/thread_group.cpp granite/threading/thread_group.hpp
+            granite/threading/task_composer.cpp granite/threading/task_composer.hpp
 
-            ui/font.hpp ui/font.cpp
-            ui/flat_renderer.hpp ui/flat_renderer.cpp
-            ui/sprite.cpp ui/sprite.hpp
-            ui/widget.hpp ui/widget.cpp
-            ui/window.hpp ui/window.cpp
-            ui/vertical_packing.cpp ui/vertical_packing.hpp
-            ui/horizontal_packing.cpp ui/horizontal_packing.hpp
-            ui/image_widget.cpp ui/image_widget.hpp
-            ui/label.cpp ui/label.hpp
-            ui/slider.cpp ui/slider.hpp
-            ui/click_button.cpp ui/click_button.hpp
-            ui/toggle_button.cpp ui/toggle_button.hpp
-            ui/ui_manager.hpp ui/ui_manager.cpp
+            granite/ui/font.hpp granite/ui/font.cpp
+            granite/ui/flat_renderer.hpp granite/ui/flat_renderer.cpp
+            granite/ui/sprite.cpp granite/ui/sprite.hpp
+            granite/ui/widget.hpp granite/ui/widget.cpp
+            granite/ui/window.hpp granite/ui/window.cpp
+            granite/ui/vertical_packing.cpp granite/ui/vertical_packing.hpp
+            granite/ui/horizontal_packing.cpp granite/ui/horizontal_packing.hpp
+            granite/ui/image_widget.cpp granite/ui/image_widget.hpp
+            granite/ui/label.cpp granite/ui/label.hpp
+            granite/ui/slider.cpp granite/ui/slider.hpp
+            granite/ui/click_button.cpp granite/ui/click_button.hpp
+            granite/ui/toggle_button.cpp granite/ui/toggle_button.hpp
+            granite/ui/ui_manager.hpp granite/ui/ui_manager.cpp
 
-            util/cli_parser.cpp util/cli_parser.hpp
-            util/dynamic_library.cpp util/dynamic_library.hpp
-            util/string_helpers.cpp util/string_helpers.hpp
+            granite/util/cli_parser.cpp granite/util/cli_parser.hpp
+            granite/util/dynamic_library.cpp granite/util/dynamic_library.hpp
+            granite/util/string_helpers.cpp granite/util/string_helpers.hpp
 
-            util/bitmap_to_mesh.cpp util/bitmap_to_mesh.hpp
-            util/cooperative_task.hpp util/cooperative_task.cpp
-            util/generational_handle.hpp
-            util/lru_cache.hpp
-            util/no_init_pod.hpp
+            granite/util/bitmap_to_mesh.cpp granite/util/bitmap_to_mesh.hpp
+            granite/util/cooperative_task.hpp granite/util/cooperative_task.cpp
+            granite/util/generational_handle.hpp
+            granite/util/lru_cache.hpp
+            granite/util/no_init_pod.hpp
     )
 
     if (${CMAKE_SYSTEM} MATCHES "Linux")
         include(FindPkgConfig)
         pkg_check_modules(HOTPLUG_UDEV libudev)
         if (HOTPLUG_UDEV_FOUND)
-            target_sources(granite PRIVATE application/input/input_linux.cpp application/input/input_linux.hpp)
+            target_sources(granite PRIVATE granite/application/input/input_linux.cpp granite/application/input/input_linux.hpp)
             target_include_directories(granite PUBLIC ${HOTPLUG_UDEV_INCLUDE_DIRS})
             target_link_libraries(granite PRIVATE ${HOTPLUG_UDEV_LIBRARIES})
             target_compile_options(granite PRIVATE ${HOTPLUG_UDEV_CFLAGS_OTHER})
         endif()
     elseif (WIN32)
-        target_sources(granite PRIVATE application/input/xinput_windows.cpp application/input/xinput_windows.hpp)
+        target_sources(granite PRIVATE granite/application/input/xinput_windows.cpp granite/application/input/xinput_windows.hpp)
     endif()
 
     target_sources(granite PRIVATE
-            vulkan/managers/shader_manager.cpp
-            vulkan/managers/shader_manager.hpp
-            vulkan/managers/texture_manager.cpp
-            vulkan/managers/texture_manager.hpp)
+            granite/vulkan/managers/shader_manager.cpp
+            granite/vulkan/managers/shader_manager.hpp
+            granite/vulkan/managers/texture_manager.cpp
+            granite/vulkan/managers/texture_manager.hpp)
 
     target_compile_definitions(granite PUBLIC GRANITE_VULKAN_FILESYSTEM)
     if (GRANITE_VULKAN_SHADER_MANAGER_RUNTIME_COMPILER)
         target_compile_definitions(granite PUBLIC GRANITE_VULKAN_SHADER_MANAGER_RUNTIME_COMPILER=1)
         target_sources(granite PRIVATE
-            compiler/compiler.cpp compiler/compiler.hpp
+            granite/compiler/compiler.cpp granite/compiler/compiler.hpp
 
-            renderer/ocean.hpp renderer/ocean.cpp
-            renderer/fft/glfft.cpp
-            renderer/fft/glfft.hpp
-            renderer/fft/glfft_common.hpp
-            renderer/fft/glfft_interface.hpp
-            renderer/fft/glfft_granite_interface.hpp
-            renderer/fft/glfft_granite_interface.cpp
-            renderer/fft/glfft_wisdom.cpp
-            renderer/fft/glfft_wisdom.hpp)
+            granite/renderer/ocean.hpp granite/renderer/ocean.cpp
+            granite/renderer/fft/glfft.cpp
+            granite/renderer/fft/glfft.hpp
+            granite/renderer/fft/glfft_common.hpp
+            granite/renderer/fft/glfft_interface.hpp
+            granite/renderer/fft/glfft_granite_interface.hpp
+            granite/renderer/fft/glfft_granite_interface.cpp
+            granite/renderer/fft/glfft_wisdom.cpp
+            granite/renderer/fft/glfft_wisdom.hpp)
         target_link_libraries(granite PRIVATE shaderc SPIRV-Tools)
     endif()
 
@@ -504,38 +483,38 @@ if (NOT GRANITE_VULKAN_ONLY)
 	endif()
 
     if (WIN32)
-        target_sources(granite PRIVATE filesystem/windows/os_filesystem.cpp filesystem/windows/os_filesystem.hpp)
+        target_sources(granite PRIVATE granite/filesystem/windows/os_filesystem.cpp granite/filesystem/windows/os_filesystem.hpp)
         target_link_libraries(granite PRIVATE ws2_32)
-        target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/filesystem/windows)
+        target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/granite/filesystem/windows)
     else()
-        target_sources(granite PRIVATE filesystem/linux/os_filesystem.cpp filesystem/linux/os_filesystem.hpp)
-        target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/filesystem/linux)
+        target_sources(granite PRIVATE granite/filesystem/linux/os_filesystem.cpp granite/filesystem/linux/os_filesystem.hpp)
+        target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/granite/filesystem/linux)
     endif()
 
     if (GRANITE_AUDIO)
         include(FindPkgConfig)
 
         target_sources(granite PRIVATE
-                audio/audio_interface.cpp audio/audio_interface.hpp
-                audio/audio_mixer.cpp audio/audio_mixer.hpp
-                audio/audio_resampler.cpp audio/audio_resampler.hpp
-                audio/dsp/sinc_resampler.cpp audio/dsp/sinc_resampler.hpp
-                audio/dsp/dsp.hpp audio/dsp/dsp.cpp
-                audio/dsp/tone_filter.hpp audio/dsp/tone_filter.cpp
-                audio/dsp/tone_filter_stream.hpp audio/dsp/tone_filter_stream.cpp
-                audio/audio_events.hpp
-                audio/dsp/audio_fft_eq.cpp audio/dsp/audio_fft_eq.hpp
-                audio/dsp/pole_zero_filter_design.cpp audio/dsp/pole_zero_filter_design.hpp
-                audio/vorbis_stream.hpp audio/vorbis_stream.cpp)
+                granite/audio/audio_interface.cpp granite/audio/audio_interface.hpp
+                granite/audio/audio_mixer.cpp granite/audio/audio_mixer.hpp
+                granite/audio/audio_resampler.cpp granite/audio/audio_resampler.hpp
+                granite/audio/dsp/sinc_resampler.cpp granite/audio/dsp/sinc_resampler.hpp
+                granite/audio/dsp/dsp.hpp granite/audio/dsp/dsp.cpp
+                granite/audio/dsp/tone_filter.hpp granite/audio/dsp/tone_filter.cpp
+                granite/audio/dsp/tone_filter_stream.hpp granite/audio/dsp/tone_filter_stream.cpp
+                granite/audio/audio_events.hpp
+                granite/audio/dsp/audio_fft_eq.cpp granite/audio/dsp/audio_fft_eq.hpp
+                granite/audio/dsp/pole_zero_filter_design.cpp granite/audio/dsp/pole_zero_filter_design.hpp
+                granite/audio/vorbis_stream.hpp granite/audio/vorbis_stream.cpp)
 
-        target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/audio)
+        target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/granite)
         target_link_libraries(granite PRIVATE stb-vorbis muFFT)
         target_compile_definitions(granite PUBLIC HAVE_GRANITE_AUDIO=1)
 
         if (NOT WIN32)
             pkg_check_modules(PULSEAUDIO libpulse)
             if (PULSEAUDIO_FOUND)
-                target_sources(granite PRIVATE audio/audio_pulse.cpp audio/audio_pulse.hpp)
+                target_sources(granite PRIVATE granite/audio/audio_pulse.cpp granite/audio/audio_pulse.hpp)
                 target_link_libraries(granite PRIVATE ${PULSEAUDIO_LIBRARIES})
                 target_include_directories(granite PRIVATE ${PULSEAUDIO_INCLUDEDIR})
                 target_compile_definitions(granite PRIVATE AUDIO_HAVE_PULSE=1)
@@ -568,8 +547,8 @@ if (NOT GRANITE_VULKAN_ONLY)
         endif()
         message("Including bullet3 from GRANITE_BULLET_ROOT: ${GRANITE_BULLET_ROOT}")
         add_subdirectory(${GRANITE_BULLET_ROOT} ${CMAKE_CURRENT_BINARY_DIR}/third_party/bullet3 EXCLUDE_FROM_ALL)
-        target_sources(granite PRIVATE physics/physics_system.cpp physics/physics_system.hpp)
-        target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/physics PRIVATE ${GRANITE_BULLET_ROOT}/src)
+        target_sources(granite PRIVATE granite/physics/physics_system.cpp granite/physics/physics_system.hpp)
+        target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/granite/physics PRIVATE ${GRANITE_BULLET_ROOT}/src)
         target_compile_definitions(granite PUBLIC HAVE_GRANITE_PHYSICS=1)
         target_link_libraries(granite PRIVATE BulletDynamics BulletCollision LinearMath)
     endif()
@@ -610,20 +589,20 @@ if (NOT GRANITE_VULKAN_ONLY)
 
     if (${GRANITE_PLATFORM} MATCHES "libretro")
         target_sources(granite PRIVATE
-                application/platforms/application_libretro.cpp
-                application/platforms/application_libretro_utils.cpp
-                application/platforms/application_libretro_utils.hpp)
+                granite/application/platforms/application_libretro.cpp
+                granite/application/platforms/application_libretro_utils.cpp
+                granite/application/platforms/application_libretro_utils.hpp)
         target_compile_definitions(granite PUBLIC HAVE_LIBRETRO)
-        target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/application/platforms/libretro)
+        target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/granite/application/platforms/libretro)
     elseif (${GRANITE_PLATFORM} MATCHES "GLFW")
         set(GLFW_BUILD_TESTS OFF)
         add_subdirectory(third_party/glfw EXCLUDE_FROM_ALL)
         target_sources(granite PRIVATE
-                application/platforms/application_glfw.cpp)
+                granite/application/platforms/application_glfw.cpp)
         target_link_libraries(granite PRIVATE glfw)
     elseif (${GRANITE_PLATFORM} MATCHES "KHR_DISPLAY")
         target_sources(granite PRIVATE
-                application/platforms/application_khr_display.cpp)
+                granite/application/platforms/application_khr_display.cpp)
         if (GRANITE_KHR_DISPLAY_ACQUIRE_XLIB)
             target_link_libraries(granite PRIVATE X11)
             target_compile_definitions(granite PRIVATE "KHR_DISPLAY_ACQUIRE_XLIB")
@@ -639,7 +618,7 @@ if (${CMAKE_BUILD_TYPE} MATCHES "Debug")
 endif()
 
 if (CMAKE_COMPILER_IS_GNUCXX OR (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"))
-    set_source_files_properties(vulkan/managers/texture_manager.cpp PROPERTIES COMPILE_FLAGS "-Wno-type-limits -Wno-ignored-qualifiers -Wno-unused-parameter")
+    set_source_files_properties(granite/vulkan/managers/texture_manager.cpp PROPERTIES COMPILE_FLAGS "-Wno-type-limits -Wno-ignored-qualifiers -Wno-unused-parameter")
 endif()
 
 if (GRANITE_SPIRV_DUMP)
@@ -714,7 +693,7 @@ if (NOT GRANITE_VULKAN_ONLY)
 
     if (GRANITE_TOOLS)
         add_subdirectory(tools)
-        add_granite_executable(netfs-server network/netfs_server.cpp)
-        add_subdirectory(renderer/fft/test)
+        add_granite_executable(netfs-server granite/network/netfs_server.cpp)
+        add_subdirectory(granite/renderer/fft/test)
     endif()
 endif()

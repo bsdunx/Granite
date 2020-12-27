@@ -1,9 +1,9 @@
-#include "simd.hpp"
-#include "muglm/muglm_impl.hpp"
-#include "muglm/matrix_helper.hpp"
-#include "logging.hpp"
-#include "transforms.hpp"
-#include "frustum.hpp"
+#include "math/simd.hpp"
+#include "math/muglm/muglm_impl.hpp"
+#include "math/muglm/matrix_helper.hpp"
+#include "math/transforms.hpp"
+#include "math/frustum.hpp"
+#include "util/logging.hpp"
 
 #include <cassert>
 #include <cstring>

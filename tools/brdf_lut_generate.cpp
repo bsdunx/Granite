@@ -1,8 +1,8 @@
-#include "math.hpp"
-#include "logging.hpp"
-#include "muglm/matrix_helper.hpp"
-#include "muglm/muglm_impl.hpp"
-#include "memory_mapped_texture.hpp"
+#include "scene_formats/memory_mapped_texture.hpp"
+#include "math/math.hpp"
+#include "math/muglm/matrix_helper.hpp"
+#include "math/muglm/muglm_impl.hpp"
+#include "util/logging.hpp"
 
 using namespace muglm;
 using namespace Granite;

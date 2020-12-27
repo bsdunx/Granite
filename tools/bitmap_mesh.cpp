@@ -20,13 +20,13 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "math.hpp"
-#include "bitmap_to_mesh.hpp"
-#include "mesh_util.hpp"
-#include "texture_files.hpp"
-#include "cli_parser.hpp"
-#include "gltf_export.hpp"
-#include "muglm/muglm_impl.hpp"
+#include "renderer/mesh_util.hpp"
+#include "scene_formats/texture_files.hpp"
+#include "scene_formats/gltf_export.hpp"
+#include "math/math.hpp"
+#include "math/muglm/muglm_impl.hpp"
+#include "util/bitmap_to_mesh.hpp"
+#include "util/cli_parser.hpp"
 
 #include <cstring>
 

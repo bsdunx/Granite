@@ -20,13 +20,19 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "application.hpp"
-#include "command_buffer.hpp"
-#include "device.hpp"
-#include "os_filesystem.hpp"
-#include "math.hpp"
+#include "application/application.hpp"
+#include "vulkan/command_buffer.hpp"
+#include "vulkan/device.hpp"
+#include "math/math.hpp"
+#include "util/cli_parser.hpp"
+
+#ifdef _WIN32
+#include "filesystem/windows/os_filesystem.hpp"
+#else
+#include "filesystem/linux/os_filesystem.hpp"
+#endif
+
 #include <cstring>
-#include "cli_parser.hpp"
 
 using namespace Granite;
 using namespace Vulkan;

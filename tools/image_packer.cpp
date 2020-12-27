@@ -20,9 +20,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "util/logging.hpp"
+
 #include "stb_image.h"
 #include "stb_image_write.h"
-#include "logging.hpp"
 
 #include <cstring>
 #include <cstdint>

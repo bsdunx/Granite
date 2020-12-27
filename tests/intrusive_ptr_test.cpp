@@ -20,9 +20,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "intrusive.hpp"
-#include "intrusive_hash_map.hpp"
-#include "logging.hpp"
+#include "util/intrusive.hpp"
+#include "util/intrusive_hash_map.hpp"
+#include "util/logging.hpp"
+
 #include <vector>
 
 using namespace Util;

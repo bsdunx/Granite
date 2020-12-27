@@ -1,13 +1,14 @@
-#include "dsp/tone_filter.hpp"
-#include "timer.hpp"
-#include "logging.hpp"
+#include "audio/dsp/tone_filter.hpp"
+#include "util/timer.hpp"
+#include "util/logging.hpp"
+
 #include <random>
 #include <cmath>
 
 using namespace Granite::Audio;
 
 #if 0
-#include "simd_headers.hpp"
+#include "math/simd_headers.hpp"
 
 static float recp(float v)
 {

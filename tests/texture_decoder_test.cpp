@@ -20,19 +20,19 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "device.hpp"
-#include "context.hpp"
-#include "global_managers.hpp"
-#include "texture_decoder.hpp"
-#include "memory_mapped_texture.hpp"
-#include "math.hpp"
-#include "muglm/muglm_impl.hpp"
-
-#include <random>
+#include "vulkan/device.hpp"
+#include "vulkan/context.hpp"
+#include "application/global_managers.hpp"
+#include "scene_formats/texture_decoder.hpp"
+#include "scene_formats/memory_mapped_texture.hpp"
+#include "math/math.hpp"
+#include "math/muglm/muglm_impl.hpp"
 
 #ifdef HAVE_ASTC_DECODER
 #include "astcenc.h"
 #endif
+
+#include <random>
 
 using namespace Granite;
 using namespace Vulkan;

@@ -20,15 +20,16 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "cli_parser.hpp"
-#include "global_managers.hpp"
+#include "application/global_managers.hpp"
+#include "compiler/compiler.hpp"
+#include "filesystem/filesystem.hpp"
+#include "filesystem/path.hpp"
+#include "threading/thread_group.hpp"
+#include "util/hash.hpp"
+#include "util/logging.hpp"
+#include "util/cli_parser.hpp"
+
 #include "rapidjson_wrapper.hpp"
-#include "logging.hpp"
-#include "filesystem.hpp"
-#include "compiler.hpp"
-#include "path.hpp"
-#include "thread_group.hpp"
-#include "hash.hpp"
 
 #include <cassert>
 #include <sstream>

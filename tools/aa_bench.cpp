@@ -1,11 +1,16 @@
-#include "application.hpp"
-#include "os_filesystem.hpp"
-#include "cli_parser.hpp"
-#include "device.hpp"
-#include "post/aa.hpp"
-#include "post/temporal.hpp"
-#include "post/hdr.hpp"
-#include "task_composer.hpp"
+#include "application/application.hpp"
+#include "vulkan/device.hpp"
+#include "renderer/post/aa.hpp"
+#include "renderer/post/temporal.hpp"
+#include "renderer/post/hdr.hpp"
+#include "threading/task_composer.hpp"
+#include "util/cli_parser.hpp"
+
+#ifdef _WIN32
+#include "filesystem/windows/os_filesystem.hpp"
+#else
+#include "filesystem/linux/os_filesystem.hpp"
+#endif
 
 using namespace Util;
 using namespace Granite;

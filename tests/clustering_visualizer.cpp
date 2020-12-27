@@ -20,11 +20,16 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "application.hpp"
-#include "os_filesystem.hpp"
-#include "mesh_util.hpp"
-#include "device.hpp"
-#include "muglm/muglm_impl.hpp"
+#include "application/application.hpp"
+#include "vulkan/device.hpp"
+#include "renderer/mesh_util.hpp"
+#include "math/muglm/muglm_impl.hpp"
+
+#ifdef _WIN32
+#include "filesystem/windows/os_filesystem.hpp"
+#else
+#include "filesystem/linux/os_filesystem.hpp"
+#endif
 
 #include <cstring>
 

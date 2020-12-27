@@ -20,14 +20,15 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "application.hpp"
-#include "command_buffer.hpp"
-#include "device.hpp"
+#include "application/application.hpp"
+#include "vulkan/command_buffer.hpp"
+#include "vulkan/device.hpp"
+#include "ui/flat_renderer.hpp"
+#include "ui/ui_manager.hpp"
+#include "math/math.hpp"
+#include "util/string_helpers.hpp"
+
 #include "os_filesystem.hpp"
-#include "flat_renderer.hpp"
-#include "math.hpp"
-#include "ui_manager.hpp"
-#include "string_helpers.hpp"
 
 using namespace Granite;
 using namespace Vulkan;

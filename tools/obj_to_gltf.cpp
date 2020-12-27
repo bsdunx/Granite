@@ -20,10 +20,10 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "gltf_export.hpp"
-#include "logging.hpp"
-#include "cli_parser.hpp"
-#include "obj.hpp"
+#include "scene_formats/gltf_export.hpp"
+#include "scene_formats/obj.hpp"
+#include "util/logging.hpp"
+#include "util/cli_parser.hpp"
 
 using namespace Util;
 using namespace Granite;

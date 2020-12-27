@@ -22,7 +22,7 @@
 
 #pragma once
 
-#include "logging.hpp"
+#include "util/logging.hpp"
 #ifndef RAPIDJSON_HAS_STDSTRING
 #define RAPIDJSON_HAS_STDSTRING 1
 #endif

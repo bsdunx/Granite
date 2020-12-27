@@ -20,14 +20,15 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "cli_parser.hpp"
-#include "logging.hpp"
-#include "texture_files.hpp"
-#include "filesystem.hpp"
-#include "thread_group.hpp"
-#include "path.hpp"
+#include "scene_formats/texture_files.hpp"
+#include "filesystem/filesystem.hpp"
+#include "filesystem/path.hpp"
+#include "threading/thread_group.hpp"
+#include "math/muglm/muglm_impl.hpp"
+#include "util/logging.hpp"
+#include "util/cli_parser.hpp"
+
 #include "stb_image_write.h"
-#include "muglm/muglm_impl.hpp"
 
 #include <cstring>
 #include <vector>

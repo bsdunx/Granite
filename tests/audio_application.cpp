@@ -20,18 +20,22 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "application.hpp"
-#include "os_filesystem.hpp"
-#include "device.hpp"
-#include "input.hpp"
-#include "muglm/matrix_helper.hpp"
-#include "audio_events.hpp"
-#include "vorbis_stream.hpp"
-#include "dsp/tone_filter_stream.hpp"
-#include "dsp/tone_filter.hpp"
-#include "muglm/muglm_impl.hpp"
+#include "application/application.hpp"
+#include "application/input/input.hpp"
+#include "vulkan/device.hpp"
+#include "audio/audio_events.hpp"
+#include "audio/vorbis_stream.hpp"
+#include "audio/dsp/tone_filter_stream.hpp"
+#include "audio/dsp/tone_filter.hpp"
+#include "audio/dsp/dsp.hpp"
+#include "math/muglm/muglm_impl.hpp"
+#include "math/muglm/matrix_helper.hpp"
 
-#include <dsp/dsp.hpp>
+#ifdef _WIN32
+#include "filesystem/windows/os_filesystem.hpp"
+#else
+#include "filesystem/linux/os_filesystem.hpp"
+#endif
 
 #include <cstring>
 
