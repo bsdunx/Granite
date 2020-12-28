@@ -219,13 +219,13 @@ public:
 	friend class Allocator;
 	~ClassAllocator();
 
-	inline void set_sub_block_size(uint32_t size)
+	inline void set_sub_block_size(const uint32_t size)
 	{
 		sub_block_size_log2 = log2_integer(size);
 		sub_block_size = size;
 	}
 
-	bool allocate(uint32_t size, AllocationMode mode, DeviceAllocation *alloc, bool hierarchical);
+	bool allocate(const uint32_t size, const AllocationMode mode, DeviceAllocation *alloc, const bool hierarchical);
 	void free(DeviceAllocation *alloc);
 
 private:
@@ -253,12 +253,12 @@ private:
 		global_allocator = allocator;
 	}
 
-	void set_memory_type(uint32_t type)
+	void set_memory_type(const uint32_t type)
 	{
 		memory_type = type;
 	}
 
-	void suballocate(uint32_t num_blocks, AllocationMode mode, uint32_t memory_type, MiniHeap &heap,
+	void suballocate(const uint32_t num_blocks, const AllocationMode mode, const uint32_t memory_type, MiniHeap &heap,
 	                 DeviceAllocation *alloc);
 
 	inline void set_parent(ClassAllocator *allocator)
@@ -274,10 +274,10 @@ public:
 	void operator=(const Allocator &) = delete;
 	Allocator(const Allocator &) = delete;
 
-	bool allocate(uint32_t size, uint32_t alignment, AllocationMode mode, DeviceAllocation *alloc);
-	bool allocate_global(uint32_t size, AllocationMode mode, DeviceAllocation *alloc);
-	bool allocate_dedicated(uint32_t size, AllocationMode mode, DeviceAllocation *alloc, VkImage image);
-	inline ClassAllocator &get_class_allocator(MemoryClass clazz)
+	bool allocate(const uint32_t size, const uint32_t alignment, const AllocationMode mode, DeviceAllocation *alloc);
+	bool allocate_global(const uint32_t size, const AllocationMode mode, DeviceAllocation *alloc, VkImage handle = VK_NULL_HANDLE);
+
+	inline ClassAllocator &get_class_allocator(const MemoryClass clazz)
 	{
 		return classes[static_cast<unsigned>(clazz)];
 	}
@@ -287,7 +287,7 @@ public:
 		alloc->free_immediate();
 	}
 
-	void set_memory_type(uint32_t memory_type_)
+	void set_memory_type(const uint32_t memory_type_)
 	{
 		memory_type = memory_type_;
 		for (auto &sub : classes)
@@ -322,22 +322,24 @@ public:
 
 	~DeviceAllocator();
 
-	bool allocate(uint32_t size, uint32_t alignment, AllocationMode mode, uint32_t memory_type,
+	bool allocate(const uint32_t size, const uint32_t alignment, const AllocationMode mode, const uint32_t memory_type,
 	              DeviceAllocation *alloc);
-	bool allocate_image_memory(uint32_t size, uint32_t alignment, AllocationMode mode, uint32_t memory_type,
-	                           DeviceAllocation *alloc, VkImage image, bool force_no_dedicated);
+	bool allocate_image_memory(const uint32_t size, const uint32_t alignment, const AllocationMode mode, const uint32_t memory_type,
+	                           DeviceAllocation *alloc, VkImage image, const bool force_no_dedicated);
 
-	bool allocate_global(uint32_t size, AllocationMode mode, uint32_t memory_type, DeviceAllocation *alloc);
+	bool allocate_global(const uint32_t size, const AllocationMode mode, const uint32_t memory_type, DeviceAllocation *alloc);
 
 	void garbage_collect();
-	void *map_memory(const DeviceAllocation &alloc, MemoryAccessFlags flags, VkDeviceSize offset, VkDeviceSize length);
-	void unmap_memory(const DeviceAllocation &alloc, MemoryAccessFlags flags, VkDeviceSize offset, VkDeviceSize length);
 
-	bool allocate(uint32_t size, uint32_t memory_type, AllocationMode mode,
+	VkMappedMemoryRange get_mapping_range(const DeviceAllocation& alloc, const VkDeviceSize offset, const VkDeviceSize length);
+	void *map_memory(const DeviceAllocation &alloc, const MemoryAccessFlags flags, const VkDeviceSize offset, const VkDeviceSize length);
+	void unmap_memory(const DeviceAllocation &alloc, const MemoryAccessFlags flags, const VkDeviceSize offset, const VkDeviceSize length);
+
+	bool allocate(const uint32_t size, const uint32_t memory_type, const AllocationMode mode,
 	              VkDeviceMemory *memory, uint8_t **host_memory,
 	              VkImage dedicated_image);
-	void free(uint32_t size, uint32_t memory_type, AllocationMode mode, VkDeviceMemory memory, bool is_mapped);
-	void free_no_recycle(uint32_t size, uint32_t memory_type, VkDeviceMemory memory);
+	void free(const uint32_t size, const uint32_t memory_type, const AllocationMode mode, VkDeviceMemory memory, const bool is_mapped);
+	void free_no_recycle(const uint32_t size, const uint32_t memory_type, VkDeviceMemory memory);
 
 	void get_memory_budget(HeapBudget *heaps);
 

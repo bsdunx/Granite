@@ -82,7 +82,7 @@ void Block::allocate(uint32_t num_blocks, DeviceAllocation *block)
 	uint32_t mask = free_blocks[num_blocks - 1];
 	uint32_t b = trailing_zeroes(mask);
 
-	VK_ASSERT(((free_blocks[0] >> b) & block_mask) == block_mask);
+	VK_ASSERT(b < 32 && ((free_blocks[0] >> b) & block_mask) == block_mask);
 
 	uint32_t sb = block_mask << b;
 	free_blocks[0] &= ~sb;
@@ -99,7 +99,7 @@ void Block::free(uint32_t mask)
 	update_longest_run();
 }
 
-void ClassAllocator::suballocate(uint32_t num_blocks, AllocationMode mode, uint32_t memory_type_, MiniHeap &heap,
+void ClassAllocator::suballocate(const uint32_t num_blocks, const AllocationMode mode, const uint32_t memory_type_, MiniHeap &heap,
                                  DeviceAllocation *alloc)
 {
 	heap.heap.allocate(num_blocks, alloc);
@@ -116,7 +116,7 @@ void ClassAllocator::suballocate(uint32_t num_blocks, AllocationMode mode, uint3
 	alloc->size = num_blocks << sub_block_size_log2;
 }
 
-bool ClassAllocator::allocate(uint32_t size, AllocationMode mode, DeviceAllocation *alloc, bool hierarchical)
+bool ClassAllocator::allocate(const uint32_t size, const AllocationMode mode, DeviceAllocation *alloc, const bool hierarchical)
 {
 	ALLOCATOR_LOCK();
 	unsigned num_blocks = (size + sub_block_size - 1) >> sub_block_size_log2;
@@ -277,30 +277,14 @@ void ClassAllocator::free(DeviceAllocation *alloc)
 	}
 }
 
-bool Allocator::allocate_global(uint32_t size, AllocationMode mode, DeviceAllocation *alloc)
+bool Allocator::allocate_global(const uint32_t size, const AllocationMode mode, DeviceAllocation *alloc, const VkImage handle)
 {
 	// Fall back to global allocation, do not recycle.
 	alloc->host_base = nullptr;
 	if (!global_allocator->allocate(size, memory_type, mode, &alloc->base,
 	                                (mode == AllocationMode::LinearHostMappable ||
 	                                 mode == AllocationMode::LinearDevice ||
-	                                 mode == AllocationMode::LinearDeviceHighPriority) ? &alloc->host_base : nullptr, VK_NULL_HANDLE))
-		return false;
-	alloc->mode = mode;
-	alloc->alloc = nullptr;
-	alloc->memory_type = memory_type;
-	alloc->size = size;
-	return true;
-}
-
-bool Allocator::allocate_dedicated(uint32_t size, AllocationMode mode, DeviceAllocation *alloc, VkImage dedicated_image)
-{
-	// Fall back to global allocation, do not recycle.
-	alloc->host_base = nullptr;
-	if (!global_allocator->allocate(size, memory_type, mode, &alloc->base,
-	                                (mode == AllocationMode::LinearHostMappable ||
-	                                 mode == AllocationMode::LinearDevice ||
-	                                 mode == AllocationMode::LinearDeviceHighPriority) ? &alloc->host_base : nullptr, dedicated_image))
+	                                 mode == AllocationMode::LinearDeviceHighPriority) ? &alloc->host_base : nullptr, handle))
 		return false;
 	alloc->mode = mode;
 	alloc->alloc = nullptr;
@@ -320,23 +304,24 @@ DeviceAllocation DeviceAllocation::make_imported_allocation(VkDeviceMemory memor
 	return alloc;
 }
 
-bool Allocator::allocate(uint32_t size, uint32_t alignment, AllocationMode mode, DeviceAllocation *alloc)
+bool Allocator::allocate(const uint32_t size, const uint32_t alignment, const AllocationMode mode, DeviceAllocation *alloc)
 {
+	auto alloc_size = size;
 	for (auto &c : classes)
 	{
 		// Find a suitable class to allocate from.
-		if (size <= c.sub_block_size * Block::NumSubBlocks)
+		if (c.sub_block_size * Block::NumSubBlocks >= size)
 		{
 			if (alignment > c.sub_block_size)
 			{
-				size_t padded_size = size + (alignment - c.sub_block_size);
+				size_t padded_size = alloc_size + (alignment - c.sub_block_size);
 				if (padded_size <= c.sub_block_size * Block::NumSubBlocks)
-					size = padded_size;
+					alloc_size = padded_size;
 				else
 					continue;
 			}
 
-			bool ret = c.allocate(size, mode, alloc, false);
+			bool ret = c.allocate(alloc_size, mode, alloc, false);
 			if (ret)
 			{
 				uint32_t aligned_offset = (alloc->offset + alignment - 1) & ~(alignment - 1);
@@ -348,7 +333,7 @@ bool Allocator::allocate(uint32_t size, uint32_t alignment, AllocationMode mode,
 		}
 	}
 
-	return allocate_global(size, mode, alloc);
+	return allocate_global(alloc_size, mode, alloc);
 }
 
 Allocator::Allocator()
@@ -390,17 +375,17 @@ void DeviceAllocator::init(Device *device_)
 	get_memory_budget(budgets);
 }
 
-bool DeviceAllocator::allocate(uint32_t size, uint32_t alignment, AllocationMode mode, uint32_t memory_type,
+bool DeviceAllocator::allocate(const uint32_t size, const uint32_t alignment, const AllocationMode mode, const uint32_t memory_type,
                                DeviceAllocation *alloc)
 {
 	return allocators[memory_type]->allocate(size, alignment, mode, alloc);
 }
 
-bool DeviceAllocator::allocate_image_memory(uint32_t size, uint32_t alignment, AllocationMode mode, uint32_t memory_type,
+bool DeviceAllocator::allocate_image_memory(const uint32_t size, const uint32_t alignment, const AllocationMode mode, uint32_t memory_type,
                                             DeviceAllocation *alloc, VkImage image,
-                                            bool force_no_dedicated)
+                                            const bool force_no_dedicated)
 {
-	if (!device->get_device_features().supports_dedicated || force_no_dedicated)
+	if (force_no_dedicated || !device->get_device_features().supports_dedicated)
 		return allocate(size, alignment, mode, memory_type, alloc);
 
 	VkImageMemoryRequirementsInfo2KHR info = { VK_STRUCTURE_TYPE_IMAGE_MEMORY_REQUIREMENTS_INFO_2_KHR };
@@ -412,12 +397,12 @@ bool DeviceAllocator::allocate_image_memory(uint32_t size, uint32_t alignment, A
 	table->vkGetImageMemoryRequirements2KHR(device->get_device(), &info, &mem_req);
 
 	if (dedicated_req.prefersDedicatedAllocation || dedicated_req.requiresDedicatedAllocation)
-		return allocators[memory_type]->allocate_dedicated(size, mode, alloc, image);
+		return allocators[memory_type]->allocate_global(size, mode, alloc, image);
 	else
 		return allocate(size, alignment, mode, memory_type, alloc);
 }
 
-bool DeviceAllocator::allocate_global(uint32_t size, AllocationMode mode, uint32_t memory_type, DeviceAllocation *alloc)
+bool DeviceAllocator::allocate_global(const uint32_t size, const AllocationMode mode, const uint32_t memory_type, DeviceAllocation *alloc)
 {
 	return allocators[memory_type]->allocate_global(size, mode, alloc);
 }
@@ -439,7 +424,7 @@ DeviceAllocator::~DeviceAllocator()
 		heap.garbage_collect(device);
 }
 
-void DeviceAllocator::free(uint32_t size, uint32_t memory_type, AllocationMode mode, VkDeviceMemory memory, bool is_mapped)
+void DeviceAllocator::free(const uint32_t size, const uint32_t memory_type, const AllocationMode mode, VkDeviceMemory memory, bool is_mapped)
 {
 	if (is_mapped)
 		table->vkUnmapMemory(device->get_device(), memory);
@@ -451,7 +436,7 @@ void DeviceAllocator::free(uint32_t size, uint32_t memory_type, AllocationMode m
 	heap.blocks.push_back({ memory, size, memory_type, mode });
 }
 
-void DeviceAllocator::free_no_recycle(uint32_t size, uint32_t memory_type, VkDeviceMemory memory)
+void DeviceAllocator::free_no_recycle(const uint32_t size, const uint32_t memory_type, VkDeviceMemory memory)
 {
 	ALLOCATOR_LOCK();
 	auto &heap = heaps[mem_props.memoryTypes[memory_type].heapIndex];
@@ -466,11 +451,28 @@ void DeviceAllocator::garbage_collect()
 		heap.garbage_collect(device);
 }
 
-void *DeviceAllocator::map_memory(const DeviceAllocation &alloc, MemoryAccessFlags flags,
-                                  VkDeviceSize offset, VkDeviceSize length)
+VkMappedMemoryRange DeviceAllocator::get_mapping_range(const DeviceAllocation& alloc, const VkDeviceSize offset, const VkDeviceSize length)
 {
-	VkDeviceSize base_offset = offset;
+	auto fixed_offset = offset;
+	auto fixed_length = length;
 
+	fixed_offset += alloc.offset;
+	VkDeviceSize end_offset = fixed_offset + length;
+	fixed_offset &= ~(atom_alignment - 1);
+	fixed_length = end_offset - fixed_offset;
+	VkDeviceSize size = (fixed_length + atom_alignment - 1) & ~(atom_alignment - 1);
+
+	// Have to invalidate cache here.
+	const VkMappedMemoryRange range = {
+		VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE, nullptr, alloc.base, fixed_offset, size,
+	};
+
+	return range;
+}
+
+void *DeviceAllocator::map_memory(const DeviceAllocation &alloc, const MemoryAccessFlags flags,
+                                  const VkDeviceSize offset, const VkDeviceSize length)
+{
 	// This will only happen if the memory type is device local only, which we cannot possibly map.
 	if (!alloc.host_base)
 		return nullptr;
@@ -478,24 +480,15 @@ void *DeviceAllocator::map_memory(const DeviceAllocation &alloc, MemoryAccessFla
 	if ((flags & MEMORY_ACCESS_READ_BIT) &&
 	    !(mem_props.memoryTypes[alloc.memory_type].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
 	{
-		offset += alloc.offset;
-		VkDeviceSize end_offset = offset + length;
-		offset &= ~(atom_alignment - 1);
-		length = end_offset - offset;
-		VkDeviceSize size = (length + atom_alignment - 1) & ~(atom_alignment - 1);
-
-		// Have to invalidate cache here.
-		const VkMappedMemoryRange range = {
-			VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE, nullptr, alloc.base, offset, size,
-		};
+		auto range = get_mapping_range(alloc, offset, length);
 		table->vkInvalidateMappedMemoryRanges(device->get_device(), 1, &range);
 	}
 
-	return alloc.host_base + base_offset;
+	return alloc.host_base + offset;
 }
 
-void DeviceAllocator::unmap_memory(const DeviceAllocation &alloc, MemoryAccessFlags flags,
-                                   VkDeviceSize offset, VkDeviceSize length)
+void DeviceAllocator::unmap_memory(const DeviceAllocation &alloc, const MemoryAccessFlags flags,
+                                   const VkDeviceSize offset, const VkDeviceSize length)
 {
 	// This will only happen if the memory type is device local only, which we cannot possibly map.
 	if (!alloc.host_base)
@@ -504,16 +497,7 @@ void DeviceAllocator::unmap_memory(const DeviceAllocation &alloc, MemoryAccessFl
 	if ((flags & MEMORY_ACCESS_WRITE_BIT) &&
 	    !(mem_props.memoryTypes[alloc.memory_type].propertyFlags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT))
 	{
-		offset += alloc.offset;
-		VkDeviceSize end_offset = offset + length;
-		offset &= ~(atom_alignment - 1);
-		length = end_offset - offset;
-		VkDeviceSize size = (length + atom_alignment - 1) & ~(atom_alignment - 1);
-
-		// Have to flush caches here.
-		const VkMappedMemoryRange range = {
-			VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE, nullptr, alloc.base, offset, size,
-		};
+		auto range = get_mapping_range(alloc, offset, length);
 		table->vkFlushMappedMemoryRanges(device->get_device(), 1, &range);
 	}
 }
@@ -573,7 +557,7 @@ void DeviceAllocator::get_memory_budget(HeapBudget *heap_budgets)
 	get_memory_budget_nolock(heap_budgets);
 }
 
-bool DeviceAllocator::allocate(uint32_t size, uint32_t memory_type, AllocationMode mode,
+bool DeviceAllocator::allocate(const uint32_t size, const uint32_t memory_type, const AllocationMode mode,
                                VkDeviceMemory *memory, uint8_t **host_memory,
                                VkImage dedicated_image)
 {
@@ -720,4 +704,5 @@ bool DeviceAllocator::allocate(uint32_t size, uint32_t memory_type, AllocationMo
 			return false;
 	}
 }
+
 }
