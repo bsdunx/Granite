@@ -149,6 +149,10 @@ public:
 		return height;
 	}
 
+	void release_resources() override
+	{
+	}
+
 	~WSIPlatformGLFW()
 	{
 		auto *em = Global::event_manager();
