@@ -146,7 +146,6 @@ Tested on GCC, Clang, and MSVC 2017.
 
 - GLFW (Linux / Windows)
 - `VK_KHR_display` (headless Linux w/ basic keyboard, mouse, gamepad support)
-- libretro Vulkan HW interface
 - Headless (benchmarking)
 - Custom surface plugin
 
@@ -165,7 +164,7 @@ Plain CMake. Remember to check out submodules with `git submodule update --init`
 mkdir build
 cd build
 cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja
-ninja -j16 # YMMV :3
+cmake build --parallel # YMMV :3
 ```
 
 For MSVC, it should work to use the appropriate `-G` flag.

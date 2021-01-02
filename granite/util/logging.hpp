@@ -79,16 +79,7 @@ static inline void queued_log(const char *tag, const char *fmt, ...)
 #define QUEUED_LOGI(...)
 #endif // GRANITE_LOGGING_QUEUE
 
-#if defined(HAVE_LIBRETRO)
-#include "libretro.h"
-namespace Granite
-{
-extern retro_log_printf_t libretro_log;
-}
-#define LOGE(...) do { if (::Granite::libretro_log) ::Granite::libretro_log(RETRO_LOG_ERROR, __VA_ARGS__); QUEUED_LOGE(__VA_ARGS__); } while(0)
-#define LOGW(...) do { if (::Granite::libretro_log) ::Granite::libretro_log(RETRO_LOG_WARN, __VA_ARGS__); QUEUED_LOGW(__VA_ARGS__); } while(0)
-#define LOGI(...) do { if (::Granite::libretro_log) ::Granite::libretro_log(RETRO_LOG_INFO, __VA_ARGS__); QUEUED_LOGI(__VA_ARGS__); } while(0)
-#elif defined(_MSC_VER)
+#if defined(_MSC_VER)
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #define LOGE(...) do { \

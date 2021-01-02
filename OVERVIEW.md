@@ -24,8 +24,7 @@ Granite uses submodules to pull in third party modules. Make sure that
 
 ### Using Granite as a dependency
 
-Granite is designed to be used as a statically linked library, but can be built with position independent code if you need
-to wrap your application in a dynamic library (e.g. libretro target).
+Granite is designed to be used as a statically linked library, but can be built with position independent code if you need to wrap your application in a dynamic library.
 
 The normal idea is to have Granite somewhere as a folder in your tree, either a submodule, symlink or whatever.
 Create a CMake project and add Granite as a subdirectory.
@@ -75,7 +74,6 @@ and input handling.
 - GLFW
 - Headless (no WSI, used for benchmarking)
 - VK_KHR_display
-- libretro
 - Custom plugin surface (used if you have some fancy, special purpose surface code).
 
 This module defines the "Application" interface, used by the platform code in the main loop.
