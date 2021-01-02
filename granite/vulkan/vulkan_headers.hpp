@@ -27,7 +27,7 @@
 #endif
 
 #include "volk.h"
-#include "vulkan_debug.hpp"
+#include "vulkan/vulkan_debug.hpp"
 
 namespace Vulkan
 {
