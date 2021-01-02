@@ -25,9 +25,6 @@
 #ifdef AUDIO_HAVE_PULSE
 #include "audio/audio_pulse.hpp"
 #endif
-#ifdef AUDIO_HAVE_OPENSL
-#include "audio/audio_opensl.hpp"
-#endif
 #ifdef AUDIO_HAVE_WASAPI
 #include "audio/audio_wasapi.hpp"
 #endif
@@ -43,9 +40,6 @@ static const BackendCreationCallback backends[] = {
 #ifdef AUDIO_HAVE_PULSE
 		create_pulse_backend,
 #endif
-#ifdef AUDIO_HAVE_OPENSL
-		create_opensl_backend,
-#endif
 #ifdef AUDIO_HAVE_WASAPI
 		create_wasapi_backend,
 #endif
@@ -57,9 +51,6 @@ Backend::Backend(BackendCallback &callback_)
 {
 }
 
-void Backend::heartbeat()
-{
-}
 
 Backend *create_default_audio_backend(BackendCallback &callback, float target_sample_rate, unsigned target_channels)
 {
@@ -85,7 +76,7 @@ struct DumpBackend::Impl
 	std::vector<float> mix_buffers[Backend::MaxAudioChannels];
 	float *mix_buffers_ptr[Backend::MaxAudioChannels] = {};
 
-	float target_sample_rate = 0;
+	float target_sample_rate = 0.f;
 	unsigned target_channels = 0;
 	unsigned frames_per_tick = 0;
 	unsigned frames = 0;
@@ -113,10 +104,9 @@ DumpBackend::DumpBackend(BackendCallback &callback_, const std::string &path, fl
 	}
 }
 
-DumpBackend::~DumpBackend()
+void DumpBackend::heartbeat()
 {
 }
-
 void DumpBackend::frame()
 {
 	if ((impl->frame_offset < impl->frames) && impl->mapped)

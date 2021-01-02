@@ -198,8 +198,8 @@ size_t DecodedVorbisStream::accumulate_samples(float *const *channels, const flo
 
 		return accumulate_samples(modified_channels, gains, spill_to_write) + to_write;
 	}
-	else
-		return to_write;
+
+	return to_write;
 }
 
 size_t VorbisStream::accumulate_samples(float * const *channels, const float *gains, size_t num_frames) noexcept

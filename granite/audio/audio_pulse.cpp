@@ -20,6 +20,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include "audio/audio_interface.hpp"
 #include "audio/audio_pulse.hpp"
 #include "audio/dsp/dsp.hpp"
 #include "util/logging.hpp"
@@ -33,7 +34,7 @@ static constexpr size_t MAX_NUM_SAMPLES = 256;
 namespace Granite::Audio
 {
 
-struct Pulse : Backend
+struct Pulse final : Backend
 {
 	Pulse(BackendCallback &callback_)
 		: Backend(callback_)
@@ -41,9 +42,12 @@ struct Pulse : Backend
 	}
 
 	~Pulse();
+
 	bool init(float sample_rate_, unsigned channels_);
 	bool start() override;
 	bool stop() override;
+
+	void heartbeat() override;
 
 	const char *get_backend_name() override
 	{
@@ -132,9 +136,9 @@ static void stream_request_cb(pa_stream *s, size_t length, void *data)
 		return;
 	}
 
+	const unsigned channels = pa->channels;
 	float *out_interleaved = static_cast<float *>(out_data);
-	size_t out_frames = length / (sizeof(float) * pa->channels);
-	unsigned channels = pa->channels;
+	size_t out_frames = length / (sizeof(float) * channels);
 
 	if (pa->is_active)
 	{
@@ -177,13 +181,18 @@ static void stream_request_cb(pa_stream *s, size_t length, void *data)
 	pa->get_callback().set_latency_usec(uint32_t(latency_usec));
 }
 
-bool Pulse::init(float sample_rate_, unsigned channels_)
+void Pulse::heartbeat()
 {
+
+}
+
+bool Pulse::init(const float sample_rate_, const unsigned channels_)
+{
+	if (channels_ == 0 || channels_ > MaxAudioChannels)
+		return false;
+
 	sample_rate = sample_rate_;
 	channels = channels_;
-
-	if (channels_ > MaxAudioChannels)
-		return false;
 
 	mainloop = pa_threaded_mainloop_new();
 	if (!mainloop)

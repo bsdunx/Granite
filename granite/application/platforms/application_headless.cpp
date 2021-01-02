@@ -141,7 +141,7 @@ FrameWorker::~FrameWorker()
 		thr.join();
 }
 
-struct WSIPlatformHeadless : Granite::GraniteWSIPlatform
+struct WSIPlatformHeadless final : Granite::GraniteWSIPlatform
 {
 public:
 	float get_estimated_frame_presentation_duration() override

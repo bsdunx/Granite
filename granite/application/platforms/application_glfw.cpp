@@ -54,7 +54,7 @@ static VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance i
 	return reinterpret_cast<PFN_vkVoidFunction>(glfwGetInstanceProcAddress(instance, name));
 }
 
-struct WSIPlatformGLFW : GraniteWSIPlatform
+struct WSIPlatformGLFW final : GraniteWSIPlatform
 {
 public:
 	bool init(unsigned width_, unsigned height_)
@@ -416,4 +416,5 @@ int application_main(Application *(*create_application)(int, char **), int argc,
 	else
 		return 1;
 }
+
 }

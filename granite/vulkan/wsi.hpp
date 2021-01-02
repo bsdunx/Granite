@@ -92,9 +92,7 @@ public:
 		return timer;
 	}
 
-	virtual void release_resources()
-	{
-	}
+	virtual void release_resources() = 0;
 
 	virtual void event_device_created(Device *device);
 	virtual void event_device_destroyed();

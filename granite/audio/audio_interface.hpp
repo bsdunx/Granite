@@ -22,9 +22,13 @@
 
 #pragma once
 
+#include "util/crtp.hpp"
+
 #include <cstddef>
 #include <memory>
 #include <string>
+
+using namespace Util;
 
 namespace Granite::Audio
 {
@@ -32,7 +36,6 @@ namespace Granite::Audio
 class BackendCallback
 {
 public:
-	virtual ~BackendCallback() = default;
 	virtual void mix_samples(float * const *channels, size_t num_frames) noexcept = 0;
 
 	virtual void set_backend_parameters(float sample_rate, unsigned channels, size_t max_num_frames) = 0;
@@ -41,28 +44,27 @@ public:
 	virtual void set_latency_usec(uint32_t usec) = 0;
 };
 
-class Backend
+struct BackendBasicIface
 {
-public:
-	Backend(BackendCallback &callback);
-
-	enum { MaxAudioChannels = 8 };
-	virtual ~Backend() = default;
-
 	virtual const char *get_backend_name() = 0;
 	virtual float get_sample_rate() = 0;
 	virtual unsigned get_num_channels() = 0;
-
-	inline BackendCallback &get_callback()
-	{
-		return callback;
-	}
 
 	virtual bool start() = 0;
 	virtual bool stop() = 0;
 
 	// Call periodically, used for automatic recovery for backends which need it.
-	virtual void heartbeat();
+	virtual void heartbeat() = 0;
+};
+
+class Backend : public CRTP<Backend, BackendBasicIface>
+{
+public:
+	Backend(BackendCallback &callback);
+
+	enum { MaxAudioChannels = 8 };
+
+	inline BackendCallback &get_callback() { return callback; }
 
 protected:
 	BackendCallback &callback;
@@ -70,13 +72,13 @@ protected:
 
 Backend *create_default_audio_backend(BackendCallback &callback, float target_sample_rate, unsigned target_channels);
 
-class DumpBackend : public Backend
+class DumpBackend final : public Backend
 {
 public:
 	DumpBackend(BackendCallback &callback_, const std::string &path,
 	            float target_sample_rate, unsigned target_channels,
 	            unsigned frames_per_tick, unsigned frames);
-	~DumpBackend();
+	~DumpBackend() = default;
 	void frame();
 
 	const char *get_backend_name() override;
@@ -84,6 +86,7 @@ public:
 	unsigned get_num_channels() override;
 	bool start() override;
 	bool stop() override;
+	void heartbeat() override;
 
 private:
 	struct Impl;

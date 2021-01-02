@@ -77,7 +77,7 @@ private:
 	Util::LockFreeMessageQueue *message_queue = nullptr;
 };
 
-class Mixer : public BackendCallback
+class Mixer final : public BackendCallback
 {
 public:
 	Mixer();
