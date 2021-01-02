@@ -20,8 +20,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "cookie.hpp"
-#include "device.hpp"
+#include "vulkan/cookie.hpp"
+#include "vulkan/device.hpp"
 
 namespace Vulkan
 {

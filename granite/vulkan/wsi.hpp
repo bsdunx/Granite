@@ -28,8 +28,8 @@
 #include "vulkan/semaphore_manager.hpp"
 #include "vulkan/vulkan_headers.hpp"
 #include "vulkan/vulkan_common.hpp"
-#include "util/timer.hpp"
 #include "vulkan/wsi_timing.hpp"
+#include "util/timer.hpp"
 
 #include <memory>
 #include <vector>

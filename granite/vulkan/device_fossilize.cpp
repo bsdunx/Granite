@@ -20,8 +20,8 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include "device.hpp"
-#include "timer.hpp"
+#include "vulkan/device.hpp"
+#include "util/timer.hpp"
 
 namespace Vulkan
 {
