@@ -34,23 +34,23 @@ namespace Granite::Threaded
 {
 
 void scene_gather_opaque_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
-                                     VisibilityList *lists, unsigned num_tasks);
+                                     VisibilityList *lists, const unsigned num_tasks);
 void scene_gather_transparent_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
-                                          VisibilityList *lists, unsigned num_tasks);
+                                          VisibilityList *lists, const unsigned num_tasks);
 void scene_gather_static_shadow_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
                                             VisibilityList *lists, Util::Hash *transform_hashes,
-                                            unsigned num_tasks, const std::function<bool ()> &cond = {});
+                                            const unsigned num_tasks, const std::function<bool ()> &cond = {});
 void scene_gather_dynamic_shadow_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
                                              VisibilityList *lists, Util::Hash *transform_hashes,
-                                             unsigned num_tasks, const std::function<bool ()> &cond = {});
+                                             const unsigned num_tasks, const std::function<bool ()> &cond = {});
 void scene_gather_positional_light_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
-                                               VisibilityList *lists, unsigned num_tasks);
+                                               VisibilityList *lists, const unsigned num_tasks);
 void scene_gather_positional_light_renderables_sorted(const Scene &scene, TaskComposer &composer, const RenderContext &context,
-                                                      PositionalLightList *lists, unsigned num_tasks);
+                                                      PositionalLightList *lists, const unsigned num_tasks);
 
 void compose_parallel_push_renderables(TaskComposer &composer, const RenderContext &context,
-                                       RenderQueue *queues, VisibilityList *visibility, unsigned count);
+                                       RenderQueue *queues, const VisibilityList *visibility, const unsigned count);
 
-void scene_update_cached_transforms(Scene &scene, TaskComposer &composer, unsigned num_tasks);
+void scene_update_cached_transforms(Scene &scene, TaskComposer &composer, const unsigned num_tasks);
 
 }

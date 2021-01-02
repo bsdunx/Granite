@@ -30,7 +30,7 @@ namespace Granite::Threaded
 {
 
 void scene_gather_opaque_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
-                                     VisibilityList *lists, unsigned num_tasks)
+                                     VisibilityList *lists, const unsigned num_tasks)
 {
 	auto &group = composer.begin_pipeline_stage();
 	group.set_desc("gather-opaque-renderables");
@@ -43,7 +43,7 @@ void scene_gather_opaque_renderables(const Scene &scene, TaskComposer &composer,
 }
 
 void scene_gather_transparent_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
-                                          VisibilityList *lists, unsigned num_tasks)
+                                          VisibilityList *lists, const unsigned num_tasks)
 {
 	auto &group = composer.begin_pipeline_stage();
 	group.set_desc("gather-transparent-renderables");
@@ -56,7 +56,7 @@ void scene_gather_transparent_renderables(const Scene &scene, TaskComposer &comp
 }
 
 void scene_gather_static_shadow_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
-                                            VisibilityList *lists, Util::Hash *transform_hashes, unsigned num_tasks,
+                                            VisibilityList *lists, Util::Hash *transform_hashes, const unsigned num_tasks,
                                             const std::function<bool ()> &func)
 {
 	auto &group = composer.begin_pipeline_stage();
@@ -81,7 +81,7 @@ void scene_gather_static_shadow_renderables(const Scene &scene, TaskComposer &co
 }
 
 void scene_gather_dynamic_shadow_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
-                                             VisibilityList *lists, Util::Hash *transform_hashes, unsigned num_tasks,
+                                             VisibilityList *lists, Util::Hash *transform_hashes, const unsigned num_tasks,
                                              const std::function<bool ()> &func)
 {
 	auto &group = composer.begin_pipeline_stage();
@@ -106,7 +106,7 @@ void scene_gather_dynamic_shadow_renderables(const Scene &scene, TaskComposer &c
 }
 
 void scene_gather_positional_light_renderables(const Scene &scene, TaskComposer &composer, const Frustum &frustum,
-                                               VisibilityList *lists, unsigned num_tasks)
+                                               VisibilityList *lists, const unsigned num_tasks)
 {
 	auto &group = composer.begin_pipeline_stage();
 	group.set_desc("gather-positional-light-renderables");
@@ -120,7 +120,7 @@ void scene_gather_positional_light_renderables(const Scene &scene, TaskComposer 
 
 void scene_gather_positional_light_renderables_sorted(const Scene &scene, TaskComposer &composer,
                                                       const RenderContext &context,
-                                                      PositionalLightList *lists, unsigned num_tasks)
+                                                      PositionalLightList *lists, const unsigned num_tasks)
 {
 	{
 		auto &group = composer.begin_pipeline_stage();
@@ -149,12 +149,8 @@ void scene_gather_positional_light_renderables_sorted(const Scene &scene, TaskCo
 
 			// Prefer lights which are closest to the camera.
 			std::sort(lights.begin(), lights.end(), [&context](const auto &a, const auto &b) -> bool {
-				auto *transform_a = a.transform;
-				auto *transform_b = b.transform;
-				vec3 pos_a = transform_a->transform->world_transform[3].xyz();
-				vec3 pos_b = transform_b->transform->world_transform[3].xyz();
-				float dist_a = dot(pos_a, context.get_render_parameters().camera_front);
-				float dist_b = dot(pos_b, context.get_render_parameters().camera_front);
+				const float dist_a = dot(a.transform->transform->world_transform[3].xyz(), context.get_render_parameters().camera_front);
+				const float dist_b = dot(b.transform->transform->world_transform[3].xyz(), context.get_render_parameters().camera_front);
 				return dist_a < dist_b;
 			});
 		});
@@ -162,7 +158,7 @@ void scene_gather_positional_light_renderables_sorted(const Scene &scene, TaskCo
 }
 
 void compose_parallel_push_renderables(TaskComposer &composer, const RenderContext &context,
-                                       RenderQueue *queues, VisibilityList *visibility, unsigned count)
+                                       RenderQueue *queues, const VisibilityList *visibility, const unsigned count)
 {
 	{
 		auto &group = composer.begin_pipeline_stage();
@@ -186,7 +182,7 @@ void compose_parallel_push_renderables(TaskComposer &composer, const RenderConte
 	}
 }
 
-void scene_update_cached_transforms(Scene &scene, TaskComposer &composer, unsigned num_tasks)
+void scene_update_cached_transforms(Scene &scene, TaskComposer &composer, const unsigned num_tasks)
 {
 	auto &group = composer.begin_pipeline_stage();
 	group.set_desc("parallel-update-cached-transforms");
