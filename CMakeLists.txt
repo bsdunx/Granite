@@ -249,7 +249,6 @@ target_sources(granite PRIVATE
         granite/util/object_pool.hpp
         granite/util/stack_allocator.hpp
         granite/util/temporary_hashmap.hpp
-        granite/util/volatile_source.hpp
         granite/util/read_write_lock.hpp
         granite/util/async_object_sink.hpp
         granite/util/unstable_remove_if.hpp
@@ -337,6 +336,7 @@ if (NOT GRANITE_VULKAN_ONLY)
             granite/filesystem/filesystem.cpp granite/filesystem/filesystem.hpp
             granite/filesystem/path.cpp granite/filesystem/path.hpp
             granite/filesystem/netfs/fs-netfs.cpp granite/filesystem/netfs/fs-netfs.hpp
+            granite/filesystem/volatile_source.hpp
 
             granite/network/looper.cpp granite/network/netfs.hpp granite/network/network.hpp
             granite/network/socket.cpp granite/network/tcp_listener.cpp

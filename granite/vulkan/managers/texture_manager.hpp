@@ -23,7 +23,7 @@
 #pragma once
 
 #include "vulkan/image.hpp"
-#include "util/volatile_source.hpp"
+#include "filesystem/volatile_source.hpp"
 #include "util/async_object_sink.hpp"
 
 namespace Granite

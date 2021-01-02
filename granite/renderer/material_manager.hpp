@@ -26,7 +26,7 @@
 #include "scene_formats/scene_formats.hpp"
 #include "application/application_wsi_events.hpp"
 #include "event/event.hpp"
-#include "util/volatile_source.hpp"
+#include "filesystem/volatile_source.hpp"
 
 namespace Vulkan
 {
