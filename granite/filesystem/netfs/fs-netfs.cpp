@@ -680,12 +680,11 @@ FileNotifyHandle NetworkFilesystem::install_notification(const std::string &path
 	if (!notify)
 		return -1;
 
-	auto *value = new std::promise<FileNotifyHandle>;
-	auto result = value->get_future();
+	std::promise<FileNotifyHandle> value;
+	auto result = value.get_future();
 
 	looper.run_in_looper([this, value, path]() {
-		notify->push_register_notification(path, std::move(*value));
-		delete value;
+		notify->push_register_notification(path, std::move(value));
 	});
 
 	try

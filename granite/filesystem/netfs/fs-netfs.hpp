@@ -39,7 +39,7 @@ namespace Granite
 
 struct FSReader;
 
-class NetworkFile : public File
+class NetworkFile final : public File
 {
 public:
 	static NetworkFile *open(Looper &looper, const std::string &path, FileMode mode);
