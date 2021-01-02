@@ -33,7 +33,7 @@
 	url = git://github.com/zeux/volk
 [submodule "third_party/bullet3"]
 	path = third_party/bullet3
-	branch = 3.0.8
+	branch = 3.08
 	url = https://github.com/bulletphysics/bullet3.git
 [submodule "third_party/astc-encoder"]
 	path = third_party/astc-encoder
