@@ -27,6 +27,7 @@
 #include "network/network.hpp"
 #include "network/netfs.hpp"
 
+#include <memory>
 #include <functional>
 #include <vector>
 #include <unordered_map>

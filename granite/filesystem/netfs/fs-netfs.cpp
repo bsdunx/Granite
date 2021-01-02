@@ -66,7 +66,7 @@ struct FSNotifyCommand : LooperHandler
 		notify_cb = move(func);
 	}
 
-	void push_register_notification(const std::string &path, std::promise<FileNotifyHandle> result)
+	void push_register_notification(const std::string &path, std::shared_ptr<std::promise<FileNotifyHandle>> result)
 	{
 		if (reply_queue.empty() && socket->get_parent_looper())
 			socket->get_parent_looper()->modify_handler(EVENT_IN | EVENT_OUT, *this);
@@ -77,10 +77,10 @@ struct FSNotifyCommand : LooperHandler
 		reply.builder.add_string(path);
 		reply.writer.start(reply.builder.get_buffer());
 
-		replies.push(move(result));
+		replies.push(result);
 	}
 
-	void push_unregister_notification(FileNotifyHandle handler, std::promise<FileNotifyHandle> result)
+	void push_unregister_notification(FileNotifyHandle handler, std::shared_ptr<std::promise<FileNotifyHandle>> result)
 	{
 		if (reply_queue.empty() && socket->get_parent_looper())
 			socket->get_parent_looper()->modify_handler(EVENT_IN | EVENT_OUT, *this);
@@ -91,7 +91,7 @@ struct FSNotifyCommand : LooperHandler
 		reply.builder.add_u64(8);
 		reply.builder.add_u64(uint64_t(handler));
 		reply.writer.start(reply.builder.get_buffer());
-		replies.push(move(result));
+		replies.push(result);
 	}
 
 	void modify_looper(Looper &looper)
@@ -137,7 +137,7 @@ struct FSNotifyCommand : LooperHandler
 
 				try
 				{
-					replies.front().set_value(handle);
+					replies.front()->set_value(handle);
 				}
 				catch (...)
 				{
@@ -209,7 +209,7 @@ struct FSNotifyCommand : LooperHandler
 						// Acknowledge unregister notification.
 						try
 						{
-							replies.front().set_value(0);
+							replies.front()->set_value(0);
 						}
 						catch (...)
 						{
@@ -262,7 +262,7 @@ struct FSNotifyCommand : LooperHandler
 		ReplyBuilder builder;
 	};
 	std::queue<NotificationReply> reply_queue;
-	std::queue<std::promise<FileNotifyHandle>> replies;
+	std::queue<std::shared_ptr<std::promise<FileNotifyHandle>>> replies;
 	std::function<void (const FileNotifyInfo &info)> notify_cb;
 	std::atomic_bool expected;
 };
@@ -634,11 +634,10 @@ void NetworkFilesystem::uninstall_notification(FileNotifyHandle handle)
 		return;
 	handlers.erase(itr);
 
-	auto *value = new std::promise<FileNotifyHandle>;
+	auto value = std::make_shared<std::promise<FileNotifyHandle>>();
 	auto result = value->get_future();
 	looper.run_in_looper([this, value, handle]() {
-		notify->push_unregister_notification(handle, move(*value));
-		delete value;
+		notify->push_unregister_notification(handle, value);
 	});
 
 	try
@@ -680,11 +679,11 @@ FileNotifyHandle NetworkFilesystem::install_notification(const std::string &path
 	if (!notify)
 		return -1;
 
-	std::promise<FileNotifyHandle> value;
-	auto result = value.get_future();
+	auto value = std::make_shared<std::promise<FileNotifyHandle>>();
+	auto result = value->get_future();
 
 	looper.run_in_looper([this, value, path]() {
-		notify->push_register_notification(path, std::move(value));
+		notify->push_register_notification(path, value);
 	});
 
 	try
