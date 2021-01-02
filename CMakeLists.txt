@@ -5,6 +5,15 @@ project(Granite LANGUAGES CXX C)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT IPO_SUPPORTED OUTPUT error)
+
+if(IPO_SUPPORTED)
+    message(STATUS "IPO / LTO enabled")
+else()
+    message(STATUS "IPO / LTO not supported: <${error}>")
+endif()
+
 if (CMAKE_COMPILER_IS_GNUCXX OR (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"))
     set(GRANITE_CXX_FLAGS -Wshadow -Wall -Wextra -Wno-comment -Wno-missing-field-initializers -Wno-empty-body -ffast-math)
     if (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang")
@@ -42,15 +51,17 @@ option(GRANITE_VULKAN_MT "Make Vulkan backend thread-safe." ON)
 option(GRANITE_VULKAN_FOSSILIZE "Enable support for Fossilize." OFF)
 option(GRANITE_AUDIO "Enable Audio support." ON)
 option(GRANITE_PLATFORM "Granite Platform" "GLFW")
-option(GRANITE_HIDDEN "Declare symbols as hidden by default. Useful if you build Granite as a static library and you link to it in your shared library." OFF)
+option(GRANITE_HIDDEN "Declare symbols as hidden by default. Useful if you build Granite as a static library and you link to it in your shared library." ON)
 option(GRANITE_SANITIZE_ADDRESS "Sanitize address" OFF)
 option(GRANITE_SANITIZE_THREADS "Sanitize threads" OFF)
 option(GRANITE_SANITIZE_MEMORY "Sanitize memory" OFF)
 option(GRANITE_TARGET_NATIVE "Target native arch (-march=native)" ON)
-option(GRANITE_BULLET "Enable Bullet support." OFF)
+option(GRANITE_BULLET "Enable Bullet support." ON)
 option(GRANITE_RENDERDOC_CAPTURE "Enable support for RenderDoc capture from API." ON)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if (IPO_SUPPORTED AND GRANITE_IPO)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
+endif()
 
 if (GRANITE_HIDDEN)
     if (CMAKE_COMPILER_IS_GNUCXX OR (${CMAKE_CXX_COMPILER_ID} MATCHES "Clang"))
@@ -228,6 +239,7 @@ target_sources(granite PRIVATE
         granite/util/message_queue.hpp granite/util/message_queue.cpp
         granite/util/aligned_alloc.cpp granite/util/aligned_alloc.hpp
         granite/util/bitops.hpp
+        granite/util/crtp.hpp
         granite/util/array_view.hpp
         granite/util/variant.hpp
         granite/util/enum_cast.hpp
@@ -519,15 +531,10 @@ if (NOT GRANITE_VULKAN_ONLY)
         set(BUILD_ENET OFF CACHE BOOL "" FORCE)
         set(BUILD_CLSOCKET OFF CACHE BOOL "" FORCE)
         set(INSTALL_LIBS ON CACHE BOOL "" FORCE)
-        option(GRANITE_BULLET_ROOT "" "Path to a Bullet library checkout.")
-        if (NOT GRANITE_BULLET_ROOT)
-            set(GRANITE_BULLET_ROOT $ENV{BULLET_ROOT})
-            message("GRANITE_BULLET_ROOT not set, overriding with environment variable BULLET_ROOT.")
-        endif()
-        message("Including bullet3 from GRANITE_BULLET_ROOT: ${GRANITE_BULLET_ROOT}")
-        add_subdirectory(${GRANITE_BULLET_ROOT} ${CMAKE_CURRENT_BINARY_DIR}/third_party/bullet3 EXCLUDE_FROM_ALL)
+
+        add_subdirectory(third_party/bullet3 EXCLUDE_FROM_ALL)
         target_sources(granite PRIVATE granite/physics/physics_system.cpp granite/physics/physics_system.hpp)
-        target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/granite/physics PRIVATE ${GRANITE_BULLET_ROOT}/src)
+        target_include_directories(granite PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/granite/physics PRIVATE third_party/bullet3/src)
         target_compile_definitions(granite PUBLIC HAVE_GRANITE_PHYSICS=1)
         target_link_libraries(granite PRIVATE BulletDynamics BulletCollision LinearMath)
     endif()
