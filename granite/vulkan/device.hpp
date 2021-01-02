@@ -216,11 +216,11 @@ public:
 
 	// Submission interface, may be called from any thread at any time.
 	void flush_frame();
-	CommandBufferHandle request_command_buffer(CommandBuffer::Type type = CommandBuffer::Type::Generic);
-	CommandBufferHandle request_command_buffer_for_thread(unsigned thread_index, CommandBuffer::Type type = CommandBuffer::Type::Generic);
+	CommandBufferHandle request_command_buffer(const CommandBuffer::Type type = CommandBuffer::Type::Generic);
+	CommandBufferHandle request_command_buffer_for_thread(const unsigned thread_index, const CommandBuffer::Type type = CommandBuffer::Type::Generic);
 
-	CommandBufferHandle request_profiled_command_buffer(CommandBuffer::Type type = CommandBuffer::Type::Generic);
-	CommandBufferHandle request_profiled_command_buffer_for_thread(unsigned thread_index, CommandBuffer::Type type = CommandBuffer::Type::Generic);
+	CommandBufferHandle request_profiled_command_buffer(const CommandBuffer::Type type = CommandBuffer::Type::Generic);
+	CommandBufferHandle request_profiled_command_buffer_for_thread(const unsigned thread_index, const CommandBuffer::Type type = CommandBuffer::Type::Generic);
 
 	void submit(CommandBufferHandle &cmd, Fence *fence = nullptr,
 	            unsigned semaphore_count = 0, Semaphore *semaphore = nullptr);
@@ -231,8 +231,8 @@ public:
 	void submit_discard(CommandBufferHandle &cmd);
 	void add_wait_semaphore(CommandBuffer::Type type, Semaphore semaphore, VkPipelineStageFlags stages, bool flush);
 	CommandBuffer::Type get_physical_queue_type(CommandBuffer::Type queue_type) const;
-	void register_time_interval(std::string tid, QueryPoolHandle start_ts, QueryPoolHandle end_ts,
-	                            std::string tag, std::string extra = {});
+	void register_time_interval(const std::string tid, const QueryPoolHandle start_ts, const QueryPoolHandle end_ts,
+	                            const std::string tag, const std::string extra = {});
 
 	// Request shaders and programs. These objects are owned by the Device.
 	Shader *request_shader(const uint32_t *code, size_t size);
@@ -666,7 +666,7 @@ private:
 	void reset_fence_nolock(VkFence fence, bool observed_wait);
 
 	void flush_frame_nolock();
-	CommandBufferHandle request_command_buffer_nolock(unsigned thread_index, CommandBuffer::Type type, bool profiled);
+	CommandBufferHandle request_command_buffer_nolock(const unsigned thread_index, const CommandBuffer::Type type, bool profiled);
 	void submit_discard_nolock(CommandBufferHandle &cmd);
 	void submit_nolock(CommandBufferHandle cmd, Fence *fence,
 	                   unsigned semaphore_count, Semaphore *semaphore);

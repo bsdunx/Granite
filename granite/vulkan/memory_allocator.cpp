@@ -291,8 +291,8 @@ bool Allocator::allocate_global(const uint32_t size, const AllocationMode mode, 
 	return true;
 }
 
-DeviceAllocation DeviceAllocation::make_imported_allocation(VkDeviceMemory memory, VkDeviceSize size,
-                                                            uint32_t memory_type)
+DeviceAllocation DeviceAllocation::make_imported_allocation(const VkDeviceMemory memory, const VkDeviceSize size,
+                                                            const uint32_t memory_type)
 {
 	DeviceAllocation alloc = {};
 	alloc.base = memory;
@@ -516,8 +516,7 @@ void DeviceAllocator::get_memory_budget_nolock(HeapBudget *heap_budgets)
 			props.pNext = &budget_props;
 
 		// For global instance functions, we might not get KHR versions if we don't control
-		// instance creation, e.g. libretro.
-		// We can rely on Vulkan 1.1 having been enabled however.
+		// instance creation. We can rely on Vulkan 1.1 having been enabled however.
 		if (device->get_device_features().supports_vulkan_11_device &&
 		    device->get_device_features().supports_vulkan_11_instance)
 			vkGetPhysicalDeviceMemoryProperties2(device->get_physical_device(), &props);

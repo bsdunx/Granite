@@ -42,6 +42,7 @@
 
 namespace Vulkan
 {
+
 class Device;
 
 static inline uint32_t log2_integer(uint32_t v)
@@ -144,7 +145,6 @@ struct MiniHeap;
 class ClassAllocator;
 class DeviceAllocator;
 class Allocator;
-class Device;
 
 struct DeviceAllocation
 {
@@ -188,7 +188,7 @@ public:
 	void free_immediate();
 	void free_immediate(DeviceAllocator &allocator);
 
-	static DeviceAllocation make_imported_allocation(VkDeviceMemory memory, VkDeviceSize size, uint32_t memory_type);
+	static DeviceAllocation make_imported_allocation(const VkDeviceMemory memory, const VkDeviceSize size, const uint32_t memory_type);
 
 private:
 	VkDeviceMemory base = VK_NULL_HANDLE;
@@ -393,4 +393,5 @@ private:
 	std::vector<Heap> heaps;
 	void get_memory_budget_nolock(HeapBudget *heaps);
 };
+
 }

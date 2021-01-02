@@ -1820,7 +1820,7 @@ void Device::flush_frame_nolock()
 	flush_frame(CommandBuffer::Type::AsyncCompute);
 }
 
-Device::QueueData &Device::get_queue_data(CommandBuffer::Type type)
+Device::QueueData &Device::get_queue_data(const CommandBuffer::Type type)
 {
 	switch (get_physical_queue_type(type))
 	{
@@ -1834,7 +1834,7 @@ Device::QueueData &Device::get_queue_data(CommandBuffer::Type type)
 	}
 }
 
-VkQueue Device::get_vk_queue(CommandBuffer::Type type) const
+VkQueue Device::get_vk_queue(const CommandBuffer::Type type) const
 {
 	switch (get_physical_queue_type(type))
 	{
@@ -1848,7 +1848,7 @@ VkQueue Device::get_vk_queue(CommandBuffer::Type type) const
 	}
 }
 
-PerformanceQueryPool &Device::get_performance_query_pool(CommandBuffer::Type type)
+PerformanceQueryPool &Device::get_performance_query_pool(const CommandBuffer::Type type)
 {
 	switch (get_physical_queue_type(type))
 	{
@@ -1870,7 +1870,7 @@ PerformanceQueryPool &Device::get_performance_query_pool(CommandBuffer::Type typ
 	}
 }
 
-CommandPool &Device::get_command_pool(CommandBuffer::Type type, unsigned thread)
+CommandPool &Device::get_command_pool(const CommandBuffer::Type type, const unsigned thread)
 {
 	switch (get_physical_queue_type(type))
 	{
@@ -1884,7 +1884,7 @@ CommandPool &Device::get_command_pool(CommandBuffer::Type type, unsigned thread)
 	}
 }
 
-Util::SmallVector<CommandBufferHandle> &Device::get_queue_submissions(CommandBuffer::Type type)
+Util::SmallVector<CommandBufferHandle> &Device::get_queue_submissions(const CommandBuffer::Type type)
 {
 	switch (get_physical_queue_type(type))
 	{
@@ -1898,30 +1898,30 @@ Util::SmallVector<CommandBufferHandle> &Device::get_queue_submissions(CommandBuf
 	}
 }
 
-CommandBufferHandle Device::request_command_buffer(CommandBuffer::Type type)
+CommandBufferHandle Device::request_command_buffer(const CommandBuffer::Type type)
 {
 	return request_command_buffer_for_thread(get_thread_index(), type);
 }
 
-CommandBufferHandle Device::request_command_buffer_for_thread(unsigned thread_index, CommandBuffer::Type type)
+CommandBufferHandle Device::request_command_buffer_for_thread(const unsigned thread_index, const CommandBuffer::Type type)
 {
 	LOCK();
 	return request_command_buffer_nolock(thread_index, type, false);
 }
 
-CommandBufferHandle Device::request_profiled_command_buffer(CommandBuffer::Type type)
+CommandBufferHandle Device::request_profiled_command_buffer(const CommandBuffer::Type type)
 {
 	return request_profiled_command_buffer_for_thread(get_thread_index(), type);
 }
 
-CommandBufferHandle Device::request_profiled_command_buffer_for_thread(unsigned thread_index,
-                                                                       CommandBuffer::Type type)
+CommandBufferHandle Device::request_profiled_command_buffer_for_thread(const unsigned thread_index,
+                                                                       const CommandBuffer::Type type)
 {
 	LOCK();
 	return request_command_buffer_nolock(thread_index, type, true);
 }
 
-CommandBufferHandle Device::request_command_buffer_nolock(unsigned thread_index, CommandBuffer::Type type, bool profiled)
+CommandBufferHandle Device::request_command_buffer_nolock(const unsigned thread_index, const CommandBuffer::Type type, bool profiled)
 {
 #ifndef GRANITE_VULKAN_MT
 	VK_ASSERT(thread_index == 0);
@@ -2657,14 +2657,14 @@ void Device::recalibrate_timestamps()
 		resample_calibrated_timestamps();
 }
 
-void Device::register_time_interval(std::string tid, QueryPoolHandle start_ts, QueryPoolHandle end_ts, std::string tag, std::string extra)
+void Device::register_time_interval(const std::string tid, const QueryPoolHandle start_ts, const QueryPoolHandle end_ts, const std::string tag, const std::string extra)
 {
 	LOCK();
 	register_time_interval_nolock(std::move(tid), std::move(start_ts), std::move(end_ts), std::move(tag), std::move(extra));
 }
 
-void Device::register_time_interval_nolock(std::string tid, QueryPoolHandle start_ts, QueryPoolHandle end_ts,
-                                           std::string tag, std::string extra)
+void Device::register_time_interval_nolock(const std::string tid, const QueryPoolHandle start_ts, const QueryPoolHandle end_ts,
+                                           const std::string tag, const std::string extra)
 {
 	if (start_ts && end_ts)
 	{
