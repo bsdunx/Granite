@@ -23,12 +23,17 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <vector>
 #include <type_traits>
 
+namespace Util
+{
+
 namespace inner
 {
+
 template<typename T>
 void join_helper(std::ostringstream &stream, T &&t)
 {
@@ -41,10 +46,9 @@ void join_helper(std::ostringstream &stream, T &&t, Ts &&... ts)
 	stream << std::forward<T>(t);
 	join_helper(stream, std::forward<Ts>(ts)...);
 }
+
 }
 
-namespace Util
-{
 template<typename... Ts>
 inline std::string join(Ts &&... ts)
 {
@@ -54,6 +58,9 @@ inline std::string join(Ts &&... ts)
 }
 
 std::vector<std::string> split(const std::string &str, const char *delim);
+std::vector<std::string> split(const std::string_view str, const char *delim);
 std::vector<std::string> split_no_empty(const std::string &str, const char *delim);
+
 std::string strip_whitespace(const std::string &str);
+
 }

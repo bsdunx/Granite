@@ -26,30 +26,60 @@
 namespace Util
 {
 
-static std::vector<std::string> split(const std::string &str, const char *delim, bool allow_empty)
+static std::vector<std::string> split(const std::string_view str, const char *delim, bool allow_empty)
 {
 	if (str.empty())
 		return {};
 	std::vector<std::string> ret;
 
+	auto str_size = str.size();
 	size_t start_index = 0;
 	size_t index = 0;
-	while ((index = str.find_first_of(delim, start_index)) != std::string::npos)
+	while ((index = str.find_first_of(delim, start_index)) != std::string_view::npos)
 	{
 		if (allow_empty || index > start_index)
-			ret.push_back(str.substr(start_index, index - start_index));
+			ret.push_back(std::string(str.substr(start_index, index - start_index)));
 		start_index = index + 1;
 
-		if (allow_empty && (index == str.size() - 1))
+		if (allow_empty && (index == str_size - 1))
 			ret.emplace_back();
 	}
 
-	if (start_index < str.size())
-		ret.push_back(str.substr(start_index));
+	if (start_index < str_size)
+		ret.push_back(std::string(str.substr(start_index)));
+	return ret;
+}
+
+static std::vector<std::string_view> split_view(const std::string_view str, const char *delim, bool allow_empty)
+{
+	if (str.empty())
+		return {};
+	std::vector<std::string_view> ret;
+
+	auto str_size = str.size();
+	size_t start_index = 0;
+	size_t index = 0;
+	while ((index = str.find_first_of(delim, start_index)) != std::string_view::npos)
+	{
+		if (allow_empty || index > start_index)
+			ret.push_back(std::string(str.substr(start_index, index - start_index)));
+		start_index = index + 1;
+
+		if (allow_empty && (index == str_size - 1))
+			ret.emplace_back();
+	}
+
+	if (start_index < str_size)
+		ret.push_back(std::string(str.substr(start_index)));
 	return ret;
 }
 
 std::vector<std::string> split(const std::string &str, const char *delim)
+{
+	return split(std::string_view(str), delim, true);
+}
+
+std::vector<std::string> split(const std::string_view str, const char *delim)
 {
 	return split(str, delim, true);
 }
