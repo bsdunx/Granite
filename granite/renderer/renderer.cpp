@@ -314,20 +314,20 @@ Renderer::RendererOptionFlags Renderer::get_mesh_renderer_options_from_lighting(
 	else if (lighting.fog.falloff > 0.0f)
 		flags |= FOG_ENABLE_BIT;
 
-	if (lighting.cluster && (lighting.cluster->get_cluster_image() || lighting.cluster->get_cluster_bitmask_buffer()))
+	if (lighting.cluster && (lighting.cluster->get_cluster_image() || lighting.cluster->bindless.bitmask_buffer))
 	{
 		flags |= POSITIONAL_LIGHT_ENABLE_BIT;
 		if ((lighting.cluster->get_spot_light_shadows() && lighting.cluster->get_point_light_shadows()) ||
-		    (lighting.cluster->get_cluster_shadow_map_bindless_set() != VK_NULL_HANDLE))
+		    (lighting.cluster->bindless.desc_set != VK_NULL_HANDLE))
 		{
 			flags |= POSITIONAL_LIGHT_SHADOW_ENABLE_BIT;
-			if (lighting.cluster->get_shadow_type() == LightClusterer::ShadowType::VSM)
+			if (lighting.cluster->shadow_type == LightClusterer::ShadowType::VSM)
 				flags |= POSITIONAL_LIGHT_SHADOW_VSM_BIT;
 		}
 
 		if (lighting.cluster->get_cluster_list_buffer())
 			flags |= POSITIONAL_LIGHT_CLUSTER_LIST_BIT;
-		if (lighting.cluster->clusterer_is_bindless())
+		if (lighting.cluster->enable_bindless)
 			flags |= POSITIONAL_LIGHT_CLUSTER_BINDLESS_BIT;
 	}
 
@@ -377,11 +377,11 @@ static void set_cluster_parameters_legacy(Vulkan::CommandBuffer &cmd, const Ligh
 
 	cmd.set_texture(0, BINDING_GLOBAL_CLUSTER_IMAGE_LEGACY, *cluster.get_cluster_image(), StockSampler::NearestClamp);
 
-	params.transform = cluster.get_cluster_transform();
-	memcpy(params.spots, cluster.get_active_spot_lights(),
-	       cluster.get_active_spot_light_count() * sizeof(PositionalFragmentInfo));
-	memcpy(params.points, cluster.get_active_point_lights(),
-	       cluster.get_active_point_light_count() * sizeof(PositionalFragmentInfo));
+	params.transform = cluster.legacy.cluster_transform;
+	memcpy(params.spots, &cluster.legacy.spots,
+	       cluster.legacy.spots.count * sizeof(PositionalFragmentInfo));
+	memcpy(params.points, &cluster.legacy.points,
+	       cluster.legacy.points.count * sizeof(PositionalFragmentInfo));
 
 	if (cluster.get_spot_light_shadows() && cluster.get_point_light_shadows())
 	{
@@ -393,11 +393,11 @@ static void set_cluster_parameters_legacy(Vulkan::CommandBuffer &cmd, const Ligh
 		cmd.set_texture(0, BINDING_GLOBAL_CLUSTER_SPOT_LEGACY, *cluster.get_spot_light_shadows(), spot_sampler);
 		cmd.set_texture(0, BINDING_GLOBAL_CLUSTER_POINT_LEGACY, *cluster.get_point_light_shadows(), point_sampler);
 
-		memcpy(params.spot_shadow_transforms, cluster.get_active_spot_light_shadow_matrices(),
-		       cluster.get_active_spot_light_count() * sizeof(mat4));
+		memcpy(params.spot_shadow_transforms, cluster.legacy.spots.shadow_transforms,
+		       cluster.legacy.spots.count * sizeof(mat4));
 
-		memcpy(params.point_shadow, cluster.get_active_point_light_shadow_transform(),
-		       cluster.get_active_point_light_count() * sizeof(PointTransform));
+		memcpy(params.point_shadow, cluster.legacy.points.shadow_transforms,
+		       cluster.legacy.points.count * sizeof(PointTransform));
 	}
 
 	if (cluster.get_cluster_list_buffer())
@@ -406,17 +406,17 @@ static void set_cluster_parameters_legacy(Vulkan::CommandBuffer &cmd, const Ligh
 
 static void set_cluster_parameters_bindless(Vulkan::CommandBuffer &cmd, const LightClusterer &cluster)
 {
-	*cmd.allocate_typed_constant_data<ClustererParametersBindless>(0, BINDING_GLOBAL_CLUSTERER_PARAMETERS, 1) = cluster.get_cluster_parameters_bindless();
-	cmd.set_storage_buffer(0, BINDING_GLOBAL_CLUSTER_TRANSFORM, *cluster.get_cluster_transform_buffer());
-	cmd.set_storage_buffer(0, BINDING_GLOBAL_CLUSTER_BITMASK, *cluster.get_cluster_bitmask_buffer());
-	cmd.set_storage_buffer(0, BINDING_GLOBAL_CLUSTER_RANGE, *cluster.get_cluster_range_buffer());
-	if (cluster.get_cluster_shadow_map_bindless_set() != VK_NULL_HANDLE)
-		cmd.set_bindless(1, cluster.get_cluster_shadow_map_bindless_set());
+	*cmd.allocate_typed_constant_data<ClustererParametersBindless>(0, BINDING_GLOBAL_CLUSTERER_PARAMETERS, 1) = cluster.bindless.parameters;
+	cmd.set_storage_buffer(0, BINDING_GLOBAL_CLUSTER_TRANSFORM, *cluster.bindless.transforms_buffer);
+	cmd.set_storage_buffer(0, BINDING_GLOBAL_CLUSTER_BITMASK, *cluster.bindless.bitmask_buffer);
+	cmd.set_storage_buffer(0, BINDING_GLOBAL_CLUSTER_RANGE, *cluster.bindless.range_buffer);
+	if (cluster.bindless.desc_set != VK_NULL_HANDLE)
+		cmd.set_bindless(1, cluster.bindless.desc_set);
 }
 
 static void set_cluster_parameters(Vulkan::CommandBuffer &cmd, const LightClusterer &cluster)
 {
-	if (cluster.clusterer_is_bindless())
+	if (cluster.enable_bindless)
 		set_cluster_parameters_bindless(cmd, cluster);
 	else
 		set_cluster_parameters_legacy(cmd, cluster);
@@ -468,7 +468,7 @@ void Renderer::bind_lighting_parameters(Vulkan::CommandBuffer &cmd, const Render
 	if (lighting->ambient_occlusion)
 		cmd.set_texture(0, BINDING_GLOBAL_AMBIENT_OCCLUSION, *lighting->ambient_occlusion, StockSampler::LinearClamp);
 
-	if (lighting->cluster && (lighting->cluster->get_cluster_image() || lighting->cluster->get_cluster_bitmask_buffer()))
+	if (lighting->cluster && (lighting->cluster->get_cluster_image() || lighting->cluster->bindless.bitmask_buffer))
 		set_cluster_parameters(cmd, *lighting->cluster);
 }
 
@@ -773,7 +773,7 @@ void DeferredLightRenderer::render_light(Vulkan::CommandBuffer &cmd, const Rende
 	CommandBufferUtil::draw_fullscreen_quad(cmd);
 
 	// Clustered lighting.
-	if (light.cluster && (light.cluster->get_cluster_image() || light.cluster->get_cluster_bitmask_buffer()))
+	if (light.cluster && (light.cluster->get_cluster_image() || light.cluster->bindless.bitmask_buffer))
 	{
 		struct ClusterPush
 		{
@@ -790,10 +790,10 @@ void DeferredLightRenderer::render_light(Vulkan::CommandBuffer &cmd, const Rende
 
 		std::vector<std::pair<std::string, int>> cluster_defines;
 		if (light.cluster->get_spot_light_shadows() ||
-		    light.cluster->get_cluster_shadow_map_bindless_set())
+		    light.cluster->bindless.desc_set)
 		{
 			cluster_defines.emplace_back("POSITIONAL_LIGHTS_SHADOW", 1);
-			if (light.cluster->get_shadow_type() == LightClusterer::ShadowType::VSM)
+			if (light.cluster->shadow_type == LightClusterer::ShadowType::VSM)
 				cluster_defines.emplace_back("POSITIONAL_SHADOW_VSM", 1);
 			else
 			{
@@ -804,7 +804,7 @@ void DeferredLightRenderer::render_light(Vulkan::CommandBuffer &cmd, const Rende
 			}
 		}
 
-		if (light.cluster->clusterer_is_bindless())
+		if (light.cluster->enable_bindless)
 			cluster_defines.emplace_back("CLUSTERER_BINDLESS", 1);
 		else if (light.cluster->get_cluster_list_buffer())
 			cluster_defines.emplace_back("CLUSTER_LIST", 1);

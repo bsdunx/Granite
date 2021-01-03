@@ -281,22 +281,20 @@ SceneViewerApplication::SceneViewerApplication(const std::string &path, const st
 			cluster->set_base_render_context(&context);
 		}
 
-		cluster->set_max_spot_lights(config.max_spot_lights);
-		cluster->set_max_point_lights(config.max_point_lights);
-		cluster->set_enable_shadows(config.clustered_lights_shadows);
-		cluster->set_enable_clustering(config.clustered_lights);
-		cluster->set_enable_bindless(config.clustered_lights_bindless);
+		cluster->max_spot_lights = config.max_spot_lights;
+		cluster->max_point_lights = config.max_point_lights;
+		cluster->enable_shadows = config.clustered_lights_shadows;
+		cluster->enable_clustering = config.clustered_lights;
+		cluster->enable_bindless = config.clustered_lights_bindless;
 		cluster->set_shadow_resolution(config.clustered_lights_shadow_resolution);
 
 		if (config.clustered_lights_shadows_vsm)
-			cluster->set_shadow_type(LightClusterer::ShadowType::VSM);
+			cluster->shadow_type = LightClusterer::ShadowType::VSM;
 		else
-			cluster->set_shadow_type(LightClusterer::ShadowType::PCF);
+			cluster->shadow_type = LightClusterer::ShadowType::PCF;
 
 		if (config.clustered_lights_bindless)
-		{
 			cluster->set_resolution(128, 64, 4 * 1024);
-		}
 	}
 
 	if (config.volumetric_fog)
