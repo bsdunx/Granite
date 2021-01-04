@@ -32,7 +32,7 @@ struct FFTProgram : GLFFT::Program
 	Vulkan::Program *program;
 };
 
-struct FFTSampler : GLFFT::Sampler
+struct FFTSampler : GLFFT::Resource
 {
 	explicit FFTSampler(const Vulkan::Sampler &sampler_)
 	    : sampler(sampler_)
@@ -74,7 +74,7 @@ void FFTDeferredCommandBuffer::dispatch(unsigned x, unsigned y, unsigned z)
 	});
 }
 
-void FFTDeferredCommandBuffer::bind_storage_buffer(unsigned binding, GLFFT::Buffer *buffer)
+void FFTDeferredCommandBuffer::bind_storage_buffer(unsigned binding, GLFFT::Resource *buffer)
 {
 	get_command_list().push_back(
 			[binding, buffer = static_cast<FFTBuffer *>(buffer)->buffer](Vulkan::CommandBuffer &cmd) {
@@ -90,7 +90,7 @@ void FFTDeferredCommandBuffer::bind_program(GLFFT::Program *program)
 			});
 }
 
-void FFTDeferredCommandBuffer::bind_storage_texture(unsigned binding, GLFFT::Texture *texture)
+void FFTDeferredCommandBuffer::bind_storage_texture(unsigned binding, GLFFT::Resource *texture)
 {
 	get_command_list().push_back(
 			[binding, image = static_cast<FFTTexture *>(texture)->image](Vulkan::CommandBuffer &cmd) {
@@ -98,7 +98,7 @@ void FFTDeferredCommandBuffer::bind_storage_texture(unsigned binding, GLFFT::Tex
 			});
 }
 
-void FFTDeferredCommandBuffer::bind_texture(unsigned binding, GLFFT::Texture *texture)
+void FFTDeferredCommandBuffer::bind_texture(unsigned binding, GLFFT::Resource *texture)
 {
 	get_command_list().push_back(
 			[binding, image = static_cast<FFTTexture *>(texture)->image](Vulkan::CommandBuffer &cmd) {
@@ -107,7 +107,7 @@ void FFTDeferredCommandBuffer::bind_texture(unsigned binding, GLFFT::Texture *te
 			});
 }
 
-void FFTDeferredCommandBuffer::bind_sampler(unsigned binding, GLFFT::Sampler *sampler)
+void FFTDeferredCommandBuffer::bind_sampler(unsigned binding, GLFFT::Resource *sampler)
 {
 	if (sampler)
 	{
@@ -120,7 +120,7 @@ void FFTDeferredCommandBuffer::bind_sampler(unsigned binding, GLFFT::Sampler *sa
 }
 
 void FFTDeferredCommandBuffer::bind_storage_buffer_range(unsigned binding, size_t offset, size_t length,
-                                                         GLFFT::Buffer *buffer)
+                                                         GLFFT::Resource *buffer)
 {
 	get_command_list().push_back(
 			[=, buffer = static_cast<FFTBuffer *>(buffer)->buffer](Vulkan::CommandBuffer &cmd) {
@@ -130,9 +130,9 @@ void FFTDeferredCommandBuffer::bind_storage_buffer_range(unsigned binding, size_
 
 void FFTDeferredCommandBuffer::build(Vulkan::CommandBuffer &cmd)
 {
-	for (auto &list : commands)
+	for (const auto &list : commands)
 	{
-		for (auto &c : list)
+		for (const auto &c : list)
 			c(cmd);
 
 		cmd.barrier(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_ACCESS_SHADER_WRITE_BIT,
@@ -172,19 +172,19 @@ void FFTCommandBuffer::bind_program(GLFFT::Program *program)
 		cmd->set_program(static_cast<FFTProgram *>(program)->program);
 }
 
-void FFTCommandBuffer::bind_sampler(unsigned binding, GLFFT::Sampler *sampler)
+void FFTCommandBuffer::bind_sampler(unsigned binding, GLFFT::Resource *sampler)
 {
 	if (cmd && sampler)
 		cmd->set_sampler(0, binding, static_cast<FFTSampler *>(sampler)->sampler);
 }
 
-void FFTCommandBuffer::bind_storage_texture(unsigned binding, GLFFT::Texture *texture)
+void FFTCommandBuffer::bind_storage_texture(unsigned binding, GLFFT::Resource *texture)
 {
 	if (cmd)
 		cmd->set_storage_texture(0, binding, *static_cast<FFTTexture *>(texture)->image);
 }
 
-void FFTCommandBuffer::bind_texture(unsigned binding, GLFFT::Texture *texture)
+void FFTCommandBuffer::bind_texture(unsigned binding, GLFFT::Resource *texture)
 {
 	if (cmd)
 	{
@@ -193,13 +193,13 @@ void FFTCommandBuffer::bind_texture(unsigned binding, GLFFT::Texture *texture)
 	}
 }
 
-void FFTCommandBuffer::bind_storage_buffer(unsigned binding, GLFFT::Buffer *buffer)
+void FFTCommandBuffer::bind_storage_buffer(unsigned binding, GLFFT::Resource *buffer)
 {
 	if (cmd)
 		cmd->set_storage_buffer(0, binding, *static_cast<FFTBuffer *>(buffer)->buffer);
 }
 
-void FFTCommandBuffer::bind_storage_buffer_range(unsigned binding, size_t offset, size_t range, GLFFT::Buffer *buffer)
+void FFTCommandBuffer::bind_storage_buffer_range(unsigned binding, size_t offset, size_t range, GLFFT::Resource *buffer)
 {
 	if (cmd)
 		cmd->set_storage_buffer(0, binding, *static_cast<FFTBuffer *>(buffer)->buffer, offset, range);
@@ -211,7 +211,7 @@ void FFTCommandBuffer::dispatch(unsigned x, unsigned y, unsigned z)
 		cmd->dispatch(x, y, z);
 }
 
-const void *FFTInterface::map(GLFFT::Buffer *buffer_, size_t offset, size_t)
+const void *FFTInterface::map(GLFFT::Resource *buffer_, size_t offset, size_t)
 {
 	auto *buffer = static_cast<FFTBuffer *>(buffer_);
 	return static_cast<uint8_t *>(device->map_host_buffer(*buffer->buffer, Vulkan::MEMORY_ACCESS_READ_BIT)) + offset;
@@ -222,7 +222,7 @@ void FFTInterface::wait_idle()
 	device->wait_idle();
 }
 
-std::unique_ptr<GLFFT::Buffer> FFTInterface::create_buffer(const void *initial_data, size_t size, GLFFT::AccessMode access)
+std::unique_ptr<GLFFT::Resource> FFTInterface::create_buffer(const void *initial_data, size_t size, GLFFT::AccessMode access)
 {
 	Vulkan::BufferCreateInfo info = {};
 	info.size = size;
@@ -231,11 +231,11 @@ std::unique_ptr<GLFFT::Buffer> FFTInterface::create_buffer(const void *initial_d
 	    access == GLFFT::AccessMode::AccessStreamRead ? Vulkan::BufferDomain::CachedHost : Vulkan::BufferDomain::Device;
 
 	auto buffer = std::make_unique<FFTBuffer>(device->create_buffer(info, initial_data));
-	return std::unique_ptr<GLFFT::Buffer>(std::move(buffer));
+	return std::unique_ptr<GLFFT::Resource>(std::move(buffer));
 }
 
-std::unique_ptr<GLFFT::Texture> FFTInterface::create_texture(const void *initial_data, unsigned width, unsigned height,
-                                                        GLFFT::Format format)
+std::unique_ptr<GLFFT::Resource> FFTInterface::create_texture(const void *initial_data, const unsigned width, const unsigned height,
+                                                             const GLFFT::Format format)
 {
 	VkFormat fmt = VK_FORMAT_UNDEFINED;
 	switch (format)
@@ -270,7 +270,7 @@ std::unique_ptr<GLFFT::Texture> FFTInterface::create_texture(const void *initial
 	init.data = initial_data;
 	auto image = std::make_unique<FFTTexture>(device->create_image(info, initial_data ? &init : nullptr));
 	image->image_holder->set_layout(Vulkan::Layout::General);
-	return std::unique_ptr<GLFFT::Texture>(move(image));
+	return std::unique_ptr<GLFFT::Resource>(move(image));
 }
 
 unsigned FFTInterface::get_max_work_group_threads()
@@ -343,7 +343,7 @@ std::unique_ptr<GLFFT::Program> FFTInterface::compile_compute_shader(const char 
 	return std::unique_ptr<GLFFT::Program>(move(prog));
 }
 
-void FFTInterface::unmap(GLFFT::Buffer *buffer_)
+void FFTInterface::unmap(GLFFT::Resource *buffer_)
 {
 	auto *buffer = static_cast<FFTBuffer *>(buffer_);
 	device->unmap_host_buffer(*buffer->buffer, Vulkan::MEMORY_ACCESS_READ_BIT);
@@ -359,7 +359,7 @@ void FFTInterface::log(const char *fmt, ...)
 	va_end(va);
 }
 
-void FFTInterface::read_texture(void *buffer, GLFFT::Texture *texture)
+void FFTInterface::read_texture(void *buffer, GLFFT::Resource *texture)
 {
 	auto &image = static_cast<FFTTexture *>(texture)->image->get_image();
 	Vulkan::BufferCreateInfo info = {};

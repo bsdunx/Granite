@@ -95,12 +95,12 @@ struct FFTStaticWisdom
 class FFTWisdom
 {
 public:
-	std::pair<double, FFTOptions::Performance> learn_optimal_options(Context *ctx, unsigned Nx, unsigned Ny,
-	                                                                 unsigned radix, Mode mode, Target input_target,
+	std::pair<double, FFTOptions::Performance> learn_optimal_options(Context *ctx, const unsigned Nx, const unsigned Ny,
+	                                                                 const unsigned radix, const Mode mode, Target input_target,
 	                                                                 Target output_target,
 	                                                                 const FFTOptions::Type &type);
 
-	void learn_optimal_options_exhaustive(Context *ctx, unsigned Nx, unsigned Ny, Type type, Target input_target,
+	void learn_optimal_options_exhaustive(Context *ctx, const unsigned Nx, const unsigned Ny, const Type type, Target input_target,
 	                                      Target output_target, const FFTOptions::Type &fft_type);
 
 	const std::pair<const WisdomPass, FFTOptions::Performance> *find_optimal_options(
@@ -119,7 +119,7 @@ public:
 	static FFTStaticWisdom get_static_wisdom_from_renderer(Context *context);
 	static FFTOptions::Performance get_static_performance_options_from_renderer(Context *context);
 
-	void set_bench_params(unsigned warmup, unsigned iterations, unsigned dispatches, double timeout)
+	void set_bench_params(const unsigned warmup, const unsigned iterations, const unsigned dispatches, const double timeout)
 	{
 		params.warmup = warmup;
 		params.iterations = iterations;
@@ -135,7 +135,7 @@ private:
 	std::unordered_map<WisdomPass, FFTOptions::Performance> library;
 
 	std::pair<double, FFTOptions::Performance> study(Context *context, const WisdomPass &pass,
-	                                                 FFTOptions::Type options) const;
+	                                                 const FFTOptions::Type options) const;
 
 	double bench(Context *cmd, Resource *output, Resource *input, const WisdomPass &pass, const FFTOptions &options,
 	             const std::shared_ptr<ProgramCache> &cache) const;

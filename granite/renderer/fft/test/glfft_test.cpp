@@ -245,7 +245,7 @@ static mufft_buffer create_reference(Type type, Direction direction, unsigned Nx
 	return output;
 }
 
-static mufft_buffer readback(Context *context, Buffer *buffer, size_t size)
+static mufft_buffer readback(Context *context, Resource *buffer, size_t size)
 {
 	auto buf = alloc(size);
 
@@ -503,8 +503,8 @@ static void run_test_ssbo(Context *context, const TestSuiteArguments &args, unsi
 	             options.performance.workgroup_size_x, options.performance.workgroup_size_y,
 	             options.type.input_fp16 ? "yes" : "no", options.type.output_fp16 ? "yes" : "no");
 
-	std::unique_ptr<Buffer> test_input;
-	std::unique_ptr<Buffer> test_output;
+	std::unique_ptr<Resource> test_input;
+	std::unique_ptr<Resource> test_output;
 
 	size_t input_size = Nx * Ny * type_to_input_size(type);
 	size_t output_size = Nx * Ny * type_to_output_size(type);
@@ -556,8 +556,8 @@ static void run_test_texture(Context *context, const TestSuiteArguments &args, u
 	             options.performance.workgroup_size_x, options.performance.workgroup_size_y,
 	             options.type.input_fp16 ? "yes" : "no", options.type.output_fp16 ? "yes" : "no");
 
-	std::unique_ptr<Texture> test_input;
-	std::unique_ptr<Buffer> test_output;
+	std::unique_ptr<Resource> test_input;
+	std::unique_ptr<Resource> test_output;
 
 	size_t input_size = Nx * Ny * type_to_input_size(type);
 	size_t output_size = Nx * Ny * type_to_output_size(type);
@@ -614,7 +614,7 @@ static void run_test_texture(Context *context, const TestSuiteArguments &args, u
 	context->log("... Success!\n");
 }
 
-static mufft_buffer readback_texture(Context *context, Texture *tex, unsigned components, unsigned Nx, unsigned Ny)
+static mufft_buffer readback_texture(Context *context, Resource *tex, unsigned components, unsigned Nx, unsigned Ny)
 {
 	unsigned count = Nx * Ny * components;
 	auto fp16_buffer = alloc(count * sizeof(uint16_t));
@@ -633,7 +633,7 @@ static void run_test_image(Context *context, const TestSuiteArguments &args, uns
 	             options.performance.workgroup_size_x, options.performance.workgroup_size_y,
 	             options.type.input_fp16 ? "yes" : "no", options.type.output_fp16 ? "yes" : "no");
 
-	std::unique_ptr<Buffer> test_input;
+	std::unique_ptr<Resource> test_input;
 
 	size_t input_size = Nx * Ny * type_to_input_size(type);
 	size_t output_size = Nx * Ny * type_to_output_size(type);
@@ -671,7 +671,7 @@ static void run_test_image(Context *context, const TestSuiteArguments &args, uns
 
 	// Upload a blank buffer to make debugging easier.
 	std::vector<float> blank(Nx * Ny * components * sizeof(float));
-	std::unique_ptr<Texture> tex = context->create_texture(blank.data(), Nx, Ny, format);
+	std::unique_ptr<Resource> tex = context->create_texture(blank.data(), Nx, Ny, format);
 
 	FFT fft(context, Nx, Ny, type, direction, SSBO, type != ComplexToReal ? Image : ImageReal, cache, options);
 

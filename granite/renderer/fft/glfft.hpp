@@ -179,7 +179,7 @@ public:
 	///
 	/// Set sampler objects to be used for input and input_aux if textures are used as input.
 	/// By default, sampler object 0 will be used (inheriting sampler parameters from the texture object itself).
-	void set_samplers(Sampler *sampler0, Sampler *sampler1 = nullptr)
+	void set_samplers(Resource *sampler0, Resource *sampler1 = nullptr)
 	{
 		texture.samplers[0] = sampler0;
 		texture.samplers[1] = sampler1;
@@ -201,8 +201,8 @@ private:
 
 	double cost = 0.0;
 
-	std::unique_ptr<Buffer> temp_buffer;
-	std::unique_ptr<Buffer> temp_buffer_image;
+	std::unique_ptr<Resource> temp_buffer;
+	std::unique_ptr<Resource> temp_buffer_image;
 	std::vector<Pass> passes;
 	std::shared_ptr<ProgramCache> cache;
 
@@ -214,7 +214,7 @@ private:
 	struct
 	{
 		float offset_x = 0.0f, offset_y = 0.0f, scale_x = 1.0f, scale_y = 1.0f;
-		Sampler *samplers[2] = { nullptr, nullptr };
+		Resource *samplers[2] = { nullptr, nullptr };
 	} texture;
 
 	struct

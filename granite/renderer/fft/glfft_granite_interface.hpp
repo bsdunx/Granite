@@ -31,11 +31,11 @@ public:
 	FFTInterface(Vulkan::Device *device);
 	FFTInterface() = default;
 
-	std::unique_ptr<GLFFT::Texture> create_texture(const void *initial_data, unsigned width, unsigned height,
-	                                               GLFFT::Format format) override;
+	std::unique_ptr<GLFFT::Resource> create_texture(const void *initial_data, const unsigned width, const unsigned height,
+	                                               const GLFFT::Format format) override;
 
-	std::unique_ptr<GLFFT::Buffer> create_buffer(const void *initial_data, size_t size,
-	                                             GLFFT::AccessMode access) override;
+	std::unique_ptr<GLFFT::Resource> create_buffer(const void *initial_data, const size_t size,
+	                                             const GLFFT::AccessMode access) override;
 
 	std::unique_ptr<GLFFT::Program> compile_compute_shader(const char *source) override;
 
@@ -51,11 +51,11 @@ public:
 	unsigned get_max_work_group_threads() override;
 	unsigned get_max_shared_memory_size() override;
 
-	const void *map(GLFFT::Buffer *buffer, size_t offset, size_t size) override;
-	void unmap(GLFFT::Buffer *buffer) override;
+	const void *map(GLFFT::Resource *buffer, size_t offset, size_t size) override;
+	void unmap(GLFFT::Resource *buffer) override;
 
 	bool supports_texture_readback() override;
-	void read_texture(void *buffer, GLFFT::Texture *texture) override;
+	void read_texture(void *buffer, GLFFT::Resource *texture) override;
 
 	std::string load_shader(const char *path) override;
 
@@ -82,11 +82,11 @@ public:
 
 	void barrier() override;
 	void bind_program(GLFFT::Program *program) override;
-	void bind_sampler(unsigned binding, GLFFT::Sampler *sampler) override;
-	void bind_storage_texture(unsigned binding, GLFFT::Texture *texture) override;
-	void bind_texture(unsigned binding, GLFFT::Texture *texture) override;
-	void bind_storage_buffer(unsigned binding, GLFFT::Buffer *buffer) override;
-	void bind_storage_buffer_range(unsigned binding, size_t offset, size_t length, GLFFT::Buffer *buffer) override;
+	void bind_sampler(unsigned binding, GLFFT::Resource *sampler) override;
+	void bind_storage_texture(unsigned binding, GLFFT::Resource *texture) override;
+	void bind_texture(unsigned binding, GLFFT::Resource *texture) override;
+	void bind_storage_buffer(unsigned binding, GLFFT::Resource *buffer) override;
+	void bind_storage_buffer_range(unsigned binding, size_t offset, size_t length, GLFFT::Resource *buffer) override;
 	void dispatch(unsigned x, unsigned y, unsigned z) override;
 	void push_constant_data(const void *data, size_t size) override;
 
@@ -100,11 +100,11 @@ class FFTDeferredCommandBuffer : public GLFFT::CommandBuffer
 public:
 	void barrier() override;
 	void bind_program(GLFFT::Program *program) override;
-	void bind_sampler(unsigned binding, GLFFT::Sampler *sampler) override;
-	void bind_storage_texture(unsigned binding, GLFFT::Texture *texture) override;
-	void bind_texture(unsigned binding, GLFFT::Texture *texture) override;
-	void bind_storage_buffer(unsigned binding, GLFFT::Buffer *buffer) override;
-	void bind_storage_buffer_range(unsigned binding, size_t offset, size_t length, GLFFT::Buffer *buffer) override;
+	void bind_sampler(unsigned binding, GLFFT::Resource *sampler) override;
+	void bind_storage_texture(unsigned binding, GLFFT::Resource *texture) override;
+	void bind_texture(unsigned binding, GLFFT::Resource *texture) override;
+	void bind_storage_buffer(unsigned binding, GLFFT::Resource *buffer) override;
+	void bind_storage_buffer_range(unsigned binding, size_t offset, size_t length, GLFFT::Resource *buffer) override;
 	void dispatch(unsigned x, unsigned y, unsigned z) override;
 	void push_constant_data(const void *data, size_t size) override;
 
@@ -119,7 +119,7 @@ private:
 	std::vector<std::function<void (Vulkan::CommandBuffer &)>> &get_command_list();
 };
 
-struct FFTBuffer : GLFFT::Buffer
+struct FFTBuffer : GLFFT::Resource
 {
 	FFTBuffer(Vulkan::Buffer *handle)
 		: buffer(handle)
@@ -136,7 +136,7 @@ struct FFTBuffer : GLFFT::Buffer
 	Vulkan::BufferHandle buffer_holder;
 };
 
-struct FFTTexture : GLFFT::Texture
+struct FFTTexture : GLFFT::Resource
 {
 	FFTTexture(Vulkan::ImageView *handle)
 		: image(handle)

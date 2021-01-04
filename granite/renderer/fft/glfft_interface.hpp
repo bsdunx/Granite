@@ -28,24 +28,12 @@ class Context;
 class Resource
 {
 public:
-	virtual ~Resource() = default;
-
 	// Non-movable, non-copyable to make things simpler.
 	Resource(Resource &&) = delete;
 	void operator=(const Resource &) = delete;
 
 protected:
 	Resource() = default;
-};
-
-class Texture : public Resource
-{
-};
-class Sampler : public Resource
-{
-};
-class Buffer : public Resource
-{
 };
 
 class Program
@@ -76,17 +64,39 @@ enum Format
 	FormatR32G32B32A32Float,
 };
 
-class CommandBuffer;
+class CommandBuffer
+{
+public:
+	virtual ~CommandBuffer() = default;
+
+	virtual void bind_program(Program *program) = 0;
+	virtual void bind_storage_texture(unsigned binding, Resource *texture) = 0;
+	virtual void bind_texture(unsigned binding, Resource *texture) = 0;
+	virtual void bind_sampler(unsigned binding, Resource *sampler) = 0;
+	virtual void bind_storage_buffer(unsigned binding, Resource *texture) = 0;
+	virtual void bind_storage_buffer_range(unsigned binding, size_t offset, size_t length, Resource *texture) = 0;
+	virtual void dispatch(unsigned x, unsigned y, unsigned z) = 0;
+	virtual void barrier() = 0;
+
+	enum
+	{
+		MaxConstantDataSize = 64
+	};
+	virtual void push_constant_data(const void *data, size_t size) = 0;
+
+protected:
+	CommandBuffer() = default;
+};
 
 class Context
 {
 public:
 	virtual ~Context() = default;
 
-	virtual std::unique_ptr<Texture> create_texture(const void *initial_data, unsigned width, unsigned height,
+	virtual std::unique_ptr<Resource> create_texture(const void *initial_data, unsigned width, unsigned height,
 	                                                Format format) = 0;
 
-	virtual std::unique_ptr<Buffer> create_buffer(const void *initial_data, size_t size, AccessMode access) = 0;
+	virtual std::unique_ptr<Resource> create_buffer(const void *initial_data, size_t size, AccessMode access) = 0;
 	virtual std::unique_ptr<Program> compile_compute_shader(const char *source) = 0;
 
 	virtual CommandBuffer *request_command_buffer() = 0;
@@ -101,11 +111,11 @@ public:
 	virtual unsigned get_max_work_group_threads() = 0;
 	virtual unsigned get_max_shared_memory_size() = 0;
 
-	virtual const void *map(Buffer *buffer, size_t offset, size_t size) = 0;
-	virtual void unmap(Buffer *buffer) = 0;
+	virtual const void *map(Resource *buffer, size_t offset, size_t size) = 0;
+	virtual void unmap(Resource *buffer) = 0;
 
 	virtual bool supports_texture_readback() = 0;
-	virtual void read_texture(void *buffer, Texture *texture) = 0;
+	virtual void read_texture(void *buffer, Resource *texture) = 0;
 
 	virtual std::string load_shader(const char *path) = 0;
 
@@ -115,27 +125,4 @@ protected:
 	Context() = default;
 };
 
-class CommandBuffer
-{
-public:
-	virtual ~CommandBuffer() = default;
-
-	virtual void bind_program(Program *program) = 0;
-	virtual void bind_storage_texture(unsigned binding, Texture *texture) = 0;
-	virtual void bind_texture(unsigned binding, Texture *texture) = 0;
-	virtual void bind_sampler(unsigned binding, Sampler *sampler) = 0;
-	virtual void bind_storage_buffer(unsigned binding, Buffer *texture) = 0;
-	virtual void bind_storage_buffer_range(unsigned binding, size_t offset, size_t length, Buffer *texture) = 0;
-	virtual void dispatch(unsigned x, unsigned y, unsigned z) = 0;
-	virtual void barrier() = 0;
-
-	enum
-	{
-		MaxConstantDataSize = 64
-	};
-	virtual void push_constant_data(const void *data, size_t size) = 0;
-
-protected:
-	CommandBuffer() = default;
-};
 } // namespace GLFFT

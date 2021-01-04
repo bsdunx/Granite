@@ -31,7 +31,7 @@ using namespace GLFFT;
 FFTOptions::Performance FFTWisdom::get_static_performance_options_from_renderer(GLFFT::Context *context)
 {
 	FFTOptions::Performance perf;
-	uint32_t vid = context->get_vendor_id();
+	const uint32_t vid = context->get_vendor_id();
 
 	if (vid == 0x10de)
 	{
@@ -66,8 +66,8 @@ FFTStaticWisdom FFTWisdom::get_static_wisdom_from_renderer(Context *context)
 {
 	FFTStaticWisdom res;
 
-	uint32_t vid = context->get_vendor_id();
-	unsigned threads = context->get_max_work_group_threads();
+	const uint32_t vid = context->get_vendor_id();
+	const unsigned threads = context->get_max_work_group_threads();
 
 	if (vid == 0x10de)
 	{
@@ -106,8 +106,8 @@ FFTStaticWisdom FFTWisdom::get_static_wisdom_from_renderer(Context *context)
 	return res;
 }
 
-std::pair<double, FFTOptions::Performance> FFTWisdom::learn_optimal_options(Context *context, unsigned Nx, unsigned Ny,
-                                                                       unsigned radix, Mode mode, Target input_target,
+std::pair<double, FFTOptions::Performance> FFTWisdom::learn_optimal_options(Context *context, const unsigned Nx, const unsigned Ny,
+                                                                       const unsigned radix, const Mode mode, Target input_target,
                                                                        Target output_target,
                                                                        const FFTOptions::Type &type)
 {
@@ -139,7 +139,7 @@ std::pair<double, FFTOptions::Performance> FFTWisdom::learn_optimal_options(Cont
 	}
 }
 
-void FFTWisdom::learn_optimal_options_exhaustive(Context *context, unsigned Nx, unsigned Ny, GLFFT::Type type,
+void FFTWisdom::learn_optimal_options_exhaustive(Context *context, const unsigned Nx, const unsigned Ny, const GLFFT::Type type,
                                                  Target input_target, Target output_target,
                                                  const FFTOptions::Type &fft_type)
 {
@@ -148,7 +148,7 @@ void FFTWisdom::learn_optimal_options_exhaustive(Context *context, unsigned Nx, 
 	Mode horizontal_mode = type == ComplexToComplexDual ? HorizontalDual : Horizontal;
 
 	// Create wisdom for horizontal transforms and vertical transform.
-	static const unsigned radices[] = { 4, 8, 16, 64 };
+	const unsigned radices[] = { 4, 8, 16, 64 };
 	for (auto radix : radices)
 	{
 		try
@@ -239,7 +239,7 @@ double FFTWisdom::bench(Context *context, Resource *output, Resource *input, con
 	return fft.bench(context, output, input, params.warmup, params.iterations, params.dispatches, params.timeout);
 }
 
-static inline unsigned mode_to_size(Mode mode)
+static inline unsigned mode_to_size(const Mode mode)
 {
 	switch (mode)
 	{
@@ -255,7 +255,7 @@ static inline unsigned mode_to_size(Mode mode)
 }
 
 std::pair<double, FFTOptions::Performance> FFTWisdom::study(Context *context, const WisdomPass &pass,
-                                                            FFTOptions::Type type) const
+                                                            const FFTOptions::Type type) const
 {
 	auto cache = std::make_shared<ProgramCache>();
 
@@ -338,18 +338,18 @@ std::pair<double, FFTOptions::Performance> FFTWisdom::study(Context *context, co
 	FFTOptions::Performance best_perf;
 	double minimum_cost = bench(context, output.get(), input.get(), pass, { best_perf, type }, cache);
 
-	static const FFTStaticWisdom::Tristate shared_banked_values[] = { FFTStaticWisdom::Off, FFTStaticWisdom::On };
-	static const unsigned vector_size_values[] = { 2, 4 };
-	static const unsigned workgroup_size_x_values[] = { 4, 8, 16, 32, 64, 128, 256 };
-	static const unsigned workgroup_size_y_values[] = {
+	const FFTStaticWisdom::Tristate shared_banked_values[] = { FFTStaticWisdom::Off, FFTStaticWisdom::On };
+	const unsigned vector_size_values[] = { 2, 4 };
+	const unsigned workgroup_size_x_values[] = { 4, 8, 16, 32, 64, 128, 256 };
+	const unsigned workgroup_size_y_values[] = {
 		1,
 		2,
 		4,
 		8,
 	};
 
-	bool test_resolve = pass.pass.mode == ResolveComplexToReal || pass.pass.mode == ResolveRealToComplex;
-	bool test_dual = pass.pass.mode == VerticalDual || pass.pass.mode == HorizontalDual;
+	const bool test_resolve = pass.pass.mode == ResolveComplexToReal || pass.pass.mode == ResolveRealToComplex;
+	const bool test_dual = pass.pass.mode == VerticalDual || pass.pass.mode == HorizontalDual;
 	unsigned bench_count = 0;
 
 	for (auto shared_banked : shared_banked_values)
@@ -387,14 +387,14 @@ std::pair<double, FFTOptions::Performance> FFTWisdom::study(Context *context, co
 			{
 				for (auto workgroup_size_y : workgroup_size_y_values)
 				{
-					unsigned workgroup_size = workgroup_size_x * workgroup_size_y;
+					const unsigned workgroup_size = workgroup_size_x * workgroup_size_y;
 
-					unsigned min_workgroup_size = pass.pass.radix >= 16 ? static_wisdom.min_workgroup_size_shared :
-					                                                      static_wisdom.min_workgroup_size;
+					const unsigned min_workgroup_size = pass.pass.radix >= 16 ? static_wisdom.min_workgroup_size_shared :
+					                                                            static_wisdom.min_workgroup_size;
 
-					unsigned min_vector_size =
+					const unsigned min_vector_size =
 					    test_dual ? std::max(4u, static_wisdom.min_vector_size) : static_wisdom.min_vector_size;
-					unsigned max_vector_size =
+					const unsigned max_vector_size =
 					    test_dual ? std::max(4u, static_wisdom.max_vector_size) : static_wisdom.max_vector_size;
 
 					bool fair_workgroup_size =
@@ -407,7 +407,7 @@ std::pair<double, FFTOptions::Performance> FFTWisdom::study(Context *context, co
 						continue;
 
 					// If we have dual mode, accept vector sizes larger than max.
-					bool fair_vector_size =
+					const bool fair_vector_size =
 					    test_resolve || (vector_size <= max_vector_size && vector_size >= min_vector_size);
 
 					if (!fair_vector_size)
@@ -422,7 +422,7 @@ std::pair<double, FFTOptions::Performance> FFTWisdom::study(Context *context, co
 					try
 					{
 						// If workgroup sizes are too big for our test, this will throw.
-						double cost = bench(context, output.get(), input.get(), pass, { perf, type }, cache);
+						const double cost = bench(context, output.get(), input.get(), pass, { perf, type }, cache);
 						bench_count++;
 
 #if 1
@@ -459,7 +459,7 @@ std::pair<double, FFTOptions::Performance> FFTWisdom::study(Context *context, co
 }
 
 const std::pair<const WisdomPass, FFTOptions::Performance> *FFTWisdom::find_optimal_options(
-    unsigned Nx, unsigned Ny, unsigned radix, Mode mode, Target input_target, Target output_target,
+    const unsigned Nx, const unsigned Ny, const unsigned radix, const Mode mode, Target input_target, Target output_target,
     const FFTOptions::Type &type) const
 {
 	WisdomPass pass = {
@@ -479,8 +479,8 @@ const std::pair<const WisdomPass, FFTOptions::Performance> *FFTWisdom::find_opti
 	return itr != end(library) ? (&(*itr)) : nullptr;
 }
 
-const FFTOptions::Performance &FFTWisdom::find_optimal_options_or_default(unsigned Nx, unsigned Ny, unsigned radix,
-                                                                          Mode mode, Target input_target,
+const FFTOptions::Performance &FFTWisdom::find_optimal_options_or_default(const unsigned Nx, const unsigned Ny, const unsigned radix,
+                                                                          const Mode mode, Target input_target,
                                                                           Target output_target,
                                                                           const FFTOptions &base_options) const
 {

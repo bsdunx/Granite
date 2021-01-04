@@ -185,7 +185,7 @@ struct CostPropagate
 
 	void merge_if_better(const CostPropagate &a, const CostPropagate &b)
 	{
-		double new_cost = a.cost + b.cost;
+		const double new_cost = a.cost + b.cost;
 
 		if ((cost == 0.0 || new_cost < cost) && a.cost != 0.0 && b.cost != 0.0)
 		{
@@ -934,19 +934,18 @@ void FFT::process(CommandBuffer *cmd, Resource *output, Resource *input, Resourc
 	{
 		if (passes.front().parameters.input_target != SSBO)
 		{
-			cmd->bind_texture(BindingTexture1, static_cast<Texture *>(input_aux));
+			cmd->bind_texture(BindingTexture1, input_aux);
 			cmd->bind_sampler(BindingTexture1, texture.samplers[1]);
 		}
 		else
 		{
 			if (ssbo.input_aux.size != 0)
 			{
-				cmd->bind_storage_buffer_range(BindingSSBOAux, ssbo.input_aux.offset, ssbo.input_aux.size,
-				                               static_cast<Buffer *>(input_aux));
+				cmd->bind_storage_buffer_range(BindingSSBOAux, ssbo.input_aux.offset, ssbo.input_aux.size, input_aux);
 			}
 			else
 			{
-				cmd->bind_storage_buffer(BindingSSBOAux, static_cast<Buffer *>(input_aux));
+				cmd->bind_storage_buffer(BindingSSBOAux, input_aux);
 			}
 		}
 	}
@@ -984,7 +983,7 @@ void FFT::process(CommandBuffer *cmd, Resource *output, Resource *input, Resourc
 
 		if (pass.parameters.input_target != SSBO)
 		{
-			cmd->bind_texture(BindingTexture0, static_cast<Texture *>(buffers[0]));
+			cmd->bind_texture(BindingTexture0, buffers[0]);
 			cmd->bind_sampler(BindingTexture0, texture.samplers[0]);
 
 			// If one compute thread reads multiple texels in X dimension, scale this accordingly.
@@ -1000,33 +999,32 @@ void FFT::process(CommandBuffer *cmd, Resource *output, Resource *input, Resourc
 			if (buffers[0] == input && ssbo.input.size != 0)
 			{
 				cmd->bind_storage_buffer_range(BindingSSBOIn, ssbo.input.offset, ssbo.input.size,
-				                               static_cast<Buffer *>(buffers[0]));
+				                               buffers[0]);
 			}
 			else if (buffers[0] == output && ssbo.output.size != 0)
 			{
 				cmd->bind_storage_buffer_range(BindingSSBOIn, ssbo.output.offset, ssbo.output.size,
-				                               static_cast<Buffer *>(buffers[0]));
+				                               buffers[0]);
 			}
 			else
 			{
-				cmd->bind_storage_buffer(BindingSSBOIn, static_cast<Buffer *>(buffers[0]));
+				cmd->bind_storage_buffer(BindingSSBOIn, buffers[0]);
 			}
 		}
 
 		if (pass.parameters.output_target != SSBO)
 		{
-			cmd->bind_storage_texture(BindingImage, static_cast<Texture *>(output));
+			cmd->bind_storage_texture(BindingImage, output);
 		}
 		else
 		{
 			if (buffers[1] == output && ssbo.output.size != 0)
 			{
-				cmd->bind_storage_buffer_range(BindingSSBOOut, ssbo.output.offset, ssbo.output.size,
-				                               static_cast<Buffer *>(buffers[1]));
+				cmd->bind_storage_buffer_range(BindingSSBOOut, ssbo.output.offset, ssbo.output.size, buffers[1]);
 			}
 			else
 			{
-				cmd->bind_storage_buffer(BindingSSBOOut, static_cast<Buffer *>(buffers[1]));
+				cmd->bind_storage_buffer(BindingSSBOOut,buffers[1]);
 			}
 		}
 
