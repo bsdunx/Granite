@@ -22,11 +22,7 @@
 
 #pragma once
 
-#include "renderer/lights/lights.hpp"
-#include "renderer/lights/clusterer.hpp"
-#include "renderer/render_components.hpp"
 #include "renderer/renderer.hpp"
-#include "vulkan/managers/shader_manager.hpp"
 #include "event/event.hpp"
 #include "application/events/application_events.hpp"
 
@@ -58,16 +54,6 @@ public:
 	};
 	void set_floor_lighting(const std::string &input, const FloorLighting &info);
 
-	void set_density_mod(float mod)
-	{
-		density_mod = mod;
-	}
-
-	void set_in_scatter_mod(float mod)
-	{
-		inscatter_mod = mod;
-	}
-
 	float get_slice_z_log2_scale() const;
 	const Vulkan::ImageView &get_view() const;
 
@@ -93,6 +79,7 @@ private:
 	float z_range = 80.0f;
 	float slice_z_log2_scale;
 	float mod_time = 0.0f;
+
 	float density_mod = 0.5f;
 	float inscatter_mod = 0.25f;
 

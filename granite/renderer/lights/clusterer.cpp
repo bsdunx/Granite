@@ -658,7 +658,7 @@ LightClusterer::gather_bindless_spot_shadow_renderables(unsigned index, TaskComp
 	auto &setup_group = composer.begin_pipeline_stage();
 	setup_group.set_desc("clusterer-spot-setup");
 	setup_group.enqueue_task([this, data, index]() mutable {
-		float range = tan(static_cast<const SpotLight *>(bindless.handles[index])->get_xy_range());
+		float range = tan(static_cast<const SpotLight *>(bindless.handles[index])->xy_range);
 		const mat4 view = mat4_cast(look_at_arbitrary_up(bindless.transforms.lights[index].direction)) *
 		                            translate(-bindless.transforms.lights[index].position);
 		const mat4 proj = projection(range * 2.0f, 1.0f,
@@ -850,7 +850,7 @@ void LightClusterer::render_atlas_spot(const RenderContext &context_)
 
 		LOGI("Rendering shadow for spot light %u (%p)\n", i, static_cast<void *>(legacy.spots.handles[i]));
 
-		const float range = tan(legacy.spots.handles[i]->get_xy_range());
+		const float range = tan(legacy.spots.handles[i]->xy_range);
 		const mat4 view = mat4_cast(look_at_arbitrary_up(legacy.spots.lights[i].direction)) *
 		            translate(-legacy.spots.lights[i].position);
 		const mat4 proj = projection(range * 2.0f, 1.0f,
@@ -1781,8 +1781,8 @@ void LightClusterer::build_cluster_cpu(Vulkan::CommandBuffer &cmd, Vulkan::Image
 		state.spot_position[i] = legacy.spots.lights[i].position;
 		state.spot_direction[i] = legacy.spots.lights[i].direction;
 		state.spot_size[i] = 1.0f / legacy.spots.lights[i].inv_radius;
-		state.spot_angle_cos[i] = cosf(legacy.spots.handles[i]->get_xy_range());
-		state.spot_angle_sin[i] = sinf(legacy.spots.handles[i]->get_xy_range());
+		state.spot_angle_cos[i] = cosf(legacy.spots.handles[i]->xy_range);
+		state.spot_angle_sin[i] = sinf(legacy.spots.handles[i]->xy_range);
 	}
 
 	for (unsigned i = 0; i < legacy.points.count; i++)
@@ -1947,7 +1947,7 @@ void LightClusterer::build_cluster_cpu(Vulkan::CommandBuffer &cmd, Vulkan::Image
 		info.domain = BufferDomain::Device;
 		info.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 		info.size = sizeof(uvec4);
-		static const uvec4 dummy(0u);
+		const uvec4 dummy(0u);
 		legacy.cluster_list = cmd.get_device().create_buffer(info, &dummy);
 	}
 	else
@@ -1979,8 +1979,8 @@ void LightClusterer::build_cluster(Vulkan::CommandBuffer &cmd, Vulkan::ImageView
 	auto *spot_lut_buffer = cmd.allocate_typed_constant_data<vec4>(1, 2, MaxLights);
 	for (unsigned i = 0; i < legacy.spots.count; i++)
 	{
-		spot_lut_buffer[i] = vec4(cosf(legacy.spots.handles[i]->get_xy_range()),
-		                          sinf(legacy.spots.handles[i]->get_xy_range()),
+		spot_lut_buffer[i] = vec4(cosf(legacy.spots.handles[i]->xy_range),
+		                          sinf(legacy.spots.handles[i]->xy_range),
 		                          1.0f / legacy.spots.lights[i].inv_radius,
 		                          0.0f);
 	}

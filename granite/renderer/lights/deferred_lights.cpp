@@ -22,7 +22,8 @@
 
 #include "renderer/lights/deferred_lights.hpp"
 #include "renderer/lights/lights.hpp"
-#include "renderer/renderer.hpp"
+#include "renderer/scene.hpp"
+#include "renderer/render_context.hpp"
 #include "util/unstable_remove_if.hpp"
 #include "math/muglm/muglm_impl.hpp"
 
@@ -69,9 +70,8 @@ void DeferredLights::refresh(const RenderContext &context, TaskComposer &)
 		cluster_max = max(to_center, cluster_max);
 	}
 
-	float cluster_range = cluster_max - cluster_min;
-	cluster_range = max(cluster_range, 0.001f);
-	float cluster_inv_range = float(NumClusters) / cluster_range;
+	const float cluster_range = max(cluster_max - cluster_min, 0.001f);
+	const float cluster_inv_range = float(NumClusters) / cluster_range;
 
 	// Assign each renderable to a cluster index based on their position.
 	for (auto &light : visible)

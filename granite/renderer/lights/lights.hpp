@@ -45,7 +45,7 @@ public:
 		return type;
 	}
 
-	void set_maximum_range(float range);
+	void set_maximum_range(const float range);
 	float get_maximum_range() const
 	{
 		return cutoff_range;
@@ -61,7 +61,7 @@ public:
 		return &aabb;
 	}
 
-	void set_color(vec3 color);
+	void set_color(const vec3 color);
 	const vec3 &get_color() const
 	{
 		return color;
@@ -79,7 +79,7 @@ public:
 		return shadow_hash;
 	}
 
-	void set_shadow_transform_hash(Util::Hash hash)
+	void set_shadow_transform_hash(const Util::Hash hash)
 	{
 		shadow_hash = hash;
 	}
@@ -95,7 +95,7 @@ protected:
 private:
 	Type type;
 	unsigned cookie;
-	virtual void set_range(float range) = 0;
+	virtual void set_range(const float range) = 0;
 };
 
 class SpotLight : public PositionalLight
@@ -108,37 +108,22 @@ public:
 	void get_depth_render_info(const RenderContext &context, const RenderInfoComponent *transform,
 	                           RenderQueue &queue) const override;
 
-	void set_spot_parameters(float inner_cone, float outer_cone);
+	void set_spot_parameters(const float inner_cone, const float outer_cone);
 	PositionalFragmentInfo get_shader_info(const mat4 &transform) const;
 
 	void set_shadow_info(const Vulkan::ImageView *shadow, const mat4 &transform);
 
-	float get_inner_cone() const
-	{
-		return inner_cone;
-	}
-
-	float get_outer_cone() const
-	{
-		return outer_cone;
-	}
-
-	float get_xy_range() const
-	{
-		return xy_range;
-	}
-
 	mat4 build_model_matrix(const mat4 &transform) const;
 
-private:
 	float inner_cone = 0.4f;
 	float outer_cone = 0.45f;
 	float xy_range = 0.0f;
+private:
 
 	const Vulkan::ImageView *atlas = nullptr;
 	mat4 shadow_transform;
 
-	void set_range(float range) override;
+	void set_range(const float range) override;
 	vec2 get_z_range(const RenderContext &context, const mat4 &transform) const override final;
 };
 

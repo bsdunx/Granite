@@ -52,18 +52,17 @@ enum PositionalLightVariantBits
 static std::atomic_uint light_cookie_count;
 
 PositionalLight::PositionalLight(Type type_)
-	: type(type_)
+	: type(type_), cookie(light_cookie_count.fetch_add(1, std::memory_order_relaxed) + 1)
 {
-	cookie = light_cookie_count.fetch_add(1, std::memory_order_relaxed) + 1;
 }
 
-void PositionalLight::set_color(vec3 color_)
+void PositionalLight::set_color(const vec3 color_)
 {
 	color = color_;
 	recompute_range();
 }
 
-void PositionalLight::set_maximum_range(float range)
+void PositionalLight::set_maximum_range(const float range)
 {
 	cutoff_range = range;
 	recompute_range();
@@ -73,9 +72,7 @@ void PositionalLight::recompute_range()
 {
 	// Check when attenuation drops below a constant.
 	const float target_atten = 0.1f;
-	float max_color = max(max(color.x, color.y), color.z);
-	float d = muglm::sqrt(max_color / target_atten);
-	set_range(d);
+	set_range(muglm::sqrt(max(max(color.x, color.y), color.z) / target_atten));
 }
 
 void SpotLight::set_spot_parameters(float inner_cone_, float outer_cone_)
@@ -85,12 +82,12 @@ void SpotLight::set_spot_parameters(float inner_cone_, float outer_cone_)
 	recompute_range();
 }
 
-void SpotLight::set_range(float range)
+void SpotLight::set_range(const float range)
 {
 	falloff_range = range;
 
-	float max_range = min(falloff_range, cutoff_range);
-	float min_z = -max_range;
+	const float max_range = min(falloff_range, cutoff_range);
+	const float min_z = -max_range;
 	float xy = muglm::sqrt(1.0f - outer_cone * outer_cone) / outer_cone;
 	xy_range = xy;
 	xy *= max_range;
@@ -105,7 +102,7 @@ void SpotLight::set_shadow_info(const Vulkan::ImageView *shadow, const mat4 &tra
 
 mat4 SpotLight::build_model_matrix(const mat4 &transform) const
 {
-	float max_range = min(falloff_range, cutoff_range);
+	const float max_range = min(falloff_range, cutoff_range);
 	return transform * scale(vec3(xy_range * max_range, xy_range * max_range, max_range));
 }
 
@@ -113,13 +110,13 @@ PositionalFragmentInfo SpotLight::get_shader_info(const mat4 &transform) const
 {
 	// If the point light node has been scaled, renormalize this.
 	// This assumes a uniform scale.
-	float scale_factor = length(transform[0]);
+	const float scale_factor = length(transform[0]);
 
 	// This assumes a uniform scale.
-	float max_range = min(falloff_range, cutoff_range) * scale_factor;
+	const float max_range = min(falloff_range, cutoff_range) * scale_factor;
 
-	float spot_scale = 1.0f / max(0.001f, inner_cone - outer_cone);
-	float spot_bias = -outer_cone * spot_scale;
+	const float spot_scale = 1.0f / max(0.001f, inner_cone - outer_cone);
+	const float spot_bias = -outer_cone * spot_scale;
 
 	return {
 		color * (scale_factor * scale_factor),
@@ -170,7 +167,7 @@ struct PositionalShaderInfo
 	} u;
 };
 
-static void positional_render_full_screen(CommandBuffer &cmd, const RenderQueueData *infos, unsigned num_instances)
+static void positional_render_full_screen(CommandBuffer &cmd, const RenderQueueData *infos, const unsigned num_instances)
 {
 	auto &light_info = *static_cast<const PositionalLightRenderInfo *>(infos[0].render_info);
 	cmd.set_program(light_info.program);
@@ -189,10 +186,10 @@ static void positional_render_full_screen(CommandBuffer &cmd, const RenderQueueD
 		cmd.set_texture(2, 2, *light_info.atlas, sampler);
 	}
 
-	unsigned max_lights = ImplementationQuirks::get().instance_deferred_lights ? 256u : 1u;
+	const unsigned max_lights = ImplementationQuirks::get().instance_deferred_lights ? 256u : 1u;
 	for (unsigned i = 0; i < num_instances; )
 	{
-		unsigned to_render = min(max_lights, num_instances - i);
+		const unsigned to_render = min(max_lights, num_instances - i);
 
 		auto *frag = cmd.allocate_typed_constant_data<PositionalFragmentInfo>(2, 0, to_render);
 		auto *vert = cmd.allocate_typed_constant_data<PositionalVertexInfo>(2, 1, to_render);
@@ -224,7 +221,7 @@ static void positional_render_full_screen(CommandBuffer &cmd, const RenderQueueD
 	}
 }
 
-static void positional_render_depth(CommandBuffer &cmd, const RenderQueueData *infos, unsigned num_instances)
+static void positional_render_depth(CommandBuffer &cmd, const RenderQueueData *infos, const unsigned num_instances)
 {
 	auto &light_info = *static_cast<const PositionalLightRenderInfo *>(infos[0].render_info);
 	cmd.set_program(light_info.program);
@@ -257,7 +254,7 @@ static void positional_render_depth(CommandBuffer &cmd, const RenderQueueData *i
 	}
 }
 
-static void positional_render_common(CommandBuffer &cmd, const RenderQueueData *infos, unsigned num_instances)
+static void positional_render_common(CommandBuffer &cmd, const RenderQueueData *infos, const unsigned num_instances)
 {
 	auto &light_info = *static_cast<const PositionalLightRenderInfo *>(infos[0].render_info);
 	cmd.set_program(light_info.program);
@@ -323,13 +320,13 @@ static void positional_render_common(CommandBuffer &cmd, const RenderQueueData *
 	}
 }
 
-static void positional_render_front(CommandBuffer &cmd, const RenderQueueData *infos, unsigned num_instances)
+static void positional_render_front(CommandBuffer &cmd, const RenderQueueData *infos, const unsigned num_instances)
 {
 	cmd.set_cull_mode(VK_CULL_MODE_BACK_BIT);
 	positional_render_common(cmd, infos, num_instances);
 }
 
-static void positional_render_back(CommandBuffer &cmd, const RenderQueueData *infos, unsigned num_instances)
+static void positional_render_back(CommandBuffer &cmd, const RenderQueueData *infos, const unsigned num_instances)
 {
 	cmd.set_cull_mode(VK_CULL_MODE_FRONT_BIT);
 	cmd.set_depth_compare(VK_COMPARE_OP_GREATER);
@@ -343,9 +340,9 @@ void SpotLight::get_depth_render_info(const RenderContext &, const RenderInfoCom
 	Hasher h;
 	h.u32(ecast(PositionalLight::Type::Spot));
 
-	auto instance_key = h.get();
+	const auto instance_key = h.get();
 	h.pointer(func);
-	auto sorting_key = h.get();
+	const auto sorting_key = h.get();
 	auto *spot = queue.allocate_one<PositionalShaderInfo>();
 
 	spot->vertex.model = build_model_matrix(transform->transform->world_transform);
@@ -371,10 +368,10 @@ void SpotLight::get_depth_render_info(const RenderContext &, const RenderInfoCom
 vec2 SpotLight::get_z_range(const RenderContext &context, const mat4 &transform) const
 {
 	auto &params = context.get_render_parameters();
-	float max_range = min(falloff_range, cutoff_range);
-	mat4 model = transform * scale(vec3(xy_range * max_range, xy_range * max_range, max_range));
+	const float max_range = min(falloff_range, cutoff_range);
+	const mat4 model = transform * scale(vec3(xy_range * max_range, xy_range * max_range, max_range));
 
-	static const vec4 sample_points[] = {
+	const vec4 sample_points[] = {
 		vec4(0.0f, 0.0f, 0.0f, 1.0f), // Cone origin
 		vec4(-1.0f, -1.0f, -1.0f, 1.0f),
 		vec4(+1.0f, -1.0f, -1.0f, 1.0f),
@@ -384,10 +381,9 @@ vec2 SpotLight::get_z_range(const RenderContext &context, const mat4 &transform)
 
 	// This can be optimized quite a lot.
 	vec2 range(FLT_MAX, -FLT_MAX);
-	for (auto &s : sample_points)
+	for (const auto &s : sample_points)
 	{
-		vec3 pos = (model * s).xyz();
-		float z = dot(pos - params.camera_position, params.camera_front);
+		const float z = dot((model * s).xyz() - params.camera_position, params.camera_front);
 		range.x = muglm::min(range.x, z);
 		range.y = muglm::max(range.y, z);
 	}
@@ -399,7 +395,7 @@ void SpotLight::get_render_info(const RenderContext &context, const RenderInfoCo
                                 RenderQueue &queue) const
 {
 	auto &params = context.get_render_parameters();
-	vec2 range = get_z_range(context, transform->transform->world_transform);
+	const vec2 range = get_z_range(context, transform->transform->world_transform);
 	RenderFunc func;
 
 	if (range.x < params.z_near) // We risk clipping into the mesh, and since we can't rely on depthClamp, use backface.
@@ -419,9 +415,9 @@ void SpotLight::get_render_info(const RenderContext &context, const RenderInfoCo
 	else
 		h.u64(0);
 
-	auto instance_key = h.get();
+	const auto instance_key = h.get();
 	h.pointer(func);
-	auto sorting_key = h.get();
+	const auto sorting_key = h.get();
 
 	auto *spot = queue.allocate_one<PositionalShaderInfo>();
 
@@ -448,6 +444,7 @@ void SpotLight::get_render_info(const RenderContext &context, const RenderInfoCo
 		unsigned variant = 0;
 		if (func == positional_render_full_screen)
 			variant |= POSITIONAL_VARIANT_FULL_SCREEN_BIT;
+
 		if (atlas)
 		{
 			variant |= POSITIONAL_VARIANT_SHADOW_BIT;
@@ -470,16 +467,16 @@ PointLight::PointLight()
 
 vec2 PointLight::get_z_range(const RenderContext &context, const mat4 &transform) const
 {
-	float scale_factor = length(transform[0]);
-	float max_range = 1.15f * min(falloff_range, cutoff_range) * scale_factor;
-	float z = dot(transform[3].xyz() - context.get_render_parameters().camera_position, context.get_render_parameters().camera_front);
+	const float scale_factor = length(transform[0]);
+	const float max_range = 1.15f * min(falloff_range, cutoff_range) * scale_factor;
+	const float z = dot(transform[3].xyz() - context.get_render_parameters().camera_position, context.get_render_parameters().camera_front);
 	return vec2(z - max_range, z + max_range);
 }
 
-void PointLight::set_range(float range)
+void PointLight::set_range(const float range)
 {
 	falloff_range = range;
-	float max_range = 1.15f * min(falloff_range, cutoff_range); // Fudge factor used in vertex shader.
+	const float max_range = 1.15f * min(falloff_range, cutoff_range); // Fudge factor used in vertex shader.
 	aabb = AABB(vec3(-max_range), vec3(max_range));
 }
 
@@ -487,10 +484,10 @@ PositionalFragmentInfo PointLight::get_shader_info(const mat4 &transform) const
 {
 	// If the point light node has been scaled, renormalize this.
 	// This assumes a uniform scale.
-	float scale_factor = length(transform[0]);
+	const float scale_factor = length(transform[0]);
 
 	// This assumes a uniform scale.
-	float max_range = min(falloff_range, cutoff_range) * scale_factor;
+	const float max_range = min(falloff_range, cutoff_range) * scale_factor;
 
 	return {
 		color * (scale_factor * scale_factor),
@@ -515,9 +512,9 @@ void PointLight::get_depth_render_info(const RenderContext &, const RenderInfoCo
 	Hasher h;
 	h.u32(ecast(PositionalLight::Type::Point));
 
-	auto instance_key = h.get();
+	const auto instance_key = h.get();
 	h.pointer(func);
-	auto sorting_key = h.get();
+	const auto sorting_key = h.get();
 	auto *point = queue.allocate_one<PositionalShaderInfo>();
 
 	point->vertex.model = transform->transform->world_transform * scale(vec3(min(falloff_range, cutoff_range)));
@@ -544,7 +541,7 @@ void PointLight::get_render_info(const RenderContext &context, const RenderInfoC
                                  RenderQueue &queue) const
 {
 	auto &params = context.get_render_parameters();
-	vec2 range = get_z_range(context, transform->transform->world_transform);
+	const vec2 range = get_z_range(context, transform->transform->world_transform);
 	RenderFunc func;
 
 	if (range.x < params.z_near) // We risk clipping into the mesh, and since we can't rely on depthClamp, use backface.
@@ -564,9 +561,9 @@ void PointLight::get_render_info(const RenderContext &context, const RenderInfoC
 	else
 		h.u64(0);
 
-	auto instance_key = h.get();
+	const auto instance_key = h.get();
 	h.pointer(func);
-	auto sorting_key = h.get();
+	const auto sorting_key = h.get();
 
 	auto *point = queue.allocate_one<PositionalShaderInfo>();
 
@@ -608,12 +605,12 @@ void PointLight::get_render_info(const RenderContext &context, const RenderInfoC
 	}
 }
 
-vec2 point_light_z_range(const RenderContext &context, const vec3 &center, float radius)
+vec2 point_light_z_range(const RenderContext &context, const vec3 &center, const float radius)
 {
 	auto &pos = context.get_render_parameters().camera_position;
 	auto &front = context.get_render_parameters().camera_front;
 
-	float z = dot(center - pos, front);
+	const float z = dot(center - pos, front);
 	return vec2(z - radius, z + radius);
 }
 
@@ -622,15 +619,12 @@ vec2 spot_light_z_range(const RenderContext &context, const mat4 &model)
 	auto &pos = context.get_render_parameters().camera_position;
 	auto &front = context.get_render_parameters().camera_front;
 
-	float lo = std::numeric_limits<float>::infinity();
-	float hi = -lo;
+	const vec3 base_pos = model[3].xyz();
+	const vec3 x_off = model[0].xyz();
+	const vec3 y_off = model[1].xyz();
+	const vec3 z_off = -model[2].xyz();
 
-	vec3 base_pos = model[3].xyz();
-	vec3 x_off = model[0].xyz();
-	vec3 y_off = model[1].xyz();
-	vec3 z_off = -model[2].xyz();
-
-	vec3 z_base = base_pos + z_off;
+	const vec3 z_base = base_pos + z_off;
 
 	const vec3 world_pos[5] = {
 			base_pos,
@@ -640,9 +634,12 @@ vec2 spot_light_z_range(const RenderContext &context, const mat4 &model)
 			z_base - x_off - y_off,
 	};
 
-	for (auto &p : world_pos)
+	float lo = std::numeric_limits<float>::infinity();
+	float hi = -lo;
+
+	for (const auto &p : world_pos)
 	{
-		float z = dot(p - pos, front);
+		const float z = dot(p - pos, front);
 		lo = muglm::min(z, lo);
 		hi = muglm::max(z, hi);
 	}

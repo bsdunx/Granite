@@ -22,14 +22,16 @@
 
 #pragma once
 
-#include "renderer/scene.hpp"
-#include "renderer/render_context.hpp"
 #include "renderer/renderer.hpp"
 
 #include <vector>
 
 namespace Granite
 {
+
+class Scene;
+class RenderContext;
+class RendererSuite;
 
 class DeferredLights : public PerFrameRefreshable
 {

@@ -55,18 +55,13 @@ void VolumetricFog::on_device_destroyed(const DeviceCreatedEvent &)
 	dither_lut.reset();
 }
 
-void VolumetricFog::set_z_range(float range)
+void VolumetricFog::set_z_range(const float range)
 {
 	z_range = range;
 	slice_z_log2_scale = 1.0f / log2(1.0f + range);
 }
 
-void VolumetricFog::set_fog_density(float density)
-{
-	density_mod = density;
-}
-
-void VolumetricFog::set_resolution(unsigned width_, unsigned height_, unsigned depth_)
+void VolumetricFog::set_resolution(const unsigned width_, const unsigned height_, const unsigned depth_)
 {
 	width = width_;
 	height = height_;
@@ -87,8 +82,8 @@ void VolumetricFog::compute_slice_extents()
 {
 	for (unsigned z = 0; z < depth; z++)
 	{
-		float end_z = exp2((z + 1.0f) / (depth * get_slice_z_log2_scale())) - 1.0f;
-		float start_z = exp2(float(z) / (depth * get_slice_z_log2_scale())) - 1.0f;
+		const float end_z = exp2((z + 1.0f) / (depth * get_slice_z_log2_scale())) - 1.0f;
+		const float start_z = exp2(float(z) / (depth * get_slice_z_log2_scale())) - 1.0f;
 		slice_extents[z] = end_z - start_z;
 	}
 }
@@ -181,7 +176,7 @@ void VolumetricFog::build_light_density(CommandBuffer &cmd, ImageView &light_den
 	if (flags & Renderer::POSITIONAL_LIGHT_ENABLE_BIT)
 	{
 		// Try to enable wave-optimizations.
-		static const VkSubgroupFeatureFlags required_subgroup =
+		const VkSubgroupFeatureFlags required_subgroup =
 				VK_SUBGROUP_FEATURE_BALLOT_BIT |
 				VK_SUBGROUP_FEATURE_ARITHMETIC_BIT;
 
@@ -362,9 +357,9 @@ void VolumetricFog::build_dither_lut(Device &device)
 	std::vector<uint32_t> buffer((width * height * depth) / (4 * 4 * 4));
 	for (auto &elem : buffer)
 	{
-		uint32_t b = dist(rnd);
-		uint32_t g = dist(rnd);
-		uint32_t r = dist(rnd);
+		const uint32_t b = dist(rnd);
+		const uint32_t g = dist(rnd);
+		const uint32_t r = dist(rnd);
 		elem = (b << 20) | (g << 10) | (r << 0);
 	}
 

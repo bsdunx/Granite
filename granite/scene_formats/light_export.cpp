@@ -77,8 +77,8 @@ std::string export_lights_to_json(const DirectionalParameters &dir, Scene &scene
 		{
 			Value spot(kObjectType);
 			auto &s = *static_cast<SpotLight *>(l);
-			spot.AddMember("innerCone", s.get_inner_cone(), allocator);
-			spot.AddMember("outerCone", s.get_outer_cone(), allocator);
+			spot.AddMember("innerCone", s.inner_cone, allocator);
+			spot.AddMember("outerCone", s.outer_cone, allocator);
 			Value spot_color(kArrayType);
 			spot_color.PushBack(s.get_color().x, allocator);
 			spot_color.PushBack(s.get_color().y, allocator);
