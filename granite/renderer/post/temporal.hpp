@@ -24,6 +24,8 @@
 
 #include "math/math.hpp"
 
+#include <string>
+
 namespace Granite
 {
 

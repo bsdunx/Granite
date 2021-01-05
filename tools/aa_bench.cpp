@@ -3,6 +3,7 @@
 #include "renderer/post/aa.hpp"
 #include "renderer/post/temporal.hpp"
 #include "renderer/post/hdr.hpp"
+#include "renderer/render_graph.hpp"
 #include "threading/task_composer.hpp"
 #include "util/cli_parser.hpp"
 
