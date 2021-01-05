@@ -22,10 +22,14 @@
 
 #pragma once
 
-#include "renderer/render_graph.hpp"
+#include "vulkan/vulkan_headers.hpp"
 
 namespace Granite
 {
+
+class RenderGraph;
+
 void setup_fxaa_postprocess(RenderGraph &graph, const std::string &input, const std::string &output,
-                            VkFormat output_format = VK_FORMAT_UNDEFINED);
+                            const VkFormat output_format = VK_FORMAT_UNDEFINED);
+
 }

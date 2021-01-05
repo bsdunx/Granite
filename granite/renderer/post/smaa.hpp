@@ -22,11 +22,12 @@
 
 #pragma once
 
-#include "renderer/render_graph.hpp"
+#include <string>
 
 namespace Granite
 {
 
+class RenderGraph;
 class TemporalJitter;
 
 enum class SMAAPreset

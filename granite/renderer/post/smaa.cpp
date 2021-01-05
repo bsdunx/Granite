@@ -22,6 +22,7 @@
 
 #include "renderer/post/smaa.hpp"
 #include "renderer/post/temporal.hpp"
+#include "renderer/render_graph.hpp"
 #include "vulkan/device.hpp"
 #include "math/math.hpp"
 #include "math/muglm/matrix_helper.hpp"
@@ -36,7 +37,7 @@ void setup_smaa_postprocess(RenderGraph &graph, TemporalJitter &jitter,
                             const std::string &input, const std::string &input_depth,
                             const std::string &output, SMAAPreset preset)
 {
-	bool t2x_enable = preset == SMAAPreset::Ultra_T2X;
+	const bool t2x_enable = preset == SMAAPreset::Ultra_T2X;
 	unsigned smaa_quality = 0;
 
 	switch (preset)
@@ -122,7 +123,7 @@ void setup_smaa_postprocess(RenderGraph &graph, TemporalJitter &jitter,
 		auto &input_image = graph.get_physical_texture_resource(edge_input_res);
 		cmd.set_unorm_texture(0, 0, input_image);
 		cmd.set_sampler(0, 0, Vulkan::StockSampler::LinearClamp);
-		vec4 rt_metrics(1.0f / input_image.get_image().get_create_info().width,
+		const vec4 rt_metrics(1.0f / input_image.get_image().get_create_info().width,
 		                1.0f / input_image.get_image().get_create_info().height,
 		                float(input_image.get_image().get_create_info().width),
 		                float(input_image.get_image().get_create_info().height));
@@ -150,7 +151,7 @@ void setup_smaa_postprocess(RenderGraph &graph, TemporalJitter &jitter,
 		cmd.set_texture(0, 2,
 		                cmd.get_device().get_texture_manager().request_texture("builtin://textures/smaa/search.gtx")->get_image()->get_view(),
 		                Vulkan::StockSampler::LinearClamp);
-		vec4 rt_metrics(1.0f / input_image.get_image().get_create_info().width,
+		const vec4 rt_metrics(1.0f / input_image.get_image().get_create_info().width,
 		                1.0f / input_image.get_image().get_create_info().height,
 		                float(input_image.get_image().get_create_info().width),
 		                float(input_image.get_image().get_create_info().height));
@@ -181,7 +182,7 @@ void setup_smaa_postprocess(RenderGraph &graph, TemporalJitter &jitter,
 		auto &blend_image = graph.get_physical_texture_resource(blend_weight_res);
 		cmd.set_texture(0, 0, input_image, Vulkan::StockSampler::LinearClamp);
 		cmd.set_texture(0, 1, blend_image, Vulkan::StockSampler::LinearClamp);
-		vec4 rt_metrics(1.0f / input_image.get_image().get_create_info().width,
+		const vec4 rt_metrics(1.0f / input_image.get_image().get_create_info().width,
 		                1.0f / input_image.get_image().get_create_info().height,
 		                float(input_image.get_image().get_create_info().width),
 		                float(input_image.get_image().get_create_info().height));

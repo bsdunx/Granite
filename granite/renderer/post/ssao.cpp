@@ -22,6 +22,8 @@
 
 #include "renderer/post/ssao.hpp"
 #include "renderer/common_renderer_data.hpp"
+#include "renderer/render_graph.hpp"
+#include "renderer/render_context.hpp"
 #include "math/muglm/matrix_helper.hpp"
 #include "math/muglm/muglm_impl.hpp"
 #include "application/global_managers.hpp"
@@ -65,10 +67,10 @@ void setup_ssao_interleaved(RenderGraph &graph, const RenderContext &context,
 		cmd.set_storage_texture(0, 2, interleaved_d);
 		cmd.set_storage_texture(0, 3, interleaved_n);
 
-		unsigned padded_width = interleaved_d.get_image().get_width() * 4;
-		unsigned padded_height = interleaved_d.get_image().get_height() * 4;
-		float inv_padded_width = 1.0f / padded_width;
-		float inv_padded_height = 1.0f / padded_height;
+		const unsigned padded_width = interleaved_d.get_image().get_width() * 4;
+		const unsigned padded_height = interleaved_d.get_image().get_height() * 4;
+		const float inv_padded_width = 1.0f / padded_width;
+		const float inv_padded_height = 1.0f / padded_height;
 		cmd.set_program("builtin://shaders/post/ssao_interleave.comp");
 
 		struct Push
@@ -90,8 +92,8 @@ void setup_ssao_interleaved(RenderGraph &graph, const RenderContext &context,
 		cmd.barrier(VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_ACCESS_SHADER_WRITE_BIT,
 		            VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, VK_ACCESS_SHADER_READ_BIT);
 
-		unsigned layer_width = interleaved_d.get_image().get_width();
-		unsigned layer_height = interleaved_d.get_image().get_height();
+		const unsigned layer_width = interleaved_d.get_image().get_width();
+		const unsigned layer_height = interleaved_d.get_image().get_height();
 
 		struct SSAOData
 		{
@@ -134,7 +136,7 @@ void setup_ssao_interleaved(RenderGraph &graph, const RenderContext &context,
 		cmd.set_program("builtin://shaders/post/ssao_deinterleave.comp");
 		cmd.set_texture(0, 0, graph.get_physical_texture_resource(interleaved_ssao), Vulkan::StockSampler::NearestClamp);
 		cmd.set_storage_texture(0, 1, graph.get_physical_texture_resource(deinterleaved_ssao));
-		uvec2 final_resolution(layer_width, layer_height);
+		const uvec2 final_resolution(layer_width, layer_height);
 		cmd.push_constants(&final_resolution, 0, sizeof(final_resolution));
 		cmd.dispatch((layer_width + 7) / 8, (layer_height + 7) / 8, 16);
 	});

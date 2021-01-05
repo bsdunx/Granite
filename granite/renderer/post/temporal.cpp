@@ -22,12 +22,14 @@
 
 #include "renderer/post/temporal.hpp"
 #include "renderer/post/fxaa.hpp"
+#include "renderer/render_graph.hpp"
 #include "util/enum_cast.hpp"
 #include "math/muglm/matrix_helper.hpp"
 #include "math/muglm/muglm_impl.hpp"
 
 namespace Granite
 {
+
 TemporalJitter::TemporalJitter()
 {
 	init(Type::None, vec2(0.0f));
@@ -293,7 +295,7 @@ void setup_fxaa_2phase_postprocess(RenderGraph &graph, TemporalJitter &jitter, c
 		                           1.0f / fxaa.get_image().get_create_info().height);
 
 		auto &output_image = graph.get_physical_texture_resource(sharpen.get_color_outputs()[0]->get_physical_index());
-		bool srgb = Vulkan::format_is_srgb(output_image.get_format());
+		const bool srgb = Vulkan::format_is_srgb(output_image.get_format());
 		cmd.set_sampler(0, 0, Vulkan::StockSampler::LinearClamp);
 		if (srgb)
 			cmd.set_srgb_texture(0, 0, fxaa);
@@ -317,4 +319,5 @@ void setup_fxaa_2phase_postprocess(RenderGraph &graph, TemporalJitter &jitter, c
 		                                                });
 	});
 }
+
 }

@@ -22,13 +22,17 @@
 
 #pragma once
 
-#include "renderer/render_graph.hpp"
-#include "renderer/render_context.hpp"
+#include <string>
 
 namespace Granite
 {
+
+class RenderGraph;
+class RenderContext;
+
 void setup_ssao_interleaved(RenderGraph &graph, const RenderContext &context,
                             const std::string &output, const std::string &input_depth, const std::string &input_normal);
 void setup_ssao_naive(RenderGraph &graph, const RenderContext &context,
                       const std::string &output, const std::string &input_depth, const std::string &input_normal);
+
 }

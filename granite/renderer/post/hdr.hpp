@@ -22,10 +22,13 @@
 
 #pragma once
 
-#include "renderer/render_graph.hpp"
+#include <string>
 
 namespace Granite
 {
+
+class RenderGraph;
+
 struct HDRDynamicExposureInterface
 {
 	virtual ~HDRDynamicExposureInterface() = default;
@@ -43,4 +46,5 @@ void setup_hdr_postprocess(RenderGraph &graph, const std::string &input, const s
 void setup_hdr_postprocess_compute(RenderGraph &graph, const std::string &input, const std::string &output,
                                    const HDROptions &options,
                                    const HDRDynamicExposureInterface *iface = nullptr);
+
 }

@@ -21,11 +21,13 @@
  */
 
 #include "renderer/post/fxaa.hpp"
+#include "renderer/render_graph.hpp"
 #include "math/math.hpp"
 
 namespace Granite
 {
-void setup_fxaa_postprocess(RenderGraph &graph, const std::string &input, const std::string &output, VkFormat output_format)
+
+void setup_fxaa_postprocess(RenderGraph &graph, const std::string &input, const std::string &output, const VkFormat output_format)
 {
 	graph.get_texture_resource(input).get_attachment_info().unorm_srgb_alias = true;
 
@@ -47,11 +49,12 @@ void setup_fxaa_postprocess(RenderGraph &graph, const std::string &input, const 
 		cmd.push_constants(&inv_size, 0, sizeof(inv_size));
 
 		auto &output_image = graph.get_physical_texture_resource(fxaa.get_color_outputs()[0]->get_physical_index());
-		bool srgb = Vulkan::format_is_srgb(output_image.get_format());
+		const bool srgb = Vulkan::format_is_srgb(output_image.get_format());
 
 		Vulkan::CommandBufferUtil::draw_fullscreen_quad(cmd, "builtin://shaders/quad.vert",
 		                                                "builtin://shaders/post/fxaa.frag",
 		                                                {{"FXAA_TARGET_SRGB", srgb ? 1 : 0}});
 	});
 }
+
 }

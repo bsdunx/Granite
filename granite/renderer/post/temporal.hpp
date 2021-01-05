@@ -22,11 +22,13 @@
 
 #pragma once
 
-#include "renderer/render_graph.hpp"
 #include "math/math.hpp"
 
 namespace Granite
 {
+
+class RenderGraph;
+
 class TemporalJitter
 {
 public:
@@ -80,6 +82,8 @@ enum class TAAQuality
 	Extreme,
 	Nightmare
 };
+
 void setup_taa_resolve(RenderGraph &graph, TemporalJitter &jitter, const std::string &input,
                        const std::string &input_depth, const std::string &output, TAAQuality quality);
+
 }

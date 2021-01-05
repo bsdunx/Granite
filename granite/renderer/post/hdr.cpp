@@ -21,6 +21,7 @@
  */
 
 #include "renderer/post/hdr.hpp"
+#include "renderer/render_graph.hpp"
 #include "renderer/common_renderer_data.hpp"
 #include "vulkan/device.hpp"
 #include "application/events/application_events.hpp"
@@ -40,8 +41,8 @@ static void luminance_build_render_pass(RenderPass &pass, Vulkan::CommandBuffer 
 	cmd.set_storage_buffer(0, 0, output);
 	cmd.set_texture(0, 1, input, Vulkan::StockSampler::LinearClamp);
 
-	unsigned half_width = input.get_image().get_create_info().width / 2;
-	unsigned half_height = input.get_image().get_create_info().height / 2;
+	const unsigned half_width = input.get_image().get_create_info().width / 2;
+	const unsigned half_height = input.get_image().get_create_info().height / 2;
 
 	auto *program = cmd.get_device().get_shader_manager().register_compute("builtin://shaders/post/luminance.comp");
 	auto *variant = program->register_variant({});
@@ -71,8 +72,8 @@ static void luminance_build_compute(Vulkan::CommandBuffer &cmd, RenderGraph &gra
 	cmd.set_storage_buffer(0, 0, output);
 	cmd.set_texture(0, 1, input, Vulkan::StockSampler::LinearClamp);
 
-	unsigned half_width = input.get_image().get_create_info().width / 2;
-	unsigned half_height = input.get_image().get_create_info().height / 2;
+	const unsigned half_width = input.get_image().get_create_info().width / 2;
+	const unsigned half_height = input.get_image().get_create_info().height / 2;
 
 	auto *program = cmd.get_device().get_shader_manager().register_compute("builtin://shaders/post/luminance.comp");
 	auto *variant = program->register_variant({});
@@ -175,8 +176,7 @@ static void bloom_downsample_build_compute(Vulkan::CommandBuffer &cmd, RenderGra
 	push.inv_output_resolution.y = 1.0f / float(push.threads.y);
 	push.inv_input_resolution.x = 1.0f / float(input.get_image().get_width());
 	push.inv_input_resolution.y = 1.0f / float(input.get_image().get_height());
-	float lerp = 1.0f - pow(0.001f, Global::common_renderer_data()->frame_tick.frame_time);
-	push.lerp = lerp;
+	push.lerp = 1.0f - pow(0.001f, Global::common_renderer_data()->frame_tick.frame_time);
 
 	cmd.push_constants(&push, 0, sizeof(push));
 	cmd.dispatch((push.threads.x + 7) / 8, (push.threads.y + 7) / 8, 1);
@@ -214,7 +214,7 @@ static void bloom_upsample_build_compute(Vulkan::CommandBuffer &cmd, RenderGraph
 static void bloom_downsample_build_render_pass(RenderPass &pass, Vulkan::CommandBuffer &cmd,
                                                RenderTextureResource &input_res,
                                                RenderTextureResource *feedback_res,
-                                               bool feedback)
+                                               const bool feedback)
 {
 	auto &input = pass.get_graph().get_physical_texture_resource(input_res);
 	cmd.set_texture(0, 0, input, Vulkan::StockSampler::LinearClamp);
@@ -233,8 +233,7 @@ static void bloom_downsample_build_render_pass(RenderPass &pass, Vulkan::Command
 			push.inv_size = vec2(1.0f / input.get_image().get_create_info().width,
 			                     1.0f / input.get_image().get_create_info().height);
 
-			float lerp = 1.0f - pow(0.001f, Global::common_renderer_data()->frame_tick.frame_time);
-			push.lerp = lerp;
+			push.lerp = 1.0f - pow(0.001f, Global::common_renderer_data()->frame_tick.frame_time);
 			cmd.push_constants(&push, 0, sizeof(push));
 
 			cmd.set_texture(0, 1, *feedback_texture, Vulkan::StockSampler::NearestClamp);
@@ -245,7 +244,7 @@ static void bloom_downsample_build_render_pass(RenderPass &pass, Vulkan::Command
 		}
 		else
 		{
-			vec2 inv_size = vec2(1.0f / input.get_image().get_create_info().width,
+			const vec2 inv_size = vec2(1.0f / input.get_image().get_create_info().width,
 			                     1.0f / input.get_image().get_create_info().height);
 			cmd.push_constants(&inv_size, 0, sizeof(inv_size));
 			Vulkan::CommandBufferUtil::draw_fullscreen_quad(cmd,
@@ -255,7 +254,7 @@ static void bloom_downsample_build_render_pass(RenderPass &pass, Vulkan::Command
 	}
 	else
 	{
-		vec2 inv_size = vec2(1.0f / input.get_image().get_create_info().width,
+		const vec2 inv_size = vec2(1.0f / input.get_image().get_create_info().width,
 		                     1.0f / input.get_image().get_create_info().height);
 		cmd.push_constants(&inv_size, 0, sizeof(inv_size));
 		Vulkan::CommandBufferUtil::draw_fullscreen_quad(cmd,
@@ -268,7 +267,7 @@ static void bloom_upsample_build_render_pass(RenderPass &pass, Vulkan::CommandBu
                                              RenderTextureResource &input_res)
 {
 	auto &input = pass.get_graph().get_physical_texture_resource(input_res);
-	vec2 inv_size = vec2(1.0f / input.get_image().get_create_info().width, 1.0f / input.get_image().get_create_info().height);
+	const vec2 inv_size = vec2(1.0f / input.get_image().get_create_info().width, 1.0f / input.get_image().get_create_info().height);
 	cmd.push_constants(&inv_size, 0, sizeof(inv_size));
 	cmd.set_texture(0, 0, input, Vulkan::StockSampler::LinearClamp);
 	Vulkan::CommandBufferUtil::draw_fullscreen_quad(cmd, "builtin://shaders/quad.vert",
@@ -554,4 +553,5 @@ void setup_hdr_postprocess(RenderGraph &graph, const std::string &input, const s
 		                              });
 	}
 }
+
 }
