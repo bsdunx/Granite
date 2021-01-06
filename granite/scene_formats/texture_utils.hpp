@@ -35,14 +35,14 @@ namespace Granite::SceneFormats
 template <typename T, typename Op>
 inline void transform_texture_layout(const Vulkan::TextureFormatLayout &layout, const Op &op)
 {
-	auto levels = layout.get_levels();
-	auto layers = layout.get_layers();
+	const auto levels = layout.get_levels();
+	const auto layers = layout.get_layers();
 	for (uint32_t level = 0; level < levels; level++)
 	{
-		auto &info = layout.get_mip_info(level);
-		uint32_t width = info.block_row_length;
-		uint32_t height = info.block_image_height;
-		uint32_t depth = info.depth;
+		const auto &info = layout.get_mip_info(level);
+		const uint32_t width = info.block_row_length;
+		const uint32_t height = info.block_image_height;
+		const uint32_t depth = info.depth;
 		for (uint32_t layer = 0; layer < layers; layer++)
 		{
 			for (uint32_t z = 0; z < depth; z++)
@@ -61,9 +61,9 @@ inline void transform_texture_layout(const Vulkan::TextureFormatLayout &layout, 
 	}
 }
 
-MemoryMappedTexture generate_mipmaps(const Vulkan::TextureFormatLayout &layout, MemoryMappedTextureFlags flags);
-MemoryMappedTexture generate_mipmaps_to_file(const std::string &path, const Vulkan::TextureFormatLayout &layout, MemoryMappedTextureFlags flags);
-MemoryMappedTexture fixup_alpha_edges(const Vulkan::TextureFormatLayout &layout, MemoryMappedTextureFlags flags);
+MemoryMappedTexture generate_mipmaps(const Vulkan::TextureFormatLayout &layout, const MemoryMappedTextureFlags flags);
+MemoryMappedTexture generate_mipmaps_to_file(const std::string &path, const Vulkan::TextureFormatLayout &layout, const MemoryMappedTextureFlags flags);
+MemoryMappedTexture fixup_alpha_edges(const Vulkan::TextureFormatLayout &layout, const MemoryMappedTextureFlags flags);
 
 bool swizzle_image(MemoryMappedTexture &texture, const VkComponentMapping &swizzle);
 
@@ -73,6 +73,6 @@ enum class TransparencyType
 	Binary,
 	Floating
 };
-TransparencyType image_slice_contains_transparency(const Vulkan::TextureFormatLayout &layout, unsigned layer, unsigned level);
+TransparencyType image_slice_contains_transparency(const Vulkan::TextureFormatLayout &layout, const unsigned layer, const unsigned level);
 
 }

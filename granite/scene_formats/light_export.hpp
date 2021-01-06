@@ -29,6 +29,7 @@ namespace Granite
 
 struct DirectionalParameters;
 class Scene;
+
 std::string export_lights_to_json(const DirectionalParameters &directional, Scene &scene);
 
 }

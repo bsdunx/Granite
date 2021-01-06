@@ -22,11 +22,15 @@
 
 #pragma once
 
-#include "scene_formats/scene_formats.hpp"
 #include "scene_formats/texture_compression.hpp"
+#include "math/muglm/muglm.hpp"
+
+using namespace muglm;
 
 namespace Granite::SceneFormats
 {
+
+struct SceneInformation;
 
 enum class TextureCompression
 {

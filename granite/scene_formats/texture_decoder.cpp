@@ -132,7 +132,7 @@ static VkFormat compressed_format_to_decoded_format(VkFormat format)
 
 static VkFormat compressed_format_to_payload_format(VkFormat format)
 {
-	auto block_size = Vulkan::TextureFormatLayout::format_block_size(format, VK_IMAGE_ASPECT_COLOR_BIT);
+	const auto block_size = Vulkan::TextureFormatLayout::format_block_size(format, VK_IMAGE_ASPECT_COLOR_BIT);
 
 	if (block_size == 4)
 		return VK_FORMAT_R32_UINT;
@@ -188,10 +188,12 @@ static VkFormat to_storage_format(VkFormat format, VkFormat orig_format = VK_FOR
 
 struct ASTCQuantizationMode
 {
-	uint8_t bits, trits, quints;
+	uint8_t bits;
+	uint8_t trits;
+	uint8_t quints;
 };
 
-static void build_astc_unquant_weight_lut(uint8_t *lut, size_t range, const ASTCQuantizationMode &mode)
+static void build_astc_unquant_weight_lut(uint8_t *lut, const size_t range, const ASTCQuantizationMode &mode)
 {
 	for (size_t i = 0; i < range; i++)
 	{
@@ -245,7 +247,7 @@ static void build_astc_unquant_weight_lut(uint8_t *lut, size_t range, const ASTC
 
 			if (mode.trits)
 			{
-				static const unsigned Cs[3] = { 50, 23, 11 };
+				const unsigned Cs[3] = { 50, 23, 11 };
 				C = Cs[mode.bits - 1];
 				if (mode.bits == 2)
 					B = 0x45 * b;
@@ -254,7 +256,7 @@ static void build_astc_unquant_weight_lut(uint8_t *lut, size_t range, const ASTC
 			}
 			else
 			{
-				static const unsigned Cs[2] = { 28, 13 };
+				const unsigned Cs[2] = { 28, 13 };
 				C = Cs[mode.bits - 1];
 				if (mode.bits == 2)
 					B = 0x42 * b;
@@ -331,7 +333,7 @@ static void build_astc_unquant_endpoint_lut(uint8_t *lut, size_t range, const AS
 
 			if (mode.trits)
 			{
-				static const unsigned Cs[6] = { 204, 93, 44, 22, 11, 5 };
+				const unsigned Cs[6] = { 204, 93, 44, 22, 11, 5 };
 				C = Cs[mode.bits - 1];
 
 				switch (mode.bits)
@@ -359,7 +361,7 @@ static void build_astc_unquant_endpoint_lut(uint8_t *lut, size_t range, const AS
 			}
 			else
 			{
-				static const unsigned Cs[5] = { 113, 54, 26, 13, 6 };
+				const unsigned Cs[5] = { 113, 54, 26, 13, 6 };
 				C = Cs[mode.bits - 1];
 
 				switch (mode.bits)
@@ -408,7 +410,7 @@ static void setup_astc_lut_color_endpoint(Vulkan::CommandBuffer &cmd)
 	// In order to decode color endpoints, we need to convert available bits and number of values
 	// into a format of (bits, trits, quints). A simple LUT texture is a reasonable approach for this.
 	// Decoders are expected to have some form of LUT to deal with this ...
-	static const ASTCQuantizationMode potential_modes[] = {
+	const ASTCQuantizationMode potential_modes[] = {
 		{ 8, 0, 0 },
 		{ 6, 1, 0 },
 		{ 5, 0, 1 },
@@ -507,7 +509,7 @@ static void setup_astc_lut_color_endpoint(Vulkan::CommandBuffer &cmd)
 
 static void setup_astc_lut_weights(Vulkan::CommandBuffer &cmd)
 {
-	static const ASTCQuantizationMode weight_modes[] = {
+	const ASTCQuantizationMode weight_modes[] = {
 		{ 0, 0, 0 }, // Invalid
 		{ 0, 0, 0 }, // Invalid
 		{ 1, 0, 0 },
@@ -757,14 +759,14 @@ static int astc_select_partition(int seed, int x, int y, int z, int partitioncou
 		return 3;
 }
 
-static void setup_astc_lut_partition_table(Vulkan::CommandBuffer &cmd, VkFormat format)
+static void setup_astc_lut_partition_table(Vulkan::CommandBuffer &cmd, const VkFormat format)
 {
 	uint32_t block_width, block_height;
 	Vulkan::TextureFormatLayout::format_block_dim(format, block_width, block_height);
-	bool small_block = (block_width * block_height) < 31;
+	const bool small_block = (block_width * block_height) < 31;
 
-	unsigned lut_width = block_width * 32;
-	unsigned lut_height = block_height * 32;
+	const unsigned lut_width = block_width * 32;
+	const unsigned lut_height = block_height * 32;
 	std::vector<uint8_t> lut_buffer(lut_width * lut_height);
 
 	for (unsigned seed_y = 0; seed_y < 32; seed_y++)
@@ -794,7 +796,7 @@ static void setup_astc_lut_partition_table(Vulkan::CommandBuffer &cmd, VkFormat 
 	cmd.set_texture(1, 5, lut_image->get_view());
 }
 
-static void setup_astc_luts(Vulkan::CommandBuffer &cmd, VkFormat format)
+static void setup_astc_luts(Vulkan::CommandBuffer &cmd, const VkFormat format)
 {
 	setup_astc_lut_color_endpoint(cmd);
 	setup_astc_lut_weights(cmd);
@@ -802,7 +804,7 @@ static void setup_astc_luts(Vulkan::CommandBuffer &cmd, VkFormat format)
 	setup_astc_lut_partition_table(cmd, format);
 }
 
-static bool set_compute_decoder(Vulkan::CommandBuffer &cmd, VkFormat format)
+static bool set_compute_decoder(Vulkan::CommandBuffer &cmd, const VkFormat format)
 {
 	switch (format)
 	{
@@ -899,7 +901,7 @@ static bool set_compute_decoder(Vulkan::CommandBuffer &cmd, VkFormat format)
 	return true;
 }
 
-static void dispatch_kernel_eac(Vulkan::CommandBuffer &cmd, uint32_t width, uint32_t height, VkFormat format)
+static void dispatch_kernel_eac(Vulkan::CommandBuffer &cmd, const uint32_t width, const uint32_t height, const VkFormat format)
 {
 	struct Push
 	{
@@ -913,12 +915,10 @@ static void dispatch_kernel_eac(Vulkan::CommandBuffer &cmd, uint32_t width, uint
 	cmd.set_specialization_constant_mask(1);
 	cmd.set_specialization_constant(0, uint32_t(format == VK_FORMAT_EAC_R11G11_UNORM_BLOCK ? 2 : 1));
 
-	width = (width + 7) / 8;
-	height = (height + 7) / 8;
-	cmd.dispatch(width, height, 1);
+	cmd.dispatch((width + 7) / 8, (height + 7) / 8, 1);
 }
 
-static void dispatch_kernel_bc6(Vulkan::CommandBuffer &cmd, uint32_t width, uint32_t height, VkFormat format)
+static void dispatch_kernel_bc6(Vulkan::CommandBuffer &cmd, const uint32_t width, const uint32_t height, const VkFormat format)
 {
 	struct Push
 	{
@@ -932,12 +932,10 @@ static void dispatch_kernel_bc6(Vulkan::CommandBuffer &cmd, uint32_t width, uint
 	cmd.set_specialization_constant_mask(1);
 	cmd.set_specialization_constant(0, uint32_t(format == VK_FORMAT_BC6H_SFLOAT_BLOCK));
 
-	width = (width + 7) / 8;
-	height = (height + 7) / 8;
-	cmd.dispatch(width, height, 1);
+	cmd.dispatch((width + 7) / 8, (height + 7) / 8, 1);
 }
 
-static void dispatch_kernel_astc(Vulkan::CommandBuffer &cmd, uint32_t width, uint32_t height, VkFormat format)
+static void dispatch_kernel_astc(Vulkan::CommandBuffer &cmd, const uint32_t width, const uint32_t height, const VkFormat format)
 {
 	struct Push
 	{
@@ -986,7 +984,7 @@ static void dispatch_kernel_astc(Vulkan::CommandBuffer &cmd, uint32_t width, uin
 	             1);
 }
 
-static void dispatch_kernel_bc7(Vulkan::CommandBuffer &cmd, uint32_t width, uint32_t height, VkFormat)
+static void dispatch_kernel_bc7(Vulkan::CommandBuffer &cmd, const uint32_t width, const uint32_t height, const VkFormat)
 {
 	struct Push
 	{
@@ -997,12 +995,10 @@ static void dispatch_kernel_bc7(Vulkan::CommandBuffer &cmd, uint32_t width, uint
 	push.height = height;
 	cmd.push_constants(&push, 0, sizeof(push));
 
-	width = (width + 7) / 8;
-	height = (height + 7) / 8;
-	cmd.dispatch(width, height, 1);
+	cmd.dispatch((width + 7) / 8, (height + 7) / 8, 1);
 }
 
-static void dispatch_kernel_etc2(Vulkan::CommandBuffer &cmd, uint32_t width, uint32_t height, VkFormat format)
+static void dispatch_kernel_etc2(Vulkan::CommandBuffer &cmd, const uint32_t width, const uint32_t height, const VkFormat format)
 {
 	struct Push
 	{
@@ -1035,12 +1031,10 @@ static void dispatch_kernel_etc2(Vulkan::CommandBuffer &cmd, uint32_t width, uin
 		break;
 	}
 
-	width = (width + 7) / 8;
-	height = (height + 7) / 8;
-	cmd.dispatch(width, height, 1);
+	cmd.dispatch((width + 7) / 8, (height + 7) / 8, 1);
 }
 
-static void dispatch_kernel_rgtc(Vulkan::CommandBuffer &cmd, uint32_t width, uint32_t height, VkFormat format)
+static void dispatch_kernel_rgtc(Vulkan::CommandBuffer &cmd, const uint32_t width, const uint32_t height, const VkFormat format)
 {
 	struct Push
 	{
@@ -1054,12 +1048,10 @@ static void dispatch_kernel_rgtc(Vulkan::CommandBuffer &cmd, uint32_t width, uin
 	cmd.set_specialization_constant_mask(1);
 	cmd.set_specialization_constant(0, uint32_t(format == VK_FORMAT_BC5_UNORM_BLOCK));
 
-	width = (width + 7) / 8;
-	height = (height + 7) / 8;
-	cmd.dispatch(width, height, 1);
+	cmd.dispatch((width + 7) / 8, (height + 7) / 8, 1);
 }
 
-static void dispatch_kernel_s3tc(Vulkan::CommandBuffer &cmd, uint32_t width, uint32_t height, VkFormat format)
+static void dispatch_kernel_s3tc(Vulkan::CommandBuffer &cmd, const uint32_t width, const uint32_t height, const VkFormat format)
 {
 	struct Push
 	{
@@ -1107,12 +1099,10 @@ static void dispatch_kernel_s3tc(Vulkan::CommandBuffer &cmd, uint32_t width, uin
 		break;
 	}
 
-	width = (width + 7) / 8;
-	height = (height + 7) / 8;
-	cmd.dispatch(width, height, 1);
+	cmd.dispatch((width + 7) / 8, (height + 7) / 8, 1);
 }
 
-static void dispatch_kernel(Vulkan::CommandBuffer &cmd, uint32_t width, uint32_t height, VkFormat format)
+static void dispatch_kernel(Vulkan::CommandBuffer &cmd, const uint32_t width, const uint32_t height, const VkFormat format)
 {
 	switch (format)
 	{
@@ -1309,8 +1299,8 @@ Vulkan::ImageHandle decode_compressed_image(Vulkan::CommandBuffer &cmd, const Vu
 
 	for (unsigned level = 0; level < layout.get_levels(); level++)
 	{
-		uint32_t mip_width = layout.get_width(level);
-		uint32_t mip_height = layout.get_height(level);
+		const uint32_t mip_width = layout.get_width(level);
+		const uint32_t mip_height = layout.get_height(level);
 
 		for (unsigned layer = 0; layer < layout.get_layers(); layer++)
 		{

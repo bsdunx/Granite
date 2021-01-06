@@ -43,18 +43,18 @@ using MemoryMappedTextureFlags = uint32_t;
 class MemoryMappedTexture
 {
 public:
-	void set_1d(VkFormat format, uint32_t width, uint32_t layers = 1, uint32_t levels = 1);
-	void set_2d(VkFormat format, uint32_t width, uint32_t height, uint32_t layers = 1, uint32_t levels = 1);
-	void set_3d(VkFormat format, uint32_t width, uint32_t height, uint32_t depth, uint32_t levels = 1);
-	void set_cube(VkFormat format, uint32_t size, uint32_t cube_layers = 1, uint32_t levels = 1);
+	void set_1d(const VkFormat format, const uint32_t width, const uint32_t layers = 1, const uint32_t levels = 1);
+	void set_2d(const VkFormat format, const uint32_t width, const uint32_t height, const uint32_t layers = 1, const uint32_t levels = 1);
+	void set_3d(const VkFormat format, const uint32_t width, const uint32_t height, const uint32_t depth, const uint32_t levels = 1);
+	void set_cube(const VkFormat format, const uint32_t size, const uint32_t cube_layers = 1, const uint32_t levels = 1);
 
-	static bool is_header(const void *mapped, size_t size);
+	static bool is_header(const void *mapped, const size_t size);
 
 	bool map_write(const std::string &path);
 	bool map_write(std::unique_ptr<Granite::File> file, void *mapped);
 	bool map_read(const std::string &path);
 	bool map_read(std::unique_ptr<Granite::File> file, void *mapped);
-	bool map_copy(const void *mapped, size_t size);
+	bool map_copy(const void *mapped, const size_t size);
 	bool map_write_scratch();
 	bool copy_to_path(const std::string &path);
 	void make_local_copy();
@@ -64,10 +64,10 @@ public:
 		return layout;
 	}
 
-	void set_generate_mipmaps_on_load(bool enable = true);
+	void set_generate_mipmaps_on_load(const bool enable = true);
 
 	MemoryMappedTextureFlags get_flags() const;
-	void set_flags(MemoryMappedTextureFlags flags);
+	void set_flags(const MemoryMappedTextureFlags flags);
 
 	size_t get_required_size() const;
 	void set_swizzle(const VkComponentMapping &swizzle);

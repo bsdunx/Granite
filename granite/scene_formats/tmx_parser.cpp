@@ -35,8 +35,7 @@ using namespace Granite;
 
 static std::vector<TMXParser::Property> parse_properties(const Value &properties)
 {
-	std::vector<TMXParser::Property> props;
-	props.reserve(properties.GetArray().Size());
+	std::vector<TMXParser::Property> props(properties.GetArray().Size());
 
 	for (auto itr = properties.Begin(); itr != properties.End(); ++itr)
 	{
@@ -61,19 +60,19 @@ static std::vector<TMXParser::Property> parse_properties(const Value &properties
 			const char *hex = value.GetString();
 			if (hex[0] != '#')
 				throw std::logic_error("Invalid color property format.");
-			size_t len = strlen(hex);
+			const size_t len = strlen(hex);
 			uint8_t r = 0, g = 0, b = 0, a = 255;
 
 			if (len == 7)
 			{
-				auto rgb = strtoul(hex + 1, nullptr, 16);
+				const auto rgb = strtoul(hex + 1, nullptr, 16);
 				r = uint8_t(rgb >> 16);
 				g = uint8_t(rgb >> 8);
 				b = uint8_t(rgb >> 0);
 			}
 			else if (len == 9)
 			{
-				auto rgb = strtoul(hex + 1, nullptr, 16);
+				const auto rgb = strtoul(hex + 1, nullptr, 16);
 				r = uint8_t(rgb >> 16);
 				g = uint8_t(rgb >> 8);
 				b = uint8_t(rgb >> 0);
@@ -232,7 +231,7 @@ void TMXParser::parse(const std::string &base_path, const std::string &json)
 		if (file.get_layout().get_format() != VK_FORMAT_R8G8B8A8_SRGB)
 			throw std::runtime_error("Unexpected format.");
 
-		unsigned rows = tileset.num_tiles / tileset.columns;
+		const unsigned rows = tileset.num_tiles / tileset.columns;
 		for (unsigned y = 0; y < rows; y++)
 		{
 			for (unsigned x = 0; x < tileset.columns; x++)
@@ -248,7 +247,7 @@ void TMXParser::parse(const std::string &base_path, const std::string &json)
 				base_y += y * tile_size.x;
 
 				copy_tile(tilemap.get_layout(), tile_dst_index, file.get_layout(), base_x, base_y);
-				auto transparency_type = SceneFormats::image_slice_contains_transparency(tilemap.get_layout(), tile_dst_index, 0);
+				const auto transparency_type = SceneFormats::image_slice_contains_transparency(tilemap.get_layout(), tile_dst_index, 0);
 
 				auto &pipeline = tiles[tile_dst_index].pipeline;
 
@@ -274,7 +273,7 @@ void TMXParser::parse(const std::string &base_path, const std::string &json)
 
 	tilemap = SceneFormats::fixup_alpha_edges(tilemap.get_layout(), 0);
 
-	const auto find_tileset = [&](unsigned index) -> const Tileset * {
+	const auto find_tileset = [&](const unsigned index) -> const Tileset * {
 		for (auto &tileset : tilesets)
 			if (index >= tileset.first_gid && index < tileset.first_gid + tileset.num_tiles)
 				return &tileset;
@@ -290,7 +289,7 @@ void TMXParser::parse(const std::string &base_path, const std::string &json)
 			if (index < 0)
 				continue;
 
-			auto *tileset = find_tileset(index);
+			const auto *tileset = find_tileset(index);
 			if (tileset)
 				index += tileset->gid_offset;
 			else
@@ -299,8 +298,8 @@ void TMXParser::parse(const std::string &base_path, const std::string &json)
 	}
 }
 
-void TMXParser::copy_tile(const Vulkan::TextureFormatLayout &dst_layout, unsigned layer,
-                          const Vulkan::TextureFormatLayout &src_layout, unsigned base_x, unsigned base_y)
+void TMXParser::copy_tile(const Vulkan::TextureFormatLayout &dst_layout, const unsigned layer,
+                          const Vulkan::TextureFormatLayout &src_layout, const unsigned base_x, const unsigned base_y)
 {
 	if (base_x + tile_size.x > src_layout.get_width())
 		throw std::runtime_error("Accessing texture out of bounds.");
@@ -341,4 +340,3 @@ const std::vector<TMXParser::Tile> &TMXParser::get_tiles() const
 {
 	return tiles;
 }
-

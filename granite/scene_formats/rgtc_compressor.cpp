@@ -29,9 +29,9 @@
 namespace Granite
 {
 
-static const int range_threshold = 16;
-static const int div_7 = (0x100000) / 7;
-static const int div_5 = (0x100000) / 5;
+const int range_threshold = 16;
+const int div_7 = (0x100000) / 7;
+const int div_5 = (0x100000) / 5;
 
 class DividerLut
 {
@@ -54,12 +54,12 @@ public:
 		}
 	}
 
-	int lut7(int index) const
+	int lut7(const int index) const
 	{
 		return lut_7[index];
 	}
 
-	int lut5(int index) const
+	int lut5(const int index) const
 	{
 		return lut_5[index];
 	}
@@ -72,8 +72,8 @@ static DividerLut divider_lut;
 
 void decompress_rgtc_red_block(uint8_t *output_r, const uint8_t *block)
 {
-	uint8_t red0 = block[0];
-	uint8_t red1 = block[1];
+	const uint8_t red0 = block[0];
+	const uint8_t red1 = block[1];
 	uint64_t bits = 0;
 
 	for (int i = 0; i < 6; i++)
@@ -83,7 +83,7 @@ void decompress_rgtc_red_block(uint8_t *output_r, const uint8_t *block)
 	{
 		for (int i = 0; i < 16; i++)
 		{
-			int code = int((bits >> (3 * i)) & 7);
+			const int code = int((bits >> (3 * i)) & 7);
 			switch (code)
 			{
 			default:
@@ -125,7 +125,7 @@ void decompress_rgtc_red_block(uint8_t *output_r, const uint8_t *block)
 	{
 		for (int i = 0; i < 16; i++)
 		{
-			int code = int((bits >> (3 * i)) & 7);
+			const int code = int((bits >> (3 * i)) & 7);
 			switch (code)
 			{
 			default:
@@ -180,7 +180,7 @@ void compress_rgtc_red_block(uint8_t *output_r, const uint8_t *input_r)
 	uint8_t encode_0 = 0;
 	uint8_t encode_1 = 0;
 
-	int range = block_hi - block_lo;
+	const int range = block_hi - block_lo;
 
 	if (range == 0)
 	{
@@ -190,7 +190,7 @@ void compress_rgtc_red_block(uint8_t *output_r, const uint8_t *input_r)
 	else if (range < range_threshold)
 	{
 		// Simple case, range is small enough that we can directly quantize and be done with it.
-		int divider = divider_lut.lut7(range);
+		const int divider = divider_lut.lut7(range);
 
 		encode_0 = uint8_t(block_hi);
 		encode_1 = uint8_t(block_lo);
@@ -212,7 +212,7 @@ void compress_rgtc_red_block(uint8_t *output_r, const uint8_t *input_r)
 	}
 	else
 	{
-		int divider = divider_lut.lut7(range);
+		const int divider = divider_lut.lut7(range);
 		encode_0 = uint8_t(block_hi);
 		encode_1 = uint8_t(block_lo);
 
@@ -234,7 +234,7 @@ void compress_rgtc_red_block(uint8_t *output_r, const uint8_t *input_r)
 			else
 				code = 8 - code;
 
-			int diff = interpolated_value - input_r[i];
+			const int diff = interpolated_value - input_r[i];
 			best_error += diff * diff;
 
 			block |= uint64_t(code) << (3 * i);
@@ -249,34 +249,34 @@ void compress_rgtc_red_block(uint8_t *output_r, const uint8_t *input_r)
 		{
 			for (int hi = lo; hi < 15; hi++)
 			{
-				int partition_lo = sorted_block[lo];
-				int partition_hi = sorted_block[hi];
+				const int partition_lo = sorted_block[lo];
+				const int partition_hi = sorted_block[hi];
 				assert(partition_hi >= partition_lo);
-				int partition_range = partition_hi - partition_lo;
-				int partition_divider = divider_lut.lut5(partition_range);
+				const int partition_range = partition_hi - partition_lo;
+				const int partition_divider = divider_lut.lut5(partition_range);
 
 				int error = 0;
 
 				// Consider that we can quantize to 0.0 as well.
 				for (int i = 0; i < lo; i++)
 				{
-					int diff = std::min(sorted_block[i] - 0, partition_lo - sorted_block[i]);
+					const int diff = std::min(sorted_block[i] - 0, partition_lo - sorted_block[i]);
 					error += diff * diff;
 				}
 
 				for (int i = lo; i <= hi; i++)
 				{
-					int code = ((sorted_block[i] - partition_lo) * partition_divider + 0x80000) >> 20;
+					const int code = ((sorted_block[i] - partition_lo) * partition_divider + 0x80000) >> 20;
 					assert(code <= 7);
-					int interpolated_value = partition_lo + ((partition_range * code * div_5 + 0x80000) >> 20);
-					int diff = interpolated_value - sorted_block[i];
+					const int interpolated_value = partition_lo + ((partition_range * code * div_5 + 0x80000) >> 20);
+					const int diff = interpolated_value - sorted_block[i];
 					error += diff * diff;
 				}
 
 				// Consider that we can quantize to 1.0 as well.
 				for (int i = hi + 1; i <= 15; i++)
 				{
-					int diff = std::min(255 - sorted_block[i], sorted_block[i] - partition_hi);
+					const int diff = std::min(255 - sorted_block[i], sorted_block[i] - partition_hi);
 					error += diff * diff;
 				}
 
@@ -293,15 +293,15 @@ void compress_rgtc_red_block(uint8_t *output_r, const uint8_t *input_r)
 		// Did we find a better partition?
 		if (use_5_weight)
 		{
-			int partition_lo = sorted_block[lo_index];
-			int partition_hi = sorted_block[hi_index];
+			const int partition_lo = sorted_block[lo_index];
+			const int partition_hi = sorted_block[hi_index];
 			encode_0 = uint8_t(partition_lo);
 			encode_1 = uint8_t(partition_hi);
 
 			block = 0;
 			assert(partition_hi >= partition_lo);
-			int partition_range = partition_hi - partition_lo;
-			int partition_divider = divider_lut.lut5(partition_range);
+			const int partition_range = partition_hi - partition_lo;
+			const int partition_divider = divider_lut.lut5(partition_range);
 
 			for (int i = 0; i < 16; i++)
 			{

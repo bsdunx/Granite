@@ -27,37 +27,37 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 namespace OBJ
 {
 
 using namespace Granite;
-using namespace Granite::SceneFormats;
 
 class Parser
 {
 public:
 	explicit Parser(const std::string &path);
 
-	const std::vector<Mesh> &get_meshes() const
+	const std::vector<SceneFormats::Mesh> &get_meshes() const
 	{
 		return meshes;
 	}
 
-	const std::vector<MaterialInfo> &get_materials() const
+	const std::vector<SceneFormats::MaterialInfo> &get_materials() const
 	{
 		return materials;
 	}
 
-	const std::vector<Node> &get_nodes() const
+	const std::vector<SceneFormats::Node> &get_nodes() const
 	{
 		return nodes;
 	}
 
 private:
-	std::vector<MaterialInfo> materials;
-	std::vector<Node> nodes;
-	std::vector<Mesh> meshes;
+	std::vector<SceneFormats::MaterialInfo> materials;
+	std::vector<SceneFormats::Node> nodes;
+	std::vector<SceneFormats::Mesh> meshes;
 	std::unordered_map<std::string, unsigned> material_library;
 
 	std::vector<vec3> positions;
@@ -75,7 +75,7 @@ private:
 	void emit_vertex(const OBJVertex * const *face);
 	void emit_gltf_pbr_metallic_roughness(const std::string &metallic, const std::string &roughness);
 	void emit_gltf_base_color(const std::string &metallic, const std::string &roughness);
-	Node root_node;
+	SceneFormats::Node root_node;
 };
 
 }

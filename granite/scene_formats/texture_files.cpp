@@ -31,7 +31,7 @@
 namespace Granite
 {
 
-static SceneFormats::MemoryMappedTexture load_stb(const void *data, size_t size, ColorSpace color)
+static SceneFormats::MemoryMappedTexture load_stb(const void *data, const size_t size, const ColorSpace color)
 {
 	int width, height;
 	int components;
@@ -51,7 +51,7 @@ static SceneFormats::MemoryMappedTexture load_stb(const void *data, size_t size,
 	return tex;
 }
 
-static SceneFormats::MemoryMappedTexture load_hdr(const void *data, size_t size)
+static SceneFormats::MemoryMappedTexture load_hdr(const void *data, const size_t size)
 {
 	int width, height;
 	int components;
@@ -72,17 +72,17 @@ static SceneFormats::MemoryMappedTexture load_hdr(const void *data, size_t size)
 	return tex;
 }
 
-SceneFormats::MemoryMappedTexture load_texture_from_memory(const void *data, size_t size, ColorSpace color)
+SceneFormats::MemoryMappedTexture load_texture_from_memory(const void *data, const size_t size, const ColorSpace color)
 {
-	static const uint8_t png_magic[] = {
+	const uint8_t png_magic[] = {
 		0x89, 'P', 'N', 'G', 0x0d, 0x0a, 0x1a, 0x0a,
 	};
 
-	static const uint8_t jpg_magic[] = {
+	const uint8_t jpg_magic[] = {
 		0xff, 0xd8,
 	};
 
-	static const uint8_t hdr_magic[] = {
+	const uint8_t hdr_magic[] = {
 		0x23, 0x3f, 0x52, 0x41, 0x44, 0x49, 0x41, 0x4e, 0x43, 0x45, 0x0a,
 	};
 
@@ -105,7 +105,7 @@ SceneFormats::MemoryMappedTexture load_texture_from_memory(const void *data, siz
 	}
 }
 
-SceneFormats::MemoryMappedTexture load_texture_from_file(const std::string &path, ColorSpace color)
+SceneFormats::MemoryMappedTexture load_texture_from_file(const std::string &path, const ColorSpace color)
 {
 	auto file = Granite::Global::filesystem()->open(path, FileMode::ReadOnly);
 	if (!file)

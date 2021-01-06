@@ -21,6 +21,7 @@
  */
 
 #include "scene_formats/gltf_export.hpp"
+#include "scene_formats/scene_formats.hpp"
 #include "scene_formats/texture_compression.hpp"
 #include "scene_formats/texture_files.hpp"
 #include "scene_formats/texture_utils.hpp"
@@ -256,8 +257,8 @@ Hash RemapState::hash(const Mesh &m)
 		h.u32(material.to_index[m.material_index]);
 	h.data(reinterpret_cast<const uint8_t *>(m.attribute_layout), sizeof(m.attribute_layout));
 
-	auto lo = m.static_aabb.get_minimum();
-	auto hi = m.static_aabb.get_maximum();
+	const auto lo = m.static_aabb.get_minimum();
+	const auto hi = m.static_aabb.get_maximum();
 	h.f32(lo.x);
 	h.f32(lo.y);
 	h.f32(lo.z);
@@ -305,7 +306,7 @@ Hash RemapState::hash(const MaterialInfo &mat)
 template<typename StateType, typename SceneType>
 void RemapState::filter_input(StateType &output, const SceneType &input)
 {
-	for (auto &i : input)
+	for (const auto &i : input)
 	{
 		auto h = hash(i);
 		auto itr = output.hashmap.find(h);
@@ -329,9 +330,8 @@ unsigned RemapState::emit_buffer(ArrayView<const uint8_t> view)
 
 	if (itr == end(buffer_hash))
 	{
-		unsigned index = buffer_views.size();
-		size_t offset = glb_buffer_data.size();
-		offset = (offset + 15) & ~15;
+		const unsigned index = buffer_views.size();
+		const size_t offset = (glb_buffer_data.size() + 15) & ~15;
 		glb_buffer_data.resize(offset + view.size());
 		memcpy(glb_buffer_data.data() + offset, view.data(), view.size());
 		buffer_views.push_back({offset, view.size()});
@@ -362,7 +362,7 @@ unsigned RemapState::emit_buffer(ArrayView<const uint8_t> view)
 #define GL_NEAREST_MIPMAP_LINEAR          0x2702
 #define GL_LINEAR_MIPMAP_LINEAR           0x2703
 
-static const char *get_accessor_type(VkFormat format)
+static const char *get_accessor_type(const VkFormat format)
 {
 	switch (format)
 	{
@@ -429,7 +429,7 @@ static const char *get_accessor_type(VkFormat format)
 	}
 }
 
-static bool get_accessor_normalized(VkFormat format)
+static bool get_accessor_normalized(const VkFormat format)
 {
 	switch (format)
 	{
@@ -458,7 +458,7 @@ static bool get_accessor_normalized(VkFormat format)
 	}
 }
 
-static unsigned get_accessor_component(VkFormat format)
+static unsigned get_accessor_component(const VkFormat format)
 {
 	switch (format)
 	{
@@ -536,14 +536,14 @@ static unsigned get_accessor_component(VkFormat format)
 	}
 }
 
-static void set_accessor_type(EmittedAccessor &accessor, VkFormat format)
+static void set_accessor_type(EmittedAccessor &accessor, const VkFormat format)
 {
 	accessor.component = get_accessor_component(format);
 	accessor.type = get_accessor_type(format);
 	accessor.normalized = get_accessor_normalized(format);
 }
 
-unsigned RemapState::emit_accessor(unsigned view_index, VkFormat format, unsigned offset, unsigned count)
+unsigned RemapState::emit_accessor(const unsigned view_index, const VkFormat format, const unsigned offset, const unsigned count)
 {
 	Hasher h;
 	h.u32(view_index);
@@ -554,7 +554,7 @@ unsigned RemapState::emit_accessor(unsigned view_index, VkFormat format, unsigne
 	const auto itr = accessor_hash.find(h.get());
 	if (itr == end(accessor_hash))
 	{
-		unsigned index = accessor_cache.size();
+		const unsigned index = accessor_cache.size();
 		EmittedAccessor acc = {};
 		acc.count = count;
 		acc.view = view_index;
@@ -569,7 +569,7 @@ unsigned RemapState::emit_accessor(unsigned view_index, VkFormat format, unsigne
 		return itr->second;
 }
 
-unsigned RemapState::emit_sampler(Vulkan::StockSampler sampler)
+unsigned RemapState::emit_sampler(const Vulkan::StockSampler sampler)
 {
 	Hasher h;
 	h.u32(ecast(sampler));
@@ -577,7 +577,7 @@ unsigned RemapState::emit_sampler(Vulkan::StockSampler sampler)
 	const auto itr = sampler_hash.find(h.get());
 	if (itr == end(sampler_hash))
 	{
-		unsigned index = sampler_cache.size();
+		const unsigned index = sampler_cache.size();
 		sampler_hash[h.get()] = index;
 
 		unsigned mag_filter = 0, min_filter = 0, wrap_s = 0, wrap_t = 0;
@@ -637,8 +637,8 @@ unsigned RemapState::emit_sampler(Vulkan::StockSampler sampler)
 		return itr->second;
 }
 
-unsigned RemapState::emit_image(const MaterialInfo::Texture &texture, Material::Textures type,
-                                TextureCompressionFamily compression, unsigned quality, TextureMode mode)
+unsigned RemapState::emit_image(const MaterialInfo::Texture &texture, const Material::Textures type,
+                                const TextureCompressionFamily compression, const unsigned quality, const TextureMode mode)
 {
 	Hasher h;
 	h.string(texture.path);
@@ -650,10 +650,10 @@ unsigned RemapState::emit_image(const MaterialInfo::Texture &texture, Material::
 	const auto itr = image_hash.find(h.get());
 	if (itr == end(image_hash))
 	{
-		unsigned index = image_cache.size();
+		const unsigned index = image_cache.size();
 		image_hash[h.get()] = index;
 
-		std::string extension = compression == TextureCompressionFamily::PNG ? ".png" : ".gtx";
+		const std::string extension = compression == TextureCompressionFamily::PNG ? ".png" : ".gtx";
 		const char *mime = compression == TextureCompressionFamily::PNG ? "image/png" : "image/custom/granite-texture";
 		image_cache.push_back({ texture.path, std::to_string(h.get()) + extension, mime,
 		                        compression, quality, mode, type, {}});
@@ -664,8 +664,8 @@ unsigned RemapState::emit_image(const MaterialInfo::Texture &texture, Material::
 }
 
 unsigned RemapState::emit_texture(const MaterialInfo::Texture &texture,
-                                  Vulkan::StockSampler sampler, Material::Textures type,
-                                  TextureCompressionFamily compression, unsigned quality, TextureMode mode)
+                                  const Vulkan::StockSampler sampler, const Material::Textures type,
+                                  const TextureCompressionFamily compression, const unsigned quality, const TextureMode mode)
 {
 	const unsigned image_index = emit_image(texture, type, compression, quality, mode);
 	const unsigned sampler_index = emit_sampler(sampler);
@@ -686,9 +686,8 @@ unsigned RemapState::emit_texture(const MaterialInfo::Texture &texture,
 }
 
 void RemapState::emit_environment(const std::string &cube, const std::string &reflection, const std::string &irradiance,
-                                  float intensity,
-                                  vec3 fog_color, float fog_falloff,
-                                  TextureCompressionFamily compression, unsigned quality)
+                                  const float intensity, const vec3 fog_color, const float fog_falloff,
+                                  const TextureCompressionFamily compression, const unsigned quality)
 {
 	EmittedEnvironment env;
 	if (!cube.empty())
@@ -764,10 +763,7 @@ void RemapState::emit_material(unsigned remapped_material)
 	output.bandlimited_pixel = mat.bandlimited_pixel;
 }
 
-static void quantize_attribute_fp32_fp16(uint8_t *output,
-                                         const uint8_t *buffer,
-                                         uint32_t stride,
-                                         uint32_t count)
+static void quantize_attribute_fp32_fp16(uint8_t *output, const uint8_t *buffer, const uint32_t stride, const uint32_t count)
 {
 	for (uint32_t i = 0; i < count; i++)
 	{
@@ -778,10 +774,7 @@ static void quantize_attribute_fp32_fp16(uint8_t *output,
 	}
 }
 
-static void quantize_attribute_fp32_unorm16(uint8_t *output,
-                                            const uint8_t *buffer,
-                                            uint32_t stride,
-                                            uint32_t count)
+static void quantize_attribute_fp32_unorm16(uint8_t *output, const uint8_t *buffer, const uint32_t stride, const uint32_t count)
 {
 	for (uint32_t i = 0; i < count; i++)
 	{
@@ -794,10 +787,7 @@ static void quantize_attribute_fp32_unorm16(uint8_t *output,
 	}
 }
 
-static void quantize_attribute_fp32_snorm16(uint8_t *output,
-                                            const uint8_t *buffer,
-                                            uint32_t stride,
-                                            uint32_t count)
+static void quantize_attribute_fp32_snorm16(uint8_t *output, const uint8_t *buffer, const uint32_t stride, const uint32_t count)
 {
 	for (uint32_t i = 0; i < count; i++)
 	{
@@ -810,7 +800,7 @@ static void quantize_attribute_fp32_snorm16(uint8_t *output,
 	}
 }
 
-static void quantize_attribute_rg32f_rg16unorm(uint8_t *output, const uint8_t *buffer, uint32_t count)
+static void quantize_attribute_rg32f_rg16unorm(uint8_t *output, const uint8_t *buffer, const uint32_t count)
 {
 	for (uint32_t i = 0; i < count; i++)
 	{
@@ -824,7 +814,7 @@ static void quantize_attribute_rg32f_rg16unorm(uint8_t *output, const uint8_t *b
 	}
 }
 
-static void quantize_attribute_rg32f_rg16snorm(uint8_t *output, const uint8_t *buffer, uint32_t count)
+static void quantize_attribute_rg32f_rg16snorm(uint8_t *output, const uint8_t *buffer, const uint32_t count)
 {
 	for (uint32_t i = 0; i < count; i++)
 	{
@@ -838,7 +828,7 @@ static void quantize_attribute_rg32f_rg16snorm(uint8_t *output, const uint8_t *b
 	}
 }
 
-static void quantize_attribute_rg32f_rg16f(uint8_t *output, const uint8_t *buffer, uint32_t count)
+static void quantize_attribute_rg32f_rg16f(uint8_t *output, const uint8_t *buffer, const uint32_t count)
 {
 	for (uint32_t i = 0; i < count; i++)
 	{
@@ -849,7 +839,7 @@ static void quantize_attribute_rg32f_rg16f(uint8_t *output, const uint8_t *buffe
 	}
 }
 
-static void quantize_attribute_fp32_a2bgr10snorm(uint8_t *output, const uint8_t *buffer, uint32_t stride, uint32_t count)
+static void quantize_attribute_fp32_a2bgr10snorm(uint8_t *output, const uint8_t *buffer, const uint32_t stride, const uint32_t count)
 {
 	for (uint32_t i = 0; i < count; i++)
 	{
@@ -857,8 +847,7 @@ static void quantize_attribute_fp32_a2bgr10snorm(uint8_t *output, const uint8_t 
 		memcpy(input.data, buffer + stride * i, stride);
 
 		input *= vec4(0x1ff, 0x1ff, 0x1ff, 1);
-		input = round(input);
-		input = clamp(input, vec4(-0x1ff, -0x1ff, -0x1ff, -1), vec4(0x1ff, 0x1ff, 0x1ff, 1));
+		input = clamp(round(input), vec4(-0x1ff, -0x1ff, -0x1ff, -1), vec4(0x1ff, 0x1ff, 0x1ff, 1));
 		const ivec4 quantized(input);
 
 		uint32_t result = uint32_t(quantized.w & 3) << 30;
@@ -870,12 +859,8 @@ static void quantize_attribute_fp32_a2bgr10snorm(uint8_t *output, const uint8_t 
 	}
 }
 
-static void extract_attribute(uint8_t *output,
-                              uint32_t output_stride,
-                              const uint8_t *buffer,
-                              uint32_t stride,
-                              uint32_t format_stride,
-                              uint32_t count)
+static void extract_attribute(uint8_t *output, const uint32_t output_stride, const uint8_t *buffer,
+                              const uint32_t stride, const uint32_t format_stride, const uint32_t count)
 {
 	for (size_t i = 0; i < count; i++)
 		memcpy(output + output_stride * i, buffer + i * stride, format_stride);
@@ -1192,7 +1177,7 @@ void RemapState::emit_animations(ArrayView<const Animation> animation_list)
 	}
 }
 
-static VkFormat get_compression_format(TextureCompression compression, TextureMode mode)
+static VkFormat get_compression_format(const TextureCompression compression, const TextureMode mode)
 {
 	const bool srgb = mode == TextureMode::sRGB || mode == TextureMode::sRGBA;
 
@@ -1307,7 +1292,7 @@ bool AnalysisResult::load_image(const std::string &src)
 	return true;
 }
 
-void AnalysisResult::deduce_compression(TextureCompressionFamily family)
+void AnalysisResult::deduce_compression(const TextureCompressionFamily family)
 {
 	// Make use of dual-color modes in ASTC like (Luminance + Alpha) to encode 2-component textures.
 
@@ -1351,7 +1336,7 @@ void AnalysisResult::deduce_compression(TextureCompressionFamily family)
 		{
 			compression = TextureCompression::ASTC6x6;
 			mode = TextureMode::MaskLA;
-			auto mr_mode = deduce_metallic_roughness_mode();
+			const auto mr_mode = deduce_metallic_roughness_mode();
 			switch (mr_mode)
 			{
 			case MetallicRoughnessMode::Default:
@@ -1486,8 +1471,8 @@ void AnalysisResult::deduce_compression(TextureCompressionFamily family)
 
 static std::shared_ptr<AnalysisResult> analyze_image(ThreadGroup &workers,
                                                 const std::string &src,
-                                                Material::Textures type, TextureCompressionFamily family,
-                                                TextureMode mode,
+                                                const Material::Textures type, const TextureCompressionFamily family,
+                                                const TextureMode mode,
                                                 TaskSignal *signal)
 {
 	auto result = std::make_shared<AnalysisResult>();
@@ -1509,7 +1494,7 @@ static std::shared_ptr<AnalysisResult> analyze_image(ThreadGroup &workers,
 }
 
 static void compress_image(ThreadGroup &workers, const std::string &target_path, std::shared_ptr<AnalysisResult> &result,
-                           unsigned quality, TaskSignal *signal)
+                           const unsigned quality, TaskSignal *signal)
 {
 	FileStat src_stat, dst_stat;
 	if (Global::filesystem()->stat(result->src_path, src_stat) && Global::filesystem()->stat(target_path, dst_stat))
@@ -1712,7 +1697,7 @@ bool export_scene_to_glb(const SceneInformation &scene, const std::string &path,
 		Value buffer(kObjectType);
 		buffer.AddMember("byteLength", uint32_t(state.glb_buffer_data.size()), allocator);
 
-		auto uri = path + ".bin";
+		const auto uri = path + ".bin";
 		buffer.AddMember("uri", Path::basename(uri), allocator);
 
 		auto file = Global::filesystem()->open(uri, FileMode::WriteOnly);
@@ -1774,8 +1759,8 @@ bool export_scene_to_glb(const SceneInformation &scene, const std::string &path,
 				acc.AddMember("normalized", accessor.normalized, allocator);
 			if (accessor.use_aabb)
 			{
-				vec4 lo = vec4(accessor.aabb.get_minimum(), 1.0f);
-				vec4 hi = vec4(accessor.aabb.get_maximum(), 1.0f);
+				const vec4 lo = vec4(accessor.aabb.get_minimum(), 1.0f);
+				const vec4 hi = vec4(accessor.aabb.get_maximum(), 1.0f);
 				unsigned components = 0;
 				if (strcmp(accessor.type, "SCALAR") == 0)
 					components = 1;
@@ -1953,9 +1938,9 @@ bool export_scene_to_glb(const SceneInformation &scene, const std::string &path,
 			if (material.normal >= 0)
 			{
 				Value n(kObjectType);
-				unsigned image_index = state.texture_cache[material.normal].image;
+				const unsigned image_index = state.texture_cache[material.normal].image;
 
-				bool two_component =
+				const bool two_component =
 						state.image_cache[image_index].compression != TextureCompressionFamily::Uncompressed &&
 						state.image_cache[image_index].compression != TextureCompressionFamily::PNG;
 

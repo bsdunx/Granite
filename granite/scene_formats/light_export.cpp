@@ -56,12 +56,12 @@ std::string export_lights_to_json(const DirectionalParameters &dir, Scene &scene
 	Value points(kArrayType);
 
 	scene.update_all_transforms();
-	auto &pos = scene.get_entity_pool().get_component_group<PositionalLightComponent, RenderInfoComponent>();
+	const auto &pos = scene.get_entity_pool().get_component_group<PositionalLightComponent, RenderInfoComponent>();
 
 	for (auto &light : pos)
 	{
-		auto *l = get_component<PositionalLightComponent>(light)->light;
-		auto *t = get_component<RenderInfoComponent>(light)->transform;
+		const auto *l = get_component<PositionalLightComponent>(light)->light;
+		const auto *t = get_component<RenderInfoComponent>(light)->transform;
 
 		Value light_pos(kArrayType);
 		light_pos.PushBack(t->world_transform[3].x, allocator);
@@ -76,7 +76,7 @@ std::string export_lights_to_json(const DirectionalParameters &dir, Scene &scene
 		if (l->get_type() == PositionalLight::Type::Spot)
 		{
 			Value spot(kObjectType);
-			auto &s = *static_cast<SpotLight *>(l);
+			const auto &s = *static_cast<const SpotLight *>(l);
 			spot.AddMember("innerCone", s.inner_cone, allocator);
 			spot.AddMember("outerCone", s.outer_cone, allocator);
 			Value spot_color(kArrayType);
@@ -92,7 +92,7 @@ std::string export_lights_to_json(const DirectionalParameters &dir, Scene &scene
 		else
 		{
 			Value point(kObjectType);
-			auto &p = *static_cast<PointLight *>(l);
+			const auto &p = *static_cast<const PointLight *>(l);
 			Value point_color(kArrayType);
 			point_color.PushBack(p.get_color().x, allocator);
 			point_color.PushBack(p.get_color().y, allocator);

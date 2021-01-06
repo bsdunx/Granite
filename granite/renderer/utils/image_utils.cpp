@@ -22,7 +22,6 @@
 
 #include "renderer/utils/image_utils.hpp"
 #include "renderer/render_parameters.hpp"
-#include "vulkan/device.hpp"
 #include "scene_formats/memory_mapped_texture.hpp"
 #include "util/logging.hpp"
 #include "math/transforms.hpp"
@@ -38,9 +37,9 @@ namespace Granite
 
 ImageHandle convert_cube_to_ibl_specular(Device &device, ImageView &view)
 {
-	unsigned size = 128;
-	float base_sample_lod = log2(float(std::max(view.get_image().get_create_info().width,
-	                                            view.get_image().get_create_info().height))) - 7.0f;
+	const unsigned size = 128;
+	const float base_sample_lod = log2(float(std::max(view.get_image().get_create_info().width,
+	                                         view.get_image().get_create_info().height))) - 7.0f;
 
 	ImageCreateInfo info = ImageCreateInfo::render_target(size, size, VK_FORMAT_R16G16B16A16_SFLOAT);
 	info.levels = 8;
@@ -86,7 +85,7 @@ ImageHandle convert_cube_to_ibl_specular(Device &device, ImageView &view)
 				float roughness;
 			};
 
-			float sample_lod = base_sample_lod + level;
+			const float sample_lod = base_sample_lod + level;
 			Push push = { sample_lod, mix(0.001f, 1.0f, float(level) / (info.levels - 1)) };
 			cmd->push_constants(&push, 0, sizeof(push));
 
@@ -107,9 +106,9 @@ ImageHandle convert_cube_to_ibl_specular(Device &device, ImageView &view)
 
 ImageHandle convert_cube_to_ibl_diffuse(Device &device, ImageView &view)
 {
-	unsigned size = 32;
+	const unsigned size = 32;
 
-	float sample_lod = log2(float(size)) - 5.0f;
+	const float sample_lod = log2(float(size)) - 5.0f;
 
 	ImageCreateInfo info = ImageCreateInfo::render_target(size, size, VK_FORMAT_R16G16B16A16_SFLOAT);
 	info.levels = 1;
@@ -164,7 +163,7 @@ ImageHandle convert_cube_to_ibl_diffuse(Device &device, ImageView &view)
 
 ImageHandle convert_equirect_to_cube(Device &device, ImageView &view, float scale)
 {
-	unsigned size = unsigned(scale * std::max(view.get_image().get_create_info().width / 3,
+	const unsigned size = unsigned(scale * std::max(view.get_image().get_create_info().width / 3,
 	                                          view.get_image().get_create_info().height / 2));
 
 	ImageCreateInfo info = ImageCreateInfo::render_target(size, size, view.get_format());
@@ -203,7 +202,7 @@ ImageHandle convert_equirect_to_cube(Device &device, ImageView &view, float scal
 		memcpy(cmd->allocate_constant_data(0, 0, sizeof(params)), &params, sizeof(params));
 		cmd->set_texture(2, 0, view, StockSampler::LinearWrap);
 
-		vec4 color = vec4(1.0f);
+		const vec4 color = vec4(1.0f);
 		cmd->push_constants(&color, 0, sizeof(color));
 		CommandBufferUtil::draw_fullscreen_quad(*cmd, "builtin://shaders/skybox.vert", "builtin://shaders/skybox_latlon.frag", {{ "HAVE_EMISSIVE", 1 }});
 

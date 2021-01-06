@@ -22,12 +22,16 @@
 
 #pragma once
 
-#include "renderer/material.hpp"
-#include "scene_formats/memory_mapped_texture.hpp"
+#include "vulkan/format.hpp"
 #include "threading/thread_group.hpp"
 
 namespace Granite
 {
+
+namespace SceneFormats
+{
+class MemoryMappedTexture;
+}
 
 enum class TextureMode
 {

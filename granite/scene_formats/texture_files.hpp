@@ -34,7 +34,7 @@ enum class ColorSpace
 	sRGB
 };
 
-SceneFormats::MemoryMappedTexture load_texture_from_file(const std::string &path, ColorSpace color = ColorSpace::sRGB);
-SceneFormats::MemoryMappedTexture load_texture_from_memory(const void *data, size_t size,
-                                                           ColorSpace color = ColorSpace::sRGB);
+SceneFormats::MemoryMappedTexture load_texture_from_file(const std::string &path, const ColorSpace color = ColorSpace::sRGB);
+SceneFormats::MemoryMappedTexture load_texture_from_memory(const void *data, const size_t size,
+                                                           const ColorSpace color = ColorSpace::sRGB);
 }

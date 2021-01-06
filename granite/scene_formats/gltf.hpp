@@ -167,11 +167,11 @@ private:
 	void parse(const std::string &path, const std::string &json);
 	std::vector<Mesh> meshes;
 	std::vector<MaterialInfo> materials;
-	static VkFormat components_to_padded_format(ScalarType type, uint32_t components);
-	static Buffer read_buffer(const std::string &path, uint64_t length);
-	static Buffer read_base64(const char *data, uint64_t length);
-	static uint32_t type_stride(ScalarType type);
-	static void resolve_component_type(uint32_t component_type, const char *type, bool normalized,
+	static VkFormat components_to_padded_format(const ScalarType type, const uint32_t components);
+	static Buffer read_buffer(const std::string &path, const uint64_t length);
+	static Buffer read_base64(const char *data, const uint64_t length);
+	static uint32_t type_stride(const ScalarType type);
+	static void resolve_component_type(const uint32_t component_type, const char *type, const bool normalized,
 	                                   ScalarType &scalar_type, uint32_t &components, uint32_t &stride);
 
 	std::vector<Buffer> json_buffers;

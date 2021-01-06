@@ -39,7 +39,7 @@ using namespace Util;
 namespace GLTF
 {
 
-Parser::Buffer Parser::read_buffer(const std::string &path, uint64_t length)
+Parser::Buffer Parser::read_buffer(const std::string &path, const uint64_t length)
 {
 	auto file = Global::filesystem()->open(path);
 	if (!file)
@@ -57,7 +57,7 @@ Parser::Buffer Parser::read_buffer(const std::string &path, uint64_t length)
 	return buf;
 }
 
-Parser::Buffer Parser::read_base64(const char *data, uint64_t length)
+Parser::Buffer Parser::read_base64(const char *data, const uint64_t length)
 {
 	Buffer buf(length);
 	auto *ptr = buf.data();
@@ -132,7 +132,7 @@ Parser::Parser(const std::string &path)
 		if (!file)
 			throw std::runtime_error("Failed to load GLTF file.");
 
-		auto size = file->get_size();
+		const auto size = file->get_size();
 		void *mapped = file->map();
 		if (!mapped)
 			throw std::runtime_error("Failed to map GLTF file.");
@@ -151,10 +151,10 @@ Parser::Parser(const std::string &path)
 			if (words[2] > size)
 				throw std::runtime_error("GLB length is larger than the file size.");
 
-			auto glb_size = words[2];
+			const auto glb_size = words[2];
 			words += 3;
 
-			auto json_length = words[0];
+			const auto json_length = words[0];
 			if (memcmp(&words[1], "JSON", 4) != 0)
 				throw std::runtime_error("Could not find JSON chunk.");
 			words += 2;
@@ -169,7 +169,7 @@ Parser::Parser(const std::string &path)
 			// If there is another chunk, it's BIN chunk.
 			if (json_length + 12 + 8 < glb_size)
 			{
-				auto binary_length = words[0];
+				const auto binary_length = words[0];
 				if (memcmp(&words[1], "BIN\0", 4) != 0)
 					throw std::runtime_error("Could not find BIN chunk.");
 				words += 2;
@@ -210,68 +210,68 @@ Parser::Parser(const std::string &path)
 #define GL_NEAREST_MIPMAP_LINEAR          0x2702
 #define GL_LINEAR_MIPMAP_LINEAR           0x2703
 
-VkFormat Parser::components_to_padded_format(ScalarType type, uint32_t components)
+VkFormat Parser::components_to_padded_format(const ScalarType type, const uint32_t components)
 {
 	switch (type)
 	{
 	case ScalarType::Int8:
 	{
-		static const VkFormat formats[] = { VK_FORMAT_R8_SINT, VK_FORMAT_R8G8_SINT, VK_FORMAT_R8G8B8A8_SINT, VK_FORMAT_R8G8B8A8_SINT };
+		const VkFormat formats[] = { VK_FORMAT_R8_SINT, VK_FORMAT_R8G8_SINT, VK_FORMAT_R8G8B8A8_SINT, VK_FORMAT_R8G8B8A8_SINT };
 		return formats[components - 1];
 	}
 	case ScalarType::Int8Snorm:
 	{
-		static const VkFormat formats[] = { VK_FORMAT_R8_SNORM, VK_FORMAT_R8G8_SNORM, VK_FORMAT_R8G8B8A8_SNORM, VK_FORMAT_R8G8B8A8_SNORM };
+		const VkFormat formats[] = { VK_FORMAT_R8_SNORM, VK_FORMAT_R8G8_SNORM, VK_FORMAT_R8G8B8A8_SNORM, VK_FORMAT_R8G8B8A8_SNORM };
 		return formats[components - 1];
 	}
 	case ScalarType::Uint8:
 	{
-		static const VkFormat formats[] = { VK_FORMAT_R8_UINT, VK_FORMAT_R8G8_UINT, VK_FORMAT_R8G8B8A8_UINT, VK_FORMAT_R8G8B8A8_UINT };
+		const VkFormat formats[] = { VK_FORMAT_R8_UINT, VK_FORMAT_R8G8_UINT, VK_FORMAT_R8G8B8A8_UINT, VK_FORMAT_R8G8B8A8_UINT };
 		return formats[components - 1];
 	}
 	case ScalarType::Uint8Unorm:
 	{
-		static const VkFormat formats[] = { VK_FORMAT_R8_UNORM, VK_FORMAT_R8G8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM };
+		const VkFormat formats[] = { VK_FORMAT_R8_UNORM, VK_FORMAT_R8G8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM };
 		return formats[components - 1];
 	}
 	case ScalarType::Int16:
 	{
-		static const VkFormat formats[] = { VK_FORMAT_R16_SINT, VK_FORMAT_R16G16_SINT, VK_FORMAT_R16G16B16A16_SINT, VK_FORMAT_R16G16B16A16_SINT };
+		const VkFormat formats[] = { VK_FORMAT_R16_SINT, VK_FORMAT_R16G16_SINT, VK_FORMAT_R16G16B16A16_SINT, VK_FORMAT_R16G16B16A16_SINT };
 		return formats[components - 1];
 	}
 	case ScalarType::Int16Snorm:
 	{
-		static const VkFormat formats[] = { VK_FORMAT_R16_SNORM, VK_FORMAT_R16G16_SNORM, VK_FORMAT_R16G16B16A16_SNORM, VK_FORMAT_R16G16B16A16_SNORM };
+		const VkFormat formats[] = { VK_FORMAT_R16_SNORM, VK_FORMAT_R16G16_SNORM, VK_FORMAT_R16G16B16A16_SNORM, VK_FORMAT_R16G16B16A16_SNORM };
 		return formats[components - 1];
 	}
 	case ScalarType::Uint16:
 	{
-		static const VkFormat formats[] = { VK_FORMAT_R16_UINT, VK_FORMAT_R16G16_UINT, VK_FORMAT_R16G16B16A16_UINT, VK_FORMAT_R16G16B16A16_UINT };
+		const VkFormat formats[] = { VK_FORMAT_R16_UINT, VK_FORMAT_R16G16_UINT, VK_FORMAT_R16G16B16A16_UINT, VK_FORMAT_R16G16B16A16_UINT };
 		return formats[components - 1];
 	}
 	case ScalarType::Uint16Unorm:
 	{
-		static const VkFormat formats[] = { VK_FORMAT_R16_UNORM, VK_FORMAT_R16G16_UNORM, VK_FORMAT_R16G16B16A16_UNORM, VK_FORMAT_R16G16B16A16_UNORM };
+		const VkFormat formats[] = { VK_FORMAT_R16_UNORM, VK_FORMAT_R16G16_UNORM, VK_FORMAT_R16G16B16A16_UNORM, VK_FORMAT_R16G16B16A16_UNORM };
 		return formats[components - 1];
 	}
 	case ScalarType::Int32:
 	{
-		static const VkFormat formats[] = { VK_FORMAT_R32_SINT, VK_FORMAT_R32G32_SINT, VK_FORMAT_R32G32B32_SINT, VK_FORMAT_R32G32B32A32_SINT };
+		const VkFormat formats[] = { VK_FORMAT_R32_SINT, VK_FORMAT_R32G32_SINT, VK_FORMAT_R32G32B32_SINT, VK_FORMAT_R32G32B32A32_SINT };
 		return formats[components - 1];
 	}
 	case ScalarType::Uint32:
 	{
-		static const VkFormat formats[] = { VK_FORMAT_R32_UINT, VK_FORMAT_R32G32_UINT, VK_FORMAT_R32G32B32_UINT, VK_FORMAT_R32G32B32A32_UINT };
+		const VkFormat formats[] = { VK_FORMAT_R32_UINT, VK_FORMAT_R32G32_UINT, VK_FORMAT_R32G32B32_UINT, VK_FORMAT_R32G32B32A32_UINT };
 		return formats[components - 1];
 	}
 	case ScalarType::Float32:
 	{
-		static const VkFormat formats[] = { VK_FORMAT_R32_SFLOAT, VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32B32A32_SFLOAT };
+		const VkFormat formats[] = { VK_FORMAT_R32_SFLOAT, VK_FORMAT_R32G32_SFLOAT, VK_FORMAT_R32G32B32_SFLOAT, VK_FORMAT_R32G32B32A32_SFLOAT };
 		return formats[components - 1];
 	}
 	case ScalarType::Float16:
 	{
-		static const VkFormat formats[] = { VK_FORMAT_R16_SFLOAT, VK_FORMAT_R16G16_SFLOAT, VK_FORMAT_R16G16B16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT };
+		const VkFormat formats[] = { VK_FORMAT_R16_SFLOAT, VK_FORMAT_R16G16_SFLOAT, VK_FORMAT_R16G16B16_SFLOAT, VK_FORMAT_R16G16B16A16_SFLOAT };
 		return formats[components - 1];
 	}
 
@@ -341,7 +341,7 @@ uint32_t Parser::type_stride(ScalarType type)
 	}
 }
 
-void Parser::resolve_component_type(uint32_t component_type, const char *type, bool normalized,
+void Parser::resolve_component_type(const uint32_t component_type, const char *type, const bool normalized,
                                     ScalarType &scalar_type, uint32_t &components, uint32_t &stride)
 {
 	if (!strcmp(type, "SCALAR"))
@@ -538,7 +538,7 @@ void Parser::extract_attribute(std::vector<float> &attributes, const Accessor &a
 	auto &buffer = json_buffers[view.buffer_index];
 	for (uint32_t i = 0; i < accessor.count; i++)
 	{
-		uint32_t offset = view.offset + accessor.offset + i * accessor.stride;
+		const uint32_t offset = view.offset + accessor.offset + i * accessor.stride;
 		const auto *data = reinterpret_cast<const float *>(&buffer[offset]);
 		attributes.push_back(*data);
 	}
@@ -555,7 +555,7 @@ void Parser::extract_attribute(std::vector<vec3> &attributes, const Accessor &ac
 	auto &buffer = json_buffers[view.buffer_index];
 	for (uint32_t i = 0; i < accessor.count; i++)
 	{
-		uint32_t offset = view.offset + accessor.offset + i * accessor.stride;
+		const uint32_t offset = view.offset + accessor.offset + i * accessor.stride;
 		const auto *data = reinterpret_cast<const float *>(&buffer[offset]);
 		attributes.push_back(vec3(data[0], data[1], data[2]));
 	}
@@ -572,7 +572,7 @@ void Parser::extract_attribute(std::vector<quat> &attributes, const Accessor &ac
 	auto &buffer = json_buffers[view.buffer_index];
 	for (uint32_t i = 0; i < accessor.count; i++)
 	{
-		uint32_t offset = view.offset + accessor.offset + i * accessor.stride;
+		const uint32_t offset = view.offset + accessor.offset + i * accessor.stride;
 		const auto *data = reinterpret_cast<const float *>(&buffer[offset]);
 		attributes.push_back(normalize(quat(data[3], data[0], data[1], data[2])));
 	}
@@ -589,7 +589,7 @@ void Parser::extract_attribute(std::vector<mat4> &attributes, const Accessor &ac
 	auto &buffer = json_buffers[view.buffer_index];
 	for (uint32_t i = 0; i < accessor.count; i++)
 	{
-		uint32_t offset = view.offset + accessor.offset + i * accessor.stride;
+		const uint32_t offset = view.offset + accessor.offset + i * accessor.stride;
 		const auto *data = reinterpret_cast<const float *>(&buffer[offset]);
 		attributes.push_back(mat4(
 			vec4(data[0], data[1], data[2], data[3]),
@@ -623,7 +623,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 		if (buf.HasMember("uri"))
 			uri = buf["uri"].GetString();
 
-		auto length = buf["byteLength"].GetUint64();
+		const auto length = buf["byteLength"].GetUint64();
 
 		if (!uri)
 		{
@@ -632,41 +632,41 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 			return;
 		}
 
-		static const char base64_type[] = "data:application/octet-stream;base64,";
+		const char base64_type[] = "data:application/octet-stream;base64,";
 		if (!strncmp(uri, base64_type, strlen(base64_type)))
 		{
 			json_buffers.push_back(read_base64(uri + strlen(base64_type), length));
 		}
 		else
 		{
-			auto path = Path::relpath(original_path, uri);
+			const auto path = Path::relpath(original_path, uri);
 			json_buffers.push_back(read_buffer(path, length));
 		}
 	};
 
 	const auto add_view = [&](const Value &view) {
 		auto &buf = view["buffer"];
-		auto buffer_index = buf.GetUint();
-		auto offset = view.HasMember("byteOffset") ? view["byteOffset"].GetUint() : 0u;
-		auto length = view["byteLength"].GetUint();
+		const auto buffer_index = buf.GetUint();
+		const auto offset = view.HasMember("byteOffset") ? view["byteOffset"].GetUint() : 0u;
+		const auto length = view["byteLength"].GetUint();
 
 		if (offset + length > json_buffers[buffer_index].size())
 			throw std::logic_error("Buffer view is out of range.");
 
-		auto stride = view.HasMember("byteStride") ? view["byteStride"].GetUint() : 0u;
+		const auto stride = view.HasMember("byteStride") ? view["byteStride"].GetUint() : 0u;
 		json_views.push_back({buffer_index, offset, length, stride});
 	};
 
 	const auto add_accessor = [&](const Value &accessor) {
 		auto &view = accessor["bufferView"];
-		auto view_index = view.GetUint();
+		const auto view_index = view.GetUint();
 
 		uint32_t offset = 0;
 		if (accessor.HasMember("byteOffset"))
 			offset = accessor["byteOffset"].GetUint();
-		auto component_type = accessor["componentType"].GetUint();
-		auto count = accessor["count"].GetUint();
-		auto *type = accessor["type"].GetString();
+		const auto component_type = accessor["componentType"].GetUint();
+		const auto count = accessor["count"].GetUint();
+		const auto *type = accessor["type"].GetString();
 		bool normalized = false;
 		if (accessor.HasMember("normalized"))
 			normalized = accessor["normalized"].GetBool();
@@ -731,7 +731,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 				attr.topology = gltf_topology(top.GetString());
 			else
 			{
-				static const VkPrimitiveTopology topologies[] = {
+				const VkPrimitiveTopology topologies[] = {
 					VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
 				    VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
 					VK_PRIMITIVE_TOPOLOGY_LINE_STRIP, // Loop not supported in Vulkan it seems.
@@ -747,17 +747,17 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 		attr.primitive_restart = false;
 		if (primitive.HasMember("extras"))
 		{
-			auto &extras = primitive["extras"];
+			const auto &extras = primitive["extras"];
 			if (extras.HasMember("primitiveRestart"))
 				attr.primitive_restart = extras["primitiveRestart"].GetBool();
 		}
 
-		auto &attrs = primitive["attributes"];
+		const auto &attrs = primitive["attributes"];
 		for (auto itr = attrs.MemberBegin(); itr != attrs.MemberEnd(); ++itr)
 		{
-			auto *semantic = itr->name.GetString();
-			uint32_t accessor_index = itr->value.GetUint();
-			MeshAttribute attribute = semantic_to_attribute(semantic);
+			const auto *semantic = itr->name.GetString();
+			const uint32_t accessor_index = itr->value.GetUint();
+			const MeshAttribute attribute = semantic_to_attribute(semantic);
 
 			if (attribute != MeshAttribute::None)
 			{
@@ -770,7 +770,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 	};
 
 	const auto add_mesh = [&](const Value &mesh) {
-		auto &prims = mesh["primitives"];
+		const auto &prims = mesh["primitives"];
 		MeshData data;
 		for (auto itr = prims.Begin(); itr != prims.End(); ++itr)
 			data.primitives.push_back(parse_primitive(*itr));
@@ -780,9 +780,9 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 	const auto add_image = [&](const Value &image) {
 		if (image.HasMember("bufferView"))
 		{
-			auto index = image["bufferView"].GetUint();
-			auto &view = json_views[index];
-			auto fake_path = std::string("memory://") + original_path + "_buffer_view_" + std::to_string(index);
+			const auto index = image["bufferView"].GetUint();
+			const auto &view = json_views[index];
+			const auto fake_path = std::string("memory://") + original_path + "_buffer_view_" + std::to_string(index);
 
 			auto file = Global::filesystem()->open(fake_path, FileMode::WriteOnly);
 			if (!file)
@@ -797,9 +797,9 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 		}
 		else
 		{
-			auto *uri = image["uri"].GetString();
-			static const char base64_type_jpg[] = "data:image/jpeg;base64,";
-			static const char base64_type_png[] = "data:image/png;base64,";
+			const auto *uri = image["uri"].GetString();
+			const char base64_type_jpg[] = "data:image/jpeg;base64,";
+			const char base64_type_png[] = "data:image/png;base64,";
 			const char *base64_data = nullptr;
 
 			if (!strncmp(uri, base64_type_jpg, strlen(base64_type_jpg)))
@@ -811,15 +811,15 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 			if (base64_data)
 			{
-				auto str_length = strlen(base64_data);
+				const auto str_length = strlen(base64_data);
 				auto data_length = 3 * (str_length >> 2);
 				if (base64_data[str_length - 1] == '=')
 					data_length--;
 				if (base64_data[str_length - 2] == '=')
 					data_length--;
 
-				auto base64_buffer = read_base64(uri + strlen(base64_type_jpg), data_length);
-				auto fake_path = std::string("memory://") + original_path + "_base64_" + std::to_string(json_images.size());
+				const auto base64_buffer = read_base64(uri + strlen(base64_type_jpg), data_length);
+				const auto fake_path = std::string("memory://") + original_path + "_base64_" + std::to_string(json_images.size());
 
 				auto file = Global::filesystem()->open(fake_path, FileMode::WriteOnly);
 				if (!file)
@@ -857,7 +857,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 			unsigned wrap_s, wrap_t, mag_filter, min_filter;
 			Vulkan::StockSampler sampler;
 		};
-		static const Entry entries[] = {
+		const Entry entries[] = {
 			{ GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, Vulkan::StockSampler::TrilinearWrap },
 			{ GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, Vulkan::StockSampler::TrilinearClamp },
 			{ GL_REPEAT, GL_REPEAT, GL_LINEAR, GL_LINEAR_MIPMAP_NEAREST, Vulkan::StockSampler::LinearWrap },
@@ -879,12 +879,12 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 	};
 
 	const auto add_texture = [&](const Value &value) {
-		auto &source = value["source"];
+		const auto &source = value["source"];
 
 		Vulkan::StockSampler stock_sampler = Vulkan::StockSampler::TrilinearWrap;
 		if (value.HasMember("sampler"))
 		{
-			auto &sampler = value["sampler"];
+			const auto &sampler = value["sampler"];
 			stock_sampler = json_stock_samplers[sampler.GetUint()];
 		}
 		json_textures.push_back({ source.GetUint(), stock_sampler });
@@ -903,7 +903,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 		info.pipeline = DrawPipeline::Opaque;
 		if (value.HasMember("alphaMode"))
 		{
-			std::string mode = value["alphaMode"].GetString();
+			const std::string mode = value["alphaMode"].GetString();
 			if (mode == "OPAQUE")
 				info.pipeline = DrawPipeline::Opaque;
 			else if (mode == "MASK")
@@ -914,21 +914,21 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 		if (value.HasMember("extras"))
 		{
-			auto &extras = value["extras"];
+			const auto &extras = value["extras"];
 			if (extras.HasMember("bandlimitedPixel"))
 				info.bandlimited_pixel = extras["bandlimitedPixel"].GetBool();
 		}
 
 		if (value.HasMember("emissiveFactor"))
 		{
-			auto &e = value["emissiveFactor"];
+			const auto &e = value["emissiveFactor"];
 			info.uniform_emissive_color = vec3(e[0].GetFloat(), e[1].GetFloat(), e[2].GetFloat());
 		}
 
 		if (value.HasMember("normalTexture"))
 		{
-			auto &tex = value["normalTexture"]["index"];
-			auto &image = json_images[json_textures[tex.GetUint()].image_index];
+			const auto &tex = value["normalTexture"]["index"];
+			const auto &image = json_images[json_textures[tex.GetUint()].image_index];
 			info.normal = image;
 			if (value["normalTexture"].HasMember("scale"))
 				info.normal_scale = value["normalTexture"]["scale"].GetFloat();
@@ -936,50 +936,50 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 		if (value.HasMember("emissiveTexture"))
 		{
-			auto &tex = value["emissiveTexture"]["index"];
-			auto &image = json_images[json_textures[tex.GetUint()].image_index];
+			const auto &tex = value["emissiveTexture"]["index"];
+			const auto &image = json_images[json_textures[tex.GetUint()].image_index];
 			info.emissive = image;
 		}
 
 		if (value.HasMember("occlusionTexture"))
 		{
-			auto &tex = value["occlusionTexture"]["index"];
-			auto &image = json_images[json_textures[tex.GetUint()].image_index];
+			const auto &tex = value["occlusionTexture"]["index"];
+			const auto &image = json_images[json_textures[tex.GetUint()].image_index];
 			info.occlusion = image;
 		}
 
 		if (value.HasMember("extensions"))
 		{
-			auto &ext = value["extensions"];
+			const auto &ext = value["extensions"];
 			for (auto itr = ext.MemberBegin(); itr != ext.MemberEnd(); ++itr)
 			{
 				if (itr->name == "KHR_materials_pbrSpecularGlossiness")
 				{
-					auto &pbr_value = itr->value;
+					const auto &pbr_value = itr->value;
 					if (pbr_value.HasMember("diffuseFactor"))
 					{
-						auto &diff = pbr_value["diffuseFactor"];
+						const auto &diff = pbr_value["diffuseFactor"];
 						info.uniform_base_color = vec4(diff[0].GetFloat(), diff[1].GetFloat(),
 						                               diff[2].GetFloat(), diff[3].GetFloat());
 					}
 
 					if (pbr_value.HasMember("glossinessFactor"))
 					{
-						auto &gloss = pbr_value["glossinessFactor"];
+						const auto &gloss = pbr_value["glossinessFactor"];
 						// Probably some remapping needed.
 						info.uniform_roughness = muglm::clamp(1.0f - gloss.GetFloat(), 0.0f, 1.0f);
 					}
 
 					if (pbr_value.HasMember("specularFactor"))
 					{
-						auto &spec = pbr_value["specularFactor"];
+						const auto &spec = pbr_value["specularFactor"];
 						// No idea how to remap ...
 						info.uniform_metallic = muglm::max(muglm::max(spec[0].GetFloat(), spec[1].GetFloat()), spec[2].GetFloat());
 					}
 
 					if (pbr_value.HasMember("diffuseTexture"))
 					{
-						auto &tex = pbr_value["diffuseTexture"]["index"];
+						const auto &tex = pbr_value["diffuseTexture"]["index"];
 						info.base_color = json_images[json_textures[tex.GetUint()].image_index];
 						info.sampler = json_textures[tex.GetUint()].sampler;
 					}
@@ -994,23 +994,23 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 		if (value.HasMember("pbrMetallicRoughness"))
 		{
-			auto &mr = value["pbrMetallicRoughness"];
+			const auto &mr = value["pbrMetallicRoughness"];
 			if (mr.HasMember("baseColorTexture"))
 			{
-				auto &tex = mr["baseColorTexture"]["index"];
+				const auto &tex = mr["baseColorTexture"]["index"];
 				info.base_color = json_images[json_textures[tex.GetUint()].image_index];
 				info.sampler = json_textures[tex.GetUint()].sampler;
 			}
 
 			if (mr.HasMember("metallicRoughnessTexture"))
 			{
-				auto &tex = mr["metallicRoughnessTexture"]["index"];
+				const auto &tex = mr["metallicRoughnessTexture"]["index"];
 				info.metallic_roughness = json_images[json_textures[tex.GetUint()].image_index];
 			}
 
 			if (mr.HasMember("baseColorFactor"))
 			{
-				auto &v = mr["baseColorFactor"];
+				const auto &v = mr["baseColorFactor"];
 				info.uniform_base_color = vec4(v[0].GetFloat(), v[1].GetFloat(), v[2].GetFloat(), v[3].GetFloat());
 			}
 
@@ -1032,28 +1032,28 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 		if (value.HasMember("mesh"))
 		{
-			auto &m = value["mesh"];
-			auto index = m.GetUint();
+			const auto &m = value["mesh"];
+			const auto index = m.GetUint();
 			for (auto &prim : mesh_index_to_primitives[index])
 				node.meshes.push_back(prim);
 		}
 
 		if (value.HasMember("camera"))
 		{
-			auto index = value["camera"].GetUint();
+			const auto index = value["camera"].GetUint();
 			json_cameras[index].node_index = uint32_t(nodes.size());
 			json_cameras[index].attached_to_node = true;
 		}
 
 		if (value.HasMember("extensions"))
 		{
-			auto &ext = value["extensions"];
+			const auto &ext = value["extensions"];
 			if (ext.HasMember("KHR_lights_punctual"))
 			{
-				auto &cmn = ext["KHR_lights_punctual"];
+				const auto &cmn = ext["KHR_lights_punctual"];
 				if (cmn.HasMember("light"))
 				{
-					auto index = cmn["light"].GetUint();
+					const auto index = cmn["light"].GetUint();
 					json_lights[index].node_index = uint32_t(nodes.size());
 					json_lights[index].attached_to_node = true;
 				}
@@ -1062,24 +1062,24 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 		if (value.HasMember("skin"))
 		{
-			auto &s = value["skin"];
+			const auto &s = value["skin"];
 			node.has_skin = true;
 			node.skin = s.GetUint();
 		}
 
 		if (value.HasMember("children"))
 		{
-			auto &children = value["children"];
+			const auto &children = value["children"];
 			for (auto itr = children.Begin(); itr != children.End(); ++itr)
 				node.children.push_back(itr->GetUint());
 		}
 
 		if (value.HasMember("meshes"))
 		{
-			auto &m = value["meshes"];
+			const auto &m = value["meshes"];
 			for (auto itr = m.Begin(); itr != m.End(); ++itr)
 			{
-				auto index = itr->GetUint();
+				const auto index = itr->GetUint();
 				for (auto &prim : mesh_index_to_primitives[index])
 					node.meshes.push_back(prim);
 			}
@@ -1087,26 +1087,26 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 		if (value.HasMember("translation"))
 		{
-			auto &t = value["translation"];
+			const auto &t = value["translation"];
 			node.transform.translation = vec3(t[0].GetFloat(), t[1].GetFloat(), t[2].GetFloat());
 		}
 
 		if (value.HasMember("rotation"))
 		{
-			auto &r = value["rotation"];
+			const auto &r = value["rotation"];
 			node.transform.rotation = normalize(quat(r[3].GetFloat(), r[0].GetFloat(), r[1].GetFloat(), r[2].GetFloat()));
 		}
 
 		if (value.HasMember("scale"))
 		{
-			auto &s = value["scale"];
+			const auto &s = value["scale"];
 			node.transform.scale = vec3(s[0].GetFloat(), s[1].GetFloat(), s[2].GetFloat());
 		}
 
 		if (value.HasMember("matrix"))
 		{
-			auto &m = value["matrix"];
-			mat4 transform(
+			const auto &m = value["matrix"];
+			const mat4 transform(
 					vec4(m[0].GetFloat(), m[1].GetFloat(), m[2].GetFloat(), m[3].GetFloat()),
 					vec4(m[4].GetFloat(), m[5].GetFloat(), m[6].GetFloat(), m[7].GetFloat()),
 					vec4(m[8].GetFloat(), m[9].GetFloat(), m[10].GetFloat(), m[11].GetFloat()),
@@ -1122,7 +1122,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 	const auto add_skin = [&](const Value &skin) {
 		Util::Hasher hasher;
 
-		auto &joints = skin["joints"];
+		const auto &joints = skin["joints"];
 		std::vector<NodeTransform> joint_transforms;
 		std::vector<uint32_t> joint_indices;
 
@@ -1137,7 +1137,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 		hasher.u32(joints.GetArray().Size());
 		for (auto itr = joints.Begin(); itr != joints.End(); ++itr)
 		{
-			uint32_t joint_index = itr->GetUint();
+			const uint32_t joint_index = itr->GetUint();
 			joint_indices.push_back(joint_index);
 			if (json_node_index_to_joint_index.find(joint_index) != end(json_node_index_to_joint_index))
 				throw std::logic_error("A joint cannot be attached to multiple skins.");
@@ -1155,7 +1155,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 		for (unsigned i = 0; i < joint_indices.size(); i++)
 		{
-			uint32_t joint_index = joint_indices[i];
+			const uint32_t joint_index = joint_indices[i];
 			auto &node = nodes[joint_index];
 
 			for (auto &child : node.children)
@@ -1163,7 +1163,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 				auto itr = json_node_index_to_joint_index.find(child);
 				if (itr == std::end(json_node_index_to_joint_index))
 					throw std::logic_error("Joint has a child which is not part of the skeleton.");
-				uint32_t index = itr->second;
+				const uint32_t index = itr->second;
 
 				if (parents[index] != -1)
 					throw std::logic_error("Joint cannot have two parents.");
@@ -1190,7 +1190,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 		if (skin.HasMember("inverseBindMatrices"))
 		{
-			uint32_t accessor = skin["inverseBindMatrices"].GetUint();
+			const uint32_t accessor = skin["inverseBindMatrices"].GetUint();
 			extract_attribute(inverse_bind_matrices, json_accessors[accessor]);
 		}
 		else
@@ -1215,7 +1215,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 			if (strcmp(camera["type"].GetString(), "perspective") == 0)
 			{
 				info.type = CameraInfo::Type::Perspective;
-				auto &p = camera["perspective"];
+				const auto &p = camera["perspective"];
 				if (p.HasMember("yfov"))
 					info.yfov = p["yfov"].GetFloat();
 				if (p.HasMember("znear"))
@@ -1228,7 +1228,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 			else if (strcmp(camera["type"].GetString(), "orthographic") == 0)
 			{
 				info.type = CameraInfo::Type::Orthographic;
-				auto &o = camera["orthographic"];
+				const auto &o = camera["orthographic"];
 				if (o.HasMember("znear"))
 					info.znear = o["znear"].GetFloat();
 				if (o.HasMember("zfar"))
@@ -1255,7 +1255,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 		if (light.HasMember("color"))
 		{
-			auto &color = light["color"];
+			const auto &color = light["color"];
 			info.color.x = color[0].GetFloat();
 			info.color.y = color[1].GetFloat();
 			info.color.z = color[2].GetFloat();
@@ -1265,7 +1265,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 		info.color *= intensity;
 
-		auto *type = light["type"].GetString();
+		const auto *type = light["type"].GetString();
 		if (strcmp(type, "point") == 0)
 			info.type = LightInfo::Type::Point;
 		else if (strcmp(type, "spot") == 0)
@@ -1288,7 +1288,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 		{
 			if (light.HasMember("spot"))
 			{
-				auto &spot = light["spot"];
+				const auto &spot = light["spot"];
 				if (spot.HasMember("innerConeAngle"))
 				{
 					info.inner_cone = spot["innerConeAngle"].GetFloat();
@@ -1311,19 +1311,19 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 		if (value.HasMember("cubeTexture"))
 		{
-			auto index = json_textures[value["cubeTexture"].GetUint()].image_index;
+			const auto index = json_textures[value["cubeTexture"].GetUint()].image_index;
 			cube = json_images[index];
 		}
 
 		if (value.HasMember("reflectionTexture"))
 		{
-			auto index = json_textures[value["reflectionTexture"].GetUint()].image_index;
+			const auto index = json_textures[value["reflectionTexture"].GetUint()].image_index;
 			reflection = json_images[index];
 		}
 
 		if (value.HasMember("irradianceTexture"))
 		{
-			auto index = json_textures[value["irradianceTexture"].GetUint()].image_index;
+			const auto index = json_textures[value["irradianceTexture"].GetUint()].image_index;
 			irradiance = json_images[index];
 		}
 
@@ -1335,12 +1335,12 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 		float fog_falloff = 1.0f;
 		if (value.HasMember("fog"))
 		{
-			auto &fog = value["fog"];
+			const auto &fog = value["fog"];
 			fog_color = vec3(fog["color"][0].GetFloat(), fog["color"][1].GetFloat(), fog["color"][2].GetFloat());
 			fog_falloff = fog["falloff"].GetFloat();
 		}
 
-		EnvironmentInfo::Fog fog = { fog_color, fog_falloff };
+		const EnvironmentInfo::Fog fog = { fog_color, fog_falloff };
 		json_environments.push_back({ std::move(cube), std::move(reflection), std::move(irradiance), intensity, fog });
 	};
 
@@ -1349,7 +1349,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 	if (doc.HasMember("extensions"))
 	{
-		auto &ext = doc["extensions"];
+		const auto &ext = doc["extensions"];
 		if (ext.HasMember("KHR_lights_punctual") && ext["KHR_lights_punctual"].HasMember("lights"))
 		{
 			auto &lights = ext["KHR_lights_punctual"]["lights"];
@@ -1376,7 +1376,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 	if (doc.HasMember("extras"))
 	{
-		auto &extra = doc["extras"];
+		const auto &extra = doc["extras"];
 		if (extra.HasMember("environments"))
 			iterate_elements(extra["environments"], add_environment);
 	}
@@ -1389,16 +1389,16 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 		iterate_elements(doc["skins"], add_skin);
 
 	const auto add_animation = [&](const Value &animation) {
-		auto &samplers = animation["samplers"];
-		auto &channels = animation["channels"];
+		const auto &samplers = animation["samplers"];
+		const auto &channels = animation["channels"];
 
 		std::vector<Accessor *> json_time;
 		std::vector<Accessor *> json_samplers;
 		std::vector<const char *> json_interpolation;
 
 		const auto add_sampler = [&](const Value &v) {
-			auto &input = v["input"];
-			auto &output = v["output"];
+			const auto &input = v["input"];
+			const auto &output = v["output"];
 
 			json_time.push_back(&json_accessors[input.GetUint()]);
 			json_samplers.push_back(&json_accessors[output.GetUint()]);
@@ -1411,9 +1411,9 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 		for (auto itr = channels.Begin(); itr != channels.End(); ++itr)
 		{
-			auto &sampler = json_samplers[(*itr)["sampler"].GetUint()];
-			auto &animation_target = (*itr)["target"];
-			auto &node_id = animation_target.HasMember("node") ? animation_target["node"] : animation_target["id"];
+			const auto &sampler = json_samplers[(*itr)["sampler"].GetUint()];
+			const auto &animation_target = (*itr)["target"];
+			const auto &node_id = animation_target.HasMember("node") ? animation_target["node"] : animation_target["id"];
 
 			AnimationChannel channel;
 			channel.node_index = node_id.GetUint();
@@ -1431,7 +1431,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 				channel.joint_index = joint_index_itr->second;
 				channel.joint = true;
 
-				uint32_t skin_index = skin_itr->second;
+				const uint32_t skin_index = skin_itr->second;
 				if (!combined_animation.skinning)
 				{
 					combined_animation.skinning = true;
@@ -1493,19 +1493,15 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 	if (doc.HasMember("animations"))
 	{
-		auto &animation_list = doc["animations"];
+		const auto &animation_list = doc["animations"];
 		unsigned counter = 0;
 		for (auto itr = animation_list.Begin(); itr != animation_list.End(); ++itr)
 		{
 			std::string name;
-
 			if (itr->HasMember("name"))
 				name = (*itr)["name"].GetString();
 			else
-			{
-				name = "animation_";
-				name += std::to_string(counter);
-			}
+				name = "animation_" + std::to_string(counter);
 
 			json_animation_names.push_back(std::move(name));
 			counter++;
@@ -1515,10 +1511,10 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 	if (doc.HasMember("scenes"))
 	{
-		auto &scenes = doc["scenes"];
+		const auto &scenes = doc["scenes"];
 		for (auto itr = scenes.Begin(); itr != scenes.End(); ++itr)
 		{
-			auto &s = *itr;
+			const auto &s = *itr;
 			SceneNodes sc;
 
 			if (s.HasMember("name"))
@@ -1526,7 +1522,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 
 			if (s.HasMember("nodes"))
 			{
-				auto &scene_nodes = s["nodes"];
+				const auto &scene_nodes = s["nodes"];
 				for (auto node_itr = scene_nodes.Begin(); node_itr != scene_nodes.End(); ++node_itr)
 					sc.node_indices.push_back(node_itr->GetUint());
 			}
@@ -1539,7 +1535,7 @@ void Parser::parse(const std::string &original_path, const std::string &json)
 		default_scene_index = doc["scene"].GetUint();
 }
 
-static uint32_t padded_type_size(uint32_t type_size)
+static uint32_t padded_type_size(const uint32_t type_size)
 {
 	// If the size if not POT, and not aligned on 32-bit, pad it to be compatible with AMD.
 	if ((type_size & 3) && (type_size & (type_size - 1)))
@@ -1556,15 +1552,15 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 	mesh.has_material = prim.has_material;
 	mesh.material_index = prim.material_index;
 
-	auto &positions = prim.attributes[ecast(MeshAttribute::Position)];
-	uint32_t vertex_count = json_accessors[positions.accessor_index].count;
+	const auto &positions = prim.attributes[ecast(MeshAttribute::Position)];
+	const uint32_t vertex_count = json_accessors[positions.accessor_index].count;
 	mesh.count = vertex_count;
 
 	vec3 aabb_min(0.0f);
 	vec3 aabb_max(0.0f);
 
 	{
-		auto &attr = json_accessors[prim.attributes[ecast(MeshAttribute::Position)].accessor_index];
+		const auto &attr = json_accessors[prim.attributes[ecast(MeshAttribute::Position)].accessor_index];
 		for (unsigned i = 0; i < std::min(3u, attr.components); i++)
 		{
 			aabb_min[i] = attr.min[i].f32;
@@ -1608,7 +1604,7 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 			continue;
 		}
 
-		auto &attr = json_accessors[prim.attributes[i].accessor_index];
+		const auto &attr = json_accessors[prim.attributes[i].accessor_index];
 		if (attr.count != vertex_count)
 			throw std::logic_error("Vertex count mismatch.");
 
@@ -1650,18 +1646,18 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 			continue;
 
 		auto &output = (i == ecast(MeshAttribute::Position)) ? mesh.positions : mesh.attributes;
-		auto output_stride = (i == ecast(MeshAttribute::Position)) ? mesh.position_stride : mesh.attribute_stride;
+		const auto output_stride = (i == ecast(MeshAttribute::Position)) ? mesh.position_stride : mesh.attribute_stride;
 
-		auto &attr = json_accessors[prim.attributes[i].accessor_index];
-		auto &view = json_views[attr.view];
-		auto &buffer = json_buffers[view.buffer_index];
-		auto type_size = type_stride(attr.type) * attr.components;
+		const auto &attr = json_accessors[prim.attributes[i].accessor_index];
+		const auto &view = json_views[attr.view];
+		const auto &buffer = json_buffers[view.buffer_index];
+		const auto type_size = type_stride(attr.type) * attr.components;
 
 		if (i == ecast(MeshAttribute::BoneIndex))
 		{
 			for (uint32_t v = 0; v < vertex_count; v++)
 			{
-				uint32_t offset = view.offset + attr.offset + v * attr.stride;
+				const uint32_t offset = view.offset + attr.offset + v * attr.stride;
 				const auto *data = &buffer[offset];
 
 				uint8_t indices[4] = {};
@@ -1696,7 +1692,7 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 			// Need to rescale bone weights. Some meshes don't do this.
 			for (uint32_t v = 0; v < vertex_count; v++)
 			{
-				uint32_t offset = view.offset + attr.offset + v * attr.stride;
+				const uint32_t offset = view.offset + attr.offset + v * attr.stride;
 				const auto *data = &buffer[offset];
 
 				uint16_t weights[4] = {};
@@ -1705,7 +1701,7 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 					float sum = 0.0f;
 					for (uint32_t c = 0; c < attr.components; c++)
 						sum += reinterpret_cast<const float *>(data)[c];
-					float rescale = float(0xffff) / sum;
+					const float rescale = float(0xffff) / sum;
 					for (uint32_t c = 0; c < attr.components; c++)
 						weights[c] = uint16_t(reinterpret_cast<const float *>(data)[c] * rescale);
 				}
@@ -1714,7 +1710,7 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 					float sum = 0.0f;
 					for (uint32_t c = 0; c < attr.components; c++)
 						sum += reinterpret_cast<const uint16_t *>(data)[c];
-					float rescale = float(0xffff) / sum;
+					const float rescale = float(0xffff) / sum;
 					for (uint32_t c = 0; c < attr.components; c++)
 						weights[c] = uint16_t(reinterpret_cast<const uint16_t *>(data)[c] * rescale);
 				}
@@ -1723,7 +1719,7 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 					float sum = 0.0f;
 					for (uint32_t c = 0; c < attr.components; c++)
 						sum += reinterpret_cast<const uint8_t *>(data)[c];
-					float rescale = float(0xffff) / sum;
+					const float rescale = float(0xffff) / sum;
 					for (uint32_t c = 0; c < attr.components; c++)
 						weights[c] = uint16_t(reinterpret_cast<const uint8_t *>(data)[c] * rescale);
 				}
@@ -1737,7 +1733,7 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 		{
 			for (uint32_t v = 0; v < vertex_count; v++)
 			{
-				uint32_t offset = view.offset + attr.offset + v * attr.stride;
+				const uint32_t offset = view.offset + attr.offset + v * attr.stride;
 				const auto *data = &buffer[offset];
 				memcpy(&output[mesh.attribute_layout[i].offset + output_stride * v], data, type_size);
 			}
@@ -1746,14 +1742,14 @@ void Parser::build_primitive(const MeshData::AttributeData &prim)
 
 	if (prim.index_buffer.active)
 	{
-		auto &indices = json_accessors[prim.index_buffer.accessor_index];
-		auto &view = json_views[indices.view];
-		auto &buffer = json_buffers[view.buffer_index];
+		const auto &indices = json_accessors[prim.index_buffer.accessor_index];
+		const auto &view = json_views[indices.view];
+		const auto &buffer = json_buffers[view.buffer_index];
 
-		auto type_size = type_stride(indices.type);
-		bool u16_compat = (indices.max[0].u32 < 0xffff) && (indices.max[0].u32 > indices.min[0].u32);
-		auto index_count = indices.count;
-		auto offset = view.offset + indices.offset;
+		const auto type_size = type_stride(indices.type);
+		const bool u16_compat = (indices.max[0].u32 < 0xffff) && (indices.max[0].u32 > indices.min[0].u32);
+		const auto index_count = indices.count;
+		const auto offset = view.offset + indices.offset;
 
 		if (type_size == 1)
 		{

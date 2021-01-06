@@ -21,6 +21,7 @@
  */
 
 #include "scene_formats/camera_export.hpp"
+#include "scene_formats/scene_formats.hpp"
 
 #include "rapidjson_wrapper.hpp"
 

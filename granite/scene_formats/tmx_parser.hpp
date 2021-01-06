@@ -50,12 +50,12 @@ public:
 			None
 		};
 
-		void set_float(float v) { u.f32 = v; type = Type::Float; }
-		void set_int(int v) { u.s32 = v; type = Type::Int; }
+		void set_float(const float v) { u.f32 = v; type = Type::Float; }
+		void set_int(const int v) { u.s32 = v; type = Type::Int; }
 		void set_color(const muglm::u8vec4 &v) { for (int i = 0; i < 4; i++) u.color[i] = v[i]; type = Type::Color; }
 		void set_file(const char *v) { str = v; type = Type::File; }
 		void set_string(const char *v) { str = v; type = Type::String; }
-		void set_boolean(bool v) { u.boolean = v; type = Type::Boolean; }
+		void set_boolean(const bool v) { u.boolean = v; type = Type::Boolean; }
 
 		float get_float() const { verify(Type::Float); return u.f32; }
 		int get_int() const { verify(Type::Int); return u.s32; }
@@ -130,6 +130,6 @@ private:
 	muglm::uvec2 tile_size;
 
 	void parse(const std::string &base_path, const std::string &json);
-	void copy_tile(const Vulkan::TextureFormatLayout &dst_layout, unsigned layer,
-	               const Vulkan::TextureFormatLayout &src_layout, unsigned x, unsigned y);
+	void copy_tile(const Vulkan::TextureFormatLayout &dst_layout, const unsigned layer,
+	               const Vulkan::TextureFormatLayout &src_layout, const unsigned x, const unsigned y);
 };

@@ -22,7 +22,9 @@
 
 #include "scene_formats/texture_compression.hpp"
 #include "scene_formats/texture_files.hpp"
+#include "scene_formats/memory_mapped_texture.hpp"
 #include "scene_formats/rgtc_compressor.hpp"
+#include "renderer/material.hpp"
 #include "vulkan/format.hpp"
 #include "math/muglm/muglm_impl.hpp"
 
@@ -249,21 +251,12 @@ void CompressorState::setup(const CompressorArguments &args)
 	switch (args.format)
 	{
 	case VK_FORMAT_BC4_UNORM_BLOCK:
-		block_size_x = 4;
-		block_size_y = 4;
-		if (!is_unorm())
-		{
-			LOGE("Input format to bc4 must be UNORM.\n");
-			return;
-		}
-		break;
-
 	case VK_FORMAT_BC5_UNORM_BLOCK:
 		block_size_x = 4;
 		block_size_y = 4;
 		if (!is_unorm())
 		{
-			LOGE("Input format to bc5 must be UNORM.\n");
+			LOGE("Input format to bc4 or bc5 must be UNORM.\n");
 			return;
 		}
 		break;
@@ -449,8 +442,8 @@ void CompressorState::enqueue_compression_copy_16bit(TaskGroupHandle &group, con
 		u16vec4 tmp(0, 0, 0, floatToHalf(1.0f));
 		if (input_stride <= sizeof(u16vec4) && output_stride <= sizeof(u16vec4))
 		{
-			unsigned width = input_layout.get_width(level);
-			unsigned height = input_layout.get_height(level);
+			const unsigned width = input_layout.get_width(level);
+			const unsigned height = input_layout.get_height(level);
 
 			for (unsigned y = 0; y < height; y++)
 			{
@@ -479,8 +472,8 @@ void CompressorState::enqueue_compression_copy_8bit(TaskGroupHandle &group, cons
 
 		if (input_stride <= sizeof(u8vec4) && output_stride <= sizeof(u8vec4))
 		{
-			unsigned width = input_layout.get_width(level);
-			unsigned height = input_layout.get_height(level);
+			const unsigned width = input_layout.get_width(level);
+			const unsigned height = input_layout.get_height(level);
 			u8vec4 tmp(0, 0, 0, 255);
 
 			for (unsigned y = 0; y < height; y++)
@@ -501,9 +494,9 @@ void CompressorState::enqueue_compression_copy_8bit(TaskGroupHandle &group, cons
 
 void CompressorState::enqueue_compression_block_rgtc(TaskGroupHandle &group, const CompressorArguments &args, unsigned layer, unsigned level)
 {
-	int width = input->get_layout().get_width(level);
-	int height = input->get_layout().get_height(level);
-	int blocks_x = (width + block_size_x - 1) / block_size_x;
+	const int width = input->get_layout().get_width(level);
+	const int height = input->get_layout().get_height(level);
+	const int blocks_x = (width + block_size_x - 1) / block_size_x;
 
 	for (int y = 0; y < height; y += block_size_y)
 	{
@@ -514,7 +507,7 @@ void CompressorState::enqueue_compression_block_rgtc(TaskGroupHandle &group, con
 				uint8_t padded_red[4 * 4];
 				uint8_t padded_green[4 * 4];
 				auto *src = static_cast<const uint8_t *>(layout.data(layer, level));
-				unsigned pixel_stride = layout.get_block_stride();
+				const unsigned pixel_stride = layout.get_block_stride();
 
 				const auto get_block_data = [&](int block_size) -> uint8_t * {
 					auto *dst = static_cast<uint8_t *>(output->get_layout().data(layer, level));
@@ -604,10 +597,10 @@ void CompressorState::enqueue_compression_block_rgtc(TaskGroupHandle &group, con
 void CompressorState::enqueue_compression_block_ispc(TaskGroupHandle &group, const CompressorArguments &args,
                                                      unsigned layer, unsigned level)
 {
-	int width = input->get_layout().get_width(level);
-	int height = input->get_layout().get_height(level);
-	int grid_stride_x = (32 / block_size_x) * block_size_x;
-	int grid_stride_y = (32 / block_size_y) * block_size_y;
+	const int width = input->get_layout().get_width(level);
+	const int height = input->get_layout().get_height(level);
+	const int grid_stride_x = (32 / block_size_x) * block_size_x;
+	const int grid_stride_y = (32 / block_size_y) * block_size_y;
 
 	for (int y = 0; y < height; y += grid_stride_y)
 	{
@@ -635,9 +628,9 @@ void CompressorState::enqueue_compression_block_ispc(TaskGroupHandle &group, con
 
 				rgba_surface padded_surface = {};
 
-				int num_blocks_x = (surface.width + block_size_x - 1) / block_size_x;
-				int num_blocks_y = (surface.height + block_size_y - 1) / block_size_y;
-				int blocks_x = (width + block_size_x - 1) / block_size_x;
+				const int num_blocks_x = (surface.width + block_size_x - 1) / block_size_x;
+				const int num_blocks_y = (surface.height + block_size_y - 1) / block_size_y;
+				const int blocks_x = (width + block_size_x - 1) / block_size_x;
 
 				const auto get_block_data = [&](int bx, int by, int block_size) -> uint8_t * {
 					auto *dst = static_cast<uint8_t *>(output->get_layout().data(layer, level));
@@ -784,8 +777,8 @@ void CompressorState::enqueue_compression_block_astc(TaskGroupHandle &compressio
 		return;
 	}
 
-	bool use_alpha_weight = mode == TextureMode::sRGBA || mode == TextureMode::RGBA;
-	bool use_alpha_channel = use_alpha_weight || mode == TextureMode::NormalLA || mode == TextureMode::MaskLA;
+	const bool use_alpha_weight = mode == TextureMode::sRGBA || mode == TextureMode::RGBA;
+	const bool use_alpha_channel = use_alpha_weight || mode == TextureMode::NormalLA || mode == TextureMode::MaskLA;
 	if (mode == TextureMode::NormalLA)
 		flags |= ASTCENC_FLG_MAP_NORMAL;
 	else if (mode == TextureMode::MaskLA)
@@ -810,19 +803,19 @@ void CompressorState::enqueue_compression_block_astc(TaskGroupHandle &compressio
 		return;
 	}
 
-	int width = input->get_layout().get_width(level);
-	int height = input->get_layout().get_height(level);
+	const int width = input->get_layout().get_width(level);
+	const int height = input->get_layout().get_height(level);
 
 	// Seems to be a bug in astcenc itself.
 
 #if 0
 	auto *group = compression_task->get_thread_group();
-	int num_blocks_x = (width + block_size_x - 1) / block_size_x;
-	int num_blocks_y = (height + block_size_y - 1) / block_size_y;
+	const int num_blocks_x = (width + block_size_x - 1) / block_size_x;
+	const int num_blocks_y = (height + block_size_y - 1) / block_size_y;
 
 	// There are some weird bugs happening when using multi-threading.
-	int num_blocks = num_blocks_x * num_blocks_y;
-	int num_threads = (num_blocks + 127) / 128;
+	const int num_blocks = num_blocks_x * num_blocks_y;
+	const int num_threads = (num_blocks + 127) / 128;
 #else
 	constexpr int num_threads = 1;
 #endif
@@ -837,10 +830,10 @@ void CompressorState::enqueue_compression_block_astc(TaskGroupHandle &compressio
 	state->context.reset(context);
 
 	constexpr int padding_pixels = 8;
-	int padded_width = width + padding_pixels * 2;
-	int padded_height = height + padding_pixels * 2;
+	const int padded_width = width + padding_pixels * 2;
+	const int padded_height = height + padding_pixels * 2;
 
-	VkFormat input_format = input->get_layout().get_format();
+	const VkFormat input_format = input->get_layout().get_format();
 	if (input_format == VK_FORMAT_R16G16B16A16_SFLOAT)
 	{
 		state->data_padded_16.resize(padded_width * height);
@@ -866,7 +859,7 @@ void CompressorState::enqueue_compression_block_astc(TaskGroupHandle &compressio
 		state->slice_8 = state->rows_8.data();
 	}
 
-	int pixel_size = Vulkan::TextureFormatLayout::format_block_size(input_format, VK_IMAGE_ASPECT_COLOR_BIT);
+	const int pixel_size = Vulkan::TextureFormatLayout::format_block_size(input_format, VK_IMAGE_ASPECT_COLOR_BIT);
 
 	for (int y = 0; y < height; y++)
 	{

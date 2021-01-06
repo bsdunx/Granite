@@ -54,7 +54,7 @@ struct IndexRemapping
 // Find duplicate indices.
 static IndexRemapping build_index_remap_list(const Mesh &mesh)
 {
-	unsigned attribute_count = unsigned(mesh.positions.size() / mesh.position_stride);
+	const unsigned attribute_count = unsigned(mesh.positions.size() / mesh.position_stride);
 	std::unordered_map<Hash, unsigned> attribute_remapper;
 	IndexRemapping remapped;
 	remapped.index_remap.reserve(attribute_count);
@@ -106,6 +106,10 @@ static std::vector<uint32_t> build_canonical_index_buffer(const Mesh &mesh, cons
 		for (unsigned i = 0; i < mesh.count; i++)
 			index_buffer.push_back(index_remap[reinterpret_cast<const uint16_t *>(mesh.indices.data())[i]]);
 	}
+	else
+	{
+		LOGE("build_canonical_index_buffer");
+	}
 
 	return index_buffer;
 }
@@ -122,7 +126,7 @@ static void rebuild_new_attributes_remap_src(std::vector<uint8_t> &positions, un
 	if (attribute_stride)
 		new_attributes.resize(attribute_stride * unique_attrib_to_source_index.size());
 
-	size_t count = unique_attrib_to_source_index.size();
+	const size_t count = unique_attrib_to_source_index.size();
 	for (size_t i = 0; i < count; i++)
 	{
 		memcpy(new_positions.data() + i * position_stride,
@@ -153,7 +157,7 @@ static void rebuild_new_attributes_remap_dst(std::vector<uint8_t> &positions, un
 	if (attribute_stride)
 		new_attributes.resize(attribute_stride * unique_attrib_to_dest_index.size());
 
-	size_t count = unique_attrib_to_dest_index.size();
+	const size_t count = unique_attrib_to_dest_index.size();
 	for (size_t i = 0; i < count; i++)
 	{
 		memcpy(new_positions.data() + unique_attrib_to_dest_index[i] * position_stride,
@@ -236,13 +240,13 @@ void mesh_deduplicate_vertices(Mesh &mesh)
 
 	mesh.index_type = VK_INDEX_TYPE_UINT32;
 	mesh.indices.resize(index_buffer.size() * sizeof(uint32_t));
-	size_t count = index_buffer.size();
+	const size_t count = index_buffer.size();
 	for (size_t i = 0; i < count; i++)
 		reinterpret_cast<uint32_t *>(mesh.indices.data())[i] = index_buffer[i];
 	mesh.count = unsigned(index_buffer.size());
 }
 
-Mesh mesh_optimize_index_buffer(const Mesh &mesh, bool stripify)
+Mesh mesh_optimize_index_buffer(const Mesh &mesh, const bool stripify)
 {
 	if (mesh.topology != VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST)
 		return mesh;
@@ -258,7 +262,7 @@ Mesh mesh_optimize_index_buffer(const Mesh &mesh, bool stripify)
 	                                 optimized.attributes, optimized.attribute_stride,
 	                                 mesh.positions, mesh.attributes, index_remap.unique_attrib_to_source_index);
 
-	size_t vertex_count = optimized.positions.size() / optimized.position_stride;
+	const size_t vertex_count = optimized.positions.size() / optimized.position_stride;
 
 	// Optimize for vertex cache.
 	meshopt_optimizeVertexCache(index_buffer.data(), index_buffer.data(), index_buffer.size(),
@@ -279,9 +283,9 @@ Mesh mesh_optimize_index_buffer(const Mesh &mesh, bool stripify)
 	{
 		// Try to stripify the mesh. If we end up with fewer indices, use that.
 		std::vector<uint32_t> stripped_index_buffer((index_buffer.size() / 3) * 4);
-		size_t stripped_index_count = meshopt_stripify(stripped_index_buffer.data(),
-		                                               index_buffer.data(), index_buffer.size(),
-		                                               vertex_count, ~0u);
+		const size_t stripped_index_count = meshopt_stripify(stripped_index_buffer.data(),
+		                                                     index_buffer.data(), index_buffer.size(),
+		                                                     vertex_count, ~0u);
 
 		stripped_index_buffer.resize(stripped_index_count);
 		if (stripped_index_count < index_buffer.size())
@@ -301,7 +305,7 @@ Mesh mesh_optimize_index_buffer(const Mesh &mesh, bool stripify)
 	{
 		optimized.index_type = VK_INDEX_TYPE_UINT16;
 		optimized.indices.resize(index_buffer.size() * sizeof(uint16_t));
-		size_t count = index_buffer.size();
+		const size_t count = index_buffer.size();
 		for (size_t i = 0; i < count; i++)
 		{
 			reinterpret_cast<uint16_t *>(optimized.indices.data())[i] =
@@ -363,7 +367,7 @@ bool mesh_recompute_tangents(Mesh &mesh)
 
 	iface.m_getNormal = [](const SMikkTSpaceContext *ctx, float normals[],
 	                       const int face_index, const int vert_index) {
-		int i = face_index * 3 + vert_index;
+		const int i = face_index * 3 + vert_index;
 		const Mesh *m = static_cast<const Mesh *>(ctx->m_pUserData);
 		memcpy(normals, m->attributes.data() + i * m->attribute_stride +
 		                m->attribute_layout[ecast(MeshAttribute::Normal)].offset,
@@ -372,7 +376,7 @@ bool mesh_recompute_tangents(Mesh &mesh)
 
 	iface.m_getTexCoord = [](const SMikkTSpaceContext *ctx, float normals[],
 	                         const int face_index, const int vert_index) {
-		int i = face_index * 3 + vert_index;
+		const int i = face_index * 3 + vert_index;
 		const Mesh *m = static_cast<const Mesh *>(ctx->m_pUserData);
 		memcpy(normals, m->attributes.data() + i * m->attribute_stride +
 		                m->attribute_layout[ecast(MeshAttribute::UV)].offset,
@@ -381,7 +385,7 @@ bool mesh_recompute_tangents(Mesh &mesh)
 
 	iface.m_getPosition = [](const SMikkTSpaceContext *ctx, float positions[],
 	                         const int face_index, const int vert_index) {
-		int i = face_index * 3 + vert_index;
+		const int i = face_index * 3 + vert_index;
 		const Mesh *m = static_cast<const Mesh *>(ctx->m_pUserData);
 		memcpy(positions, m->positions.data() + i * m->position_stride,
 		       sizeof(vec3));
@@ -389,10 +393,10 @@ bool mesh_recompute_tangents(Mesh &mesh)
 
 	iface.m_setTSpaceBasic = [](const SMikkTSpaceContext *ctx, const float tangent[], const float sign,
 	                            const int face_index, const int vert_index) {
-		int i = face_index * 3 + vert_index;
+		const int i = face_index * 3 + vert_index;
 		Mesh *m = static_cast<Mesh *>(ctx->m_pUserData);
 		// Invert the sign because of glTF convention.
-		vec4 t(tangent[0], tangent[1], tangent[2], -sign);
+		const vec4 t(tangent[0], tangent[1], tangent[2], -sign);
 		memcpy(m->attributes.data() + i * m->attribute_stride +
 		       m->attribute_layout[ecast(MeshAttribute::Tangent)].offset,
 		       &t,
@@ -411,7 +415,7 @@ bool mesh_recompute_tangents(Mesh &mesh)
 template <typename T, typename Op>
 static void mesh_transform_attribute(Mesh &mesh, const Op &op, uint32_t offset)
 {
-	size_t count = mesh.attributes.size() / mesh.attribute_stride;
+	const size_t count = mesh.attributes.size() / mesh.attribute_stride;
 	for (size_t i = 0; i < count; i++)
 	{
 		auto &attr = *reinterpret_cast<T *>(mesh.attributes.data() + i * mesh.attribute_stride + offset);
@@ -431,7 +435,7 @@ bool mesh_renormalize_normals(Mesh &mesh)
 	}
 
 	mesh_transform_attribute<vec3>(mesh, [](const vec3 &v) -> vec3 {
-		float sqr = dot(v, v);
+		const float sqr = dot(v, v);
 		if (sqr < 0.000001f)
 		{
 			LOGI("Found degenerate normal.\n");
@@ -455,7 +459,7 @@ bool mesh_renormalize_tangents(Mesh &mesh)
 	}
 
 	mesh_transform_attribute<vec3>(mesh, [](const vec3 &v) -> vec3 {
-		float sqr = dot(v, v);
+		const float sqr = dot(v, v);
 		if (sqr < 0.000001f)
 		{
 			LOGI("Found degenerate tangent.\n");
@@ -478,7 +482,7 @@ bool mesh_flip_tangents_w(Mesh &mesh)
 		return false;
 	}
 
-	size_t count = mesh.attributes.size() / mesh.attribute_stride;
+	const size_t count = mesh.attributes.size() / mesh.attribute_stride;
 	for (size_t i = 0; i < count; i++)
 		reinterpret_cast<vec4 *>(mesh.attributes.data() + i * mesh.attribute_stride + t.offset)->w *= -1.0f;
 	return true;
@@ -507,8 +511,8 @@ bool mesh_recompute_normals(Mesh &mesh)
 		return false;
 	}
 
-	auto attr_count = unsigned(mesh.attributes.size() / mesh.attribute_stride);
-	unsigned normal_offset = mesh.attribute_layout[ecast(MeshAttribute::Normal)].offset;
+	const auto attr_count = unsigned(mesh.attributes.size() / mesh.attribute_stride);
+	const unsigned normal_offset = mesh.attribute_layout[ecast(MeshAttribute::Normal)].offset;
 
 	const auto get_normal = [&](unsigned i) -> vec3 & {
 		return *reinterpret_cast<vec3 *>(mesh.attributes.data() + normal_offset + i * mesh.attribute_stride);
@@ -521,8 +525,7 @@ bool mesh_recompute_normals(Mesh &mesh)
 	for (unsigned i = 0; i < attr_count; i++)
 		get_normal(i) = vec3(0.0f);
 
-	uint32_t count = mesh.count;
-	uint32_t primitives = count / 3;
+	const uint32_t primitives = mesh.count / 3;
 
 	const auto accumulate_normals = [&](const auto &op) {
 		for (unsigned i = 0; i < primitives; i++)

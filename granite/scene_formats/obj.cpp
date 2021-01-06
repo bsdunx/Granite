@@ -28,6 +28,7 @@
 #include "util/string_helpers.hpp"
 
 using namespace Util;
+using namespace Granite::SceneFormats;
 
 namespace OBJ
 {
@@ -71,7 +72,7 @@ void Parser::flush_mesh()
 		mesh.attribute_layout[ecast(MeshAttribute::Normal)].format = VK_FORMAT_R32G32B32_SFLOAT;
 		mesh.attribute_layout[ecast(MeshAttribute::UV)].format = VK_FORMAT_R32G32_SFLOAT;
 		mesh.attribute_layout[ecast(MeshAttribute::UV)].offset = sizeof(vec3);
-		static const size_t stride = sizeof(vec3) + sizeof(vec2);
+		const size_t stride = sizeof(vec3) + sizeof(vec2);
 		mesh.attribute_stride = stride;
 		mesh.attributes.resize(stride * current_positions.size());
 
@@ -86,7 +87,7 @@ void Parser::flush_mesh()
 		if (current_normals.size() != current_positions.size())
 			throw std::runtime_error("Normal size != position size.");
 		mesh.attribute_layout[ecast(MeshAttribute::Normal)].format = VK_FORMAT_R32G32B32_SFLOAT;
-		static const size_t stride = sizeof(vec3);
+		const size_t stride = sizeof(vec3);
 		mesh.attribute_stride = stride;
 		mesh.attributes.resize(stride * current_positions.size());
 		for (size_t i = 0; i < current_positions.size(); i++)
@@ -97,7 +98,7 @@ void Parser::flush_mesh()
 		if (current_uvs.size() != current_positions.size())
 			throw std::runtime_error("UV size != position size.");
 		mesh.attribute_layout[ecast(MeshAttribute::UV)].format = VK_FORMAT_R32G32_SFLOAT;
-		static const size_t stride = sizeof(vec2);
+		const size_t stride = sizeof(vec2);
 		mesh.attribute_stride = stride;
 		mesh.attributes.resize(stride * current_positions.size());
 		for (size_t i = 0; i < current_positions.size(); i++)
@@ -135,7 +136,7 @@ void Parser::emit_gltf_base_color(const std::string &base_color_path, const std:
 		return;
 	}
 
-	auto base_color = load_texture_from_file(base_color_path, ColorSpace::sRGB);
+	const auto base_color = load_texture_from_file(base_color_path, ColorSpace::sRGB);
 	if (base_color.empty())
 	{
 		LOGE("Failed to open base color texture %s, falling back to default material.\n",
@@ -168,7 +169,7 @@ void Parser::emit_gltf_base_color(const std::string &base_color_path, const std:
 	height = base_color.get_layout().get_height();
 	hasher.string(base_color_path);
 	hasher.string(alpha_mask_path);
-	std::string packed_path = std::string("memory://") + std::to_string(hasher.get()) + ".gtx";
+	const std::string packed_path = std::string("memory://") + std::to_string(hasher.get()) + ".gtx";
 	materials.back().base_color.path = packed_path;
 	materials.back().pipeline = DrawPipeline::AlphaTest;
 	materials.back().two_sided = true;
@@ -185,8 +186,8 @@ void Parser::emit_gltf_base_color(const std::string &base_color_path, const std:
 		for (unsigned x = 0; x < width; x++)
 		{
 			auto *dst = output.get_layout().data_2d<u8vec4>(x, y);
-			auto *b = base_color.get_layout().data_2d<u8vec4>(x, y);
-			auto *a = alpha_mask.get_layout().data_2d<u8vec4>(x, y);
+			const auto *b = base_color.get_layout().data_2d<u8vec4>(x, y);
+			const auto *a = alpha_mask.get_layout().data_2d<u8vec4>(x, y);
 			*dst = u8vec4(b->x, b->y, b->z, a->x);
 		}
 	}
@@ -284,8 +285,8 @@ void Parser::emit_gltf_pbr_metallic_roughness(const std::string &metallic_path, 
 			for (unsigned x = 0; x < width; x++)
 			{
 				auto *output = pbr.get_layout().data_2d<u8vec4>(x, y);
-				auto *m = metallic.get_layout().data_2d<u8vec4>(x, y);
-				auto *r = roughness.get_layout().data_2d<u8vec4>(x, y);
+				const auto *m = metallic.get_layout().data_2d<u8vec4>(x, y);
+				const auto *r = roughness.get_layout().data_2d<u8vec4>(x, y);
 				*output = u8vec4(0u, r->x, m->x, 0u);
 			}
 		}
@@ -297,7 +298,7 @@ void Parser::emit_gltf_pbr_metallic_roughness(const std::string &metallic_path, 
 			for (unsigned x = 0; x < width; x++)
 			{
 				auto *output = pbr.get_layout().data_2d<u8vec4>(x, y);
-				auto *m = metallic.get_layout().data_2d<u8vec4>(x, y);
+				const auto *m = metallic.get_layout().data_2d<u8vec4>(x, y);
 				*output = u8vec4(0u, 255u, m->x, 0u); // Probably need to estimate roughness based on specular.
 			}
 		}
@@ -309,7 +310,7 @@ void Parser::emit_gltf_pbr_metallic_roughness(const std::string &metallic_path, 
 			for (unsigned x = 0; x < width; x++)
 			{
 				auto *output = pbr.get_layout().data_2d<u8vec4>(x, y);
-				auto *r = roughness.get_layout().data_2d<u8vec4>(x, y);
+				const auto *r = roughness.get_layout().data_2d<u8vec4>(x, y);
 				*output = u8vec4(0u, r->x, 0u, 0u);
 			}
 		}
@@ -339,8 +340,8 @@ void Parser::emit_vertex(const OBJVertex * const *face)
 		if (face[i]->size() == 1)
 			continue;
 
-		auto &u = face[i]->operator[](1);
-		auto &n = face[i]->operator[](2);
+		const auto &u = face[i]->operator[](1);
+		const auto &n = face[i]->operator[](2);
 
 		if (!u.empty())
 		{
@@ -500,10 +501,10 @@ Parser::Parser(const std::string &path)
 		{
 			if (elements.size() == 5)
 			{
-				auto v0 = split(elements.at(1), "/");
-				auto v1 = split(elements.at(2), "/");
-				auto v2 = split(elements.at(3), "/");
-				auto v3 = split(elements.at(4), "/");
+				const auto v0 = split(elements.at(1), "/");
+				const auto v1 = split(elements.at(2), "/");
+				const auto v2 = split(elements.at(3), "/");
+				const auto v3 = split(elements.at(4), "/");
 
 				const OBJVertex *f0[3] = { &v0, &v1, &v2 };
 				const OBJVertex *f1[3] = { &v0, &v2, &v3 };
@@ -512,9 +513,9 @@ Parser::Parser(const std::string &path)
 			}
 			else if (elements.size() == 4)
 			{
-				auto v0 = split(elements.at(1), "/");
-				auto v1 = split(elements.at(2), "/");
-				auto v2 = split(elements.at(3), "/");
+				const auto v0 = split(elements.at(1), "/");
+				const auto v1 = split(elements.at(2), "/");
+				const auto v2 = split(elements.at(3), "/");
 				const OBJVertex *f0[3] = { &v0, &v1, &v2 };
 				emit_vertex(f0);
 			}

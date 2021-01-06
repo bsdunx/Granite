@@ -28,34 +28,34 @@ namespace Granite::SceneFormats
 struct TextureFormatUnorm8
 {
 	inline vec4 sample(const Vulkan::TextureFormatLayout &layout, const uvec2 &coord,
-	                   uint32_t layer, uint32_t mip) const
+	                   const uint32_t layer, const uint32_t mip) const
 	{
 		uint8_t &v = *layout.data_generic<uint8_t>(coord.x, coord.y, layer, mip);
 		return vec4(float(v) * (1.0f / 255.0f), 0.0f, 0.0f, 1.0f);
 	}
 
 	inline void write(const Vulkan::TextureFormatLayout &layout, const uvec2 &coord,
-	                  uint32_t layer, uint32_t mip, const vec4 &v) const
+	                  const uint32_t layer, const uint32_t mip, const vec4 &v) const
 	{
-		float q = muglm::clamp(muglm::round(v.x * 255.0f), 0.0f, 255.0f);
-		*layout.data_generic<uint8_t>(coord.x, coord.y, layer, mip) = uint8_t(q);
+		const auto q = uint8_t(muglm::clamp(muglm::round(v.x * 255.0f), 0.0f, 255.0f));
+		*layout.data_generic<uint8_t>(coord.x, coord.y, layer, mip) = q;
 	}
 };
 
 struct TextureFormatRG8Unorm
 {
 	inline vec4 sample(const Vulkan::TextureFormatLayout &layout, const uvec2 &coord,
-	                   uint32_t layer, uint32_t mip) const
+	                   const uint32_t layer, const uint32_t mip) const
 	{
 		u8vec2 &v = *layout.data_generic<u8vec2>(coord.x, coord.y, layer, mip);
 		return vec4(vec2(v) * (1.0f / 255.0f), 0.0f, 1.0f);
 	}
 
 	inline void write(const Vulkan::TextureFormatLayout &layout, const uvec2 &coord,
-	                  uint32_t layer, uint32_t mip, const vec4 &v) const
+	                  const uint32_t layer, const uint32_t mip, const vec4 &v) const
 	{
-		auto q = clamp(round(v.xy() * 255.0f), vec2(0.0f), vec2(255.0f));
-		*layout.data_generic<u8vec2>(coord.x, coord.y, layer, mip) = u8vec2(q);
+		const auto q = u8vec2(clamp(round(v.xy() * 255.0f), vec2(0.0f), vec2(255.0f)));
+		*layout.data_generic<u8vec2>(coord.x, coord.y, layer, mip) = q;
 	}
 };
 
@@ -71,14 +71,14 @@ struct TextureFormatRGBA8Unorm
 	inline void write(const Vulkan::TextureFormatLayout &layout, const uvec2 &coord,
 	                  uint32_t layer, uint32_t mip, const vec4 &v) const
 	{
-		auto q = clamp(round(v * 255.0f), vec4(0.0f), vec4(255.0f));
-		*layout.data_generic<u8vec4>(coord.x, coord.y, layer, mip) = u8vec4(q);
+		const auto q = u8vec4(clamp(round(v * 255.0f), vec4(0.0f), vec4(255.0f)));
+		*layout.data_generic<u8vec4>(coord.x, coord.y, layer, mip) = q;
 	}
 };
 
 struct TextureFormatRGBA8Srgb
 {
-	static inline float srgb_gamma_to_linear(float v)
+	static inline float srgb_gamma_to_linear(const float v)
 	{
 		if (v <= 0.04045f)
 			return v * (1.0f / 12.92f);
@@ -86,7 +86,7 @@ struct TextureFormatRGBA8Srgb
 			return muglm::pow((v + 0.055f) / (1.0f + 0.055f), 2.4f);
 	}
 
-	static inline float srgb_linear_to_gamma(float v)
+	static inline float srgb_linear_to_gamma(const float v)
 	{
 		if (v <= 0.0031308f)
 			return 12.92f * v;
@@ -111,14 +111,14 @@ struct TextureFormatRGBA8Srgb
 	}
 
 	inline vec4 sample(const Vulkan::TextureFormatLayout &layout, const uvec2 &coord,
-	                   uint32_t layer, uint32_t mip) const
+	                   const uint32_t layer, const uint32_t mip) const
 	{
 		u8vec4 &v = *layout.data_generic<u8vec4>(coord.x, coord.y, layer, mip);
 		return srgb_gamma_to_linear(vec4(v) * (1.0f / 255.0f));
 	}
 
 	inline void write(const Vulkan::TextureFormatLayout &layout, const uvec2 &coord,
-	                  uint32_t layer, uint32_t mip, const vec4 &v) const
+	                  const uint32_t layer, const uint32_t mip, const vec4 &v) const
 	{
 		auto q = clamp(round(srgb_linear_to_gamma(v) * 255.0f), vec4(0.0f), vec4(255.0f));
 		*layout.data_generic<u8vec4>(coord.x, coord.y, layer, mip) = u8vec4(q);
@@ -136,43 +136,44 @@ inline void generate_mipmaps(const Vulkan::TextureFormatLayout &dst_layout,
 		auto &dst_mip = dst_layout.get_mip_info(level);
 		auto &src_mip = dst_layout.get_mip_info(level - 1);
 
-		uint32_t dst_width = dst_mip.block_row_length;
-		uint32_t dst_height = dst_mip.block_image_height;
+		const uint32_t dst_width = dst_mip.block_row_length;
+		const uint32_t dst_height = dst_mip.block_image_height;
 
-		uint32_t src_width = src_mip.block_row_length;
-		uint32_t src_height = src_mip.block_image_height;
-		uvec2 max_coord(src_width - 1u, src_height - 1u);
+		const uint32_t src_width = src_mip.block_row_length;
+		const uint32_t src_height = src_mip.block_image_height;
+		const uvec2 max_coord(src_width - 1u, src_height - 1u);
 
-		float src_width_f = float(src_mip.block_row_length);
-		float src_height_f = float(src_mip.block_image_height);
+		const float src_width_f = float(src_mip.block_row_length);
+		const float src_height_f = float(src_mip.block_image_height);
 
-		float rescale_width = src_width_f / float(dst_width);
-		float rescale_height = src_height_f / float(dst_height);
+		const float rescale_width = src_width_f / float(dst_width);
+		const float rescale_height = src_height_f / float(dst_height);
 
-		for (uint32_t layer = 0; layer < dst_layout.get_layers(); layer++)
+		const uint32_t layers = dst_layout.get_layers();
+		for (uint32_t layer = 0; layer < layers; layer++)
 		{
 			for (uint32_t y = 0; y < dst_height; y++)
 			{
-				float coord_y = (float(y) + 0.5f) * rescale_height - 0.5f;
+				const float coord_y = (float(y) + 0.5f) * rescale_height - 0.5f;
 				for (uint32_t x = 0; x < dst_width; x++)
 				{
-					float coord_x = (float(x) + 0.5f) * rescale_width - 0.5f;
-					vec2 base_coord = vec2(coord_x, coord_y);
-					vec2 floor_coord = floor(base_coord);
-					vec2 uv = base_coord - floor_coord;
-					uvec2 c0(floor_coord);
-					uvec2 c1 = min(c0 + uvec2(1, 0), max_coord);
-					uvec2 c2 = min(c0 + uvec2(0, 1), max_coord);
-					uvec2 c3 = min(c0 + uvec2(1, 1), max_coord);
+					const float coord_x = (float(x) + 0.5f) * rescale_width - 0.5f;
+					const vec2 base_coord = vec2(coord_x, coord_y);
+					const vec2 floor_coord = floor(base_coord);
+					const vec2 uv = base_coord - floor_coord;
+					const uvec2 c0(floor_coord);
+					const uvec2 c1 = min(c0 + uvec2(1, 0), max_coord);
+					const uvec2 c2 = min(c0 + uvec2(0, 1), max_coord);
+					const uvec2 c3 = min(c0 + uvec2(1, 1), max_coord);
 
-					auto v0 = op.sample(dst_layout, c0, layer, level - 1);
-					auto v1 = op.sample(dst_layout, c1, layer, level - 1);
-					auto v2 = op.sample(dst_layout, c2, layer, level - 1);
-					auto v3 = op.sample(dst_layout, c3, layer, level - 1);
+					const auto v0 = op.sample(dst_layout, c0, layer, level - 1);
+					const auto v1 = op.sample(dst_layout, c1, layer, level - 1);
+					const auto v2 = op.sample(dst_layout, c2, layer, level - 1);
+					const auto v3 = op.sample(dst_layout, c3, layer, level - 1);
 
-					auto x0 = mix(v0, v1, uv.x);
-					auto x1 = mix(v2, v3, uv.x);
-					auto filtered = mix(x0, x1, uv.y);
+					const auto x0 = mix(v0, v1, uv.x);
+					const auto x1 = mix(v2, v3, uv.x);
+					const auto filtered = mix(x0, x1, uv.y);
 					op.write(dst_layout, uvec2(x, y), layer, level, filtered);
 				}
 			}
@@ -180,7 +181,7 @@ inline void generate_mipmaps(const Vulkan::TextureFormatLayout &dst_layout,
 	}
 }
 
-static void copy_dimensions(MemoryMappedTexture &mapped, const Vulkan::TextureFormatLayout &layout, MemoryMappedTextureFlags flags, unsigned levels = 0)
+static void copy_dimensions(MemoryMappedTexture &mapped, const Vulkan::TextureFormatLayout &layout, const MemoryMappedTextureFlags flags, const unsigned levels = 0)
 {
 	switch (layout.get_image_type())
 	{
@@ -242,16 +243,16 @@ inline void fixup_edges(const Vulkan::TextureFormatLayout &dst_layout,
 	{
 		for (uint32_t level = 0; level < dst_layout.get_levels(); level++)
 		{
-			auto &mip = dst_layout.get_mip_info(level);
-			int width = mip.block_row_length;
-			int height = mip.block_image_height;
-			ivec2 max_coord(width - 1, height - 1);
+			const auto &mip = dst_layout.get_mip_info(level);
+			const int width = mip.block_row_length;
+			const int height = mip.block_image_height;
+			const ivec2 max_coord(width - 1, height - 1);
 
 			for (int y = 0; y < height; y++)
 			{
 				for (int x = 0; x < width; x++)
 				{
-					vec4 source = op.sample(layout, uvec2(x, y), layer, level);
+					const vec4 source = op.sample(layout, uvec2(x, y), layer, level);
 					if (source.w == 1.0f)
 					{
 						op.write(dst_layout, uvec2(x, y), layer, level, source);
@@ -267,15 +268,15 @@ inline void fixup_edges(const Vulkan::TextureFormatLayout &dst_layout,
 								if (off_x == 0 && off_y == 0)
 									continue;
 
-								auto coord = uvec2(clamp(ivec2(x + off_x, y + off_y), ivec2(0), max_coord));
-								vec4 v = op.sample(layout, coord, layer, level);
+								const auto coord = uvec2(clamp(ivec2(x + off_x, y + off_y), ivec2(0), max_coord));
+								const vec4 v = op.sample(layout, coord, layer, level);
 								rgb += v.xyz() * v.w;
 								w += v.w;
 							}
 						}
 
 						rgb *= 1.0f / muglm::max(0.0000001f, w);
-						vec3 filtered = mix(rgb, source.xyz(), source.w);
+						const vec3 filtered = mix(rgb, source.xyz(), source.w);
 						op.write(dst_layout, uvec2(x, y), layer, level, vec4(filtered, source.w));
 					}
 				}
@@ -305,7 +306,7 @@ static void fixup_edges(const MemoryMappedTexture &mapped, const Vulkan::Texture
 	}
 }
 
-MemoryMappedTexture generate_mipmaps_to_file(const std::string &path, const Vulkan::TextureFormatLayout &layout, MemoryMappedTextureFlags flags)
+MemoryMappedTexture generate_mipmaps_to_file(const std::string &path, const Vulkan::TextureFormatLayout &layout, const MemoryMappedTextureFlags flags)
 {
 	MemoryMappedTexture mapped;
 	copy_dimensions(mapped, layout, flags);
@@ -315,7 +316,7 @@ MemoryMappedTexture generate_mipmaps_to_file(const std::string &path, const Vulk
 	return mapped;
 }
 
-MemoryMappedTexture generate_mipmaps(const Vulkan::TextureFormatLayout &layout, MemoryMappedTextureFlags flags)
+MemoryMappedTexture generate_mipmaps(const Vulkan::TextureFormatLayout &layout, const MemoryMappedTextureFlags flags)
 {
 	MemoryMappedTexture mapped;
 	copy_dimensions(mapped, layout, flags);
@@ -325,7 +326,7 @@ MemoryMappedTexture generate_mipmaps(const Vulkan::TextureFormatLayout &layout, 
 	return mapped;
 }
 
-MemoryMappedTexture fixup_alpha_edges(const Vulkan::TextureFormatLayout &layout, MemoryMappedTextureFlags flags)
+MemoryMappedTexture fixup_alpha_edges(const Vulkan::TextureFormatLayout &layout, const MemoryMappedTextureFlags flags)
 {
 	MemoryMappedTexture mapped;
 	copy_dimensions(mapped, layout, flags, layout.get_levels());
@@ -335,23 +336,23 @@ MemoryMappedTexture fixup_alpha_edges(const Vulkan::TextureFormatLayout &layout,
 	return mapped;
 }
 
-static bool component_is_identity(VkComponentSwizzle swiz, VkComponentSwizzle expected)
+static bool component_is_identity(const VkComponentSwizzle swiz, const VkComponentSwizzle expected)
 {
 	return swiz == expected || swiz == VK_COMPONENT_SWIZZLE_IDENTITY;
 }
 
-static inline uint16_t swizzle_to_one(uint16_t)
+static inline uint16_t swizzle_to_one(const uint16_t)
 {
 	return 0x3c00;
 }
 
-static inline uint8_t swizzle_to_one(uint8_t)
+static inline uint8_t swizzle_to_one(const uint8_t)
 {
 	return 0xff;
 }
 
 template <typename T>
-static inline T extract_component(const tvec4<T> &t, int swiz)
+static inline T extract_component(const tvec4<T> &t, const int swiz)
 {
 	if (swiz < 4)
 		return t[swiz];
@@ -362,7 +363,7 @@ static inline T extract_component(const tvec4<T> &t, int swiz)
 }
 
 template <typename T>
-static inline T extract_component(const tvec3<T> &t, int swiz)
+static inline T extract_component(const tvec3<T> &t, const int swiz)
 {
 	if (swiz < 3)
 		return t[swiz];
@@ -373,7 +374,7 @@ static inline T extract_component(const tvec3<T> &t, int swiz)
 }
 
 template <typename T>
-static inline T extract_component(const tvec2<T> &t, int swiz)
+static inline T extract_component(const tvec2<T> &t, const int swiz)
 {
 	if (swiz < 2)
 		return t[swiz];
@@ -384,7 +385,7 @@ static inline T extract_component(const tvec2<T> &t, int swiz)
 }
 
 template <typename T>
-static inline T extract_component(const T &t, int swiz)
+static inline T extract_component(const T &t, const int swiz)
 {
 	if (swiz < 1)
 		return t;
@@ -395,13 +396,13 @@ static inline T extract_component(const T &t, int swiz)
 }
 
 template <typename T>
-static inline void swizzle_image_inner(const Vulkan::TextureFormatLayout &layout, ivec4 swizzles)
+static inline void swizzle_image_inner(const Vulkan::TextureFormatLayout &layout, const ivec4 swizzles)
 {
 	transform_texture_layout<T>(layout, [swizzles](const T &v) {
-		auto r = extract_component(v, swizzles.x);
-	    auto g = extract_component(v, swizzles.y);
-	    auto b = extract_component(v, swizzles.z);
-	    auto a = extract_component(v, swizzles.w);
+		const auto r = extract_component(v, swizzles.x);
+	    const auto g = extract_component(v, swizzles.y);
+	    const auto b = extract_component(v, swizzles.z);
+	    const auto a = extract_component(v, swizzles.w);
 		return T(r, g, b, a);
 	});
 }
@@ -415,10 +416,10 @@ bool swizzle_image(MemoryMappedTexture &texture, const VkComponentMapping &swizz
 	{
 		texture.make_local_copy();
 
-		auto &layout = texture.get_layout();
+		const auto &layout = texture.get_layout();
 
 		ivec4 swizzles = {};
-		const auto conv_swizzle = [](VkComponentSwizzle swiz, int identity_component) -> int {
+		const auto conv_swizzle = [](const VkComponentSwizzle swiz, const int identity_component) -> int {
 			switch (swiz)
 			{
 			case VK_COMPONENT_SWIZZLE_IDENTITY:
@@ -466,16 +467,16 @@ bool swizzle_image(MemoryMappedTexture &texture, const VkComponentMapping &swizz
 	return true;
 }
 
-static TransparencyType check_transparency(const Vulkan::TextureFormatLayout &layout, unsigned layer, unsigned level)
+static TransparencyType check_transparency(const Vulkan::TextureFormatLayout &layout, const unsigned layer, const unsigned level)
 {
 	bool non_opaque_pixel = false;
-	auto width = layout.get_width();
-	auto height = layout.get_height();
+	const auto width = layout.get_width();
+	const auto height = layout.get_height();
 	for (unsigned y = 0; y < height; y++)
 	{
 		for (unsigned x = 0; x < width; x++)
 		{
-			uint8_t alpha = layout.data_2d<u8vec4>(x, y, layer, level)->w;
+			const uint8_t alpha = layout.data_2d<u8vec4>(x, y, layer, level)->w;
 			if (alpha != 0xff)
 			{
 				if (alpha == 0)
@@ -489,7 +490,7 @@ static TransparencyType check_transparency(const Vulkan::TextureFormatLayout &la
 	return non_opaque_pixel ? TransparencyType::Binary : TransparencyType::None;
 }
 
-TransparencyType image_slice_contains_transparency(const Vulkan::TextureFormatLayout &layout, unsigned layer, unsigned level)
+TransparencyType image_slice_contains_transparency(const Vulkan::TextureFormatLayout &layout, const unsigned layer, const unsigned level)
 {
 	switch (layout.get_format())
 	{

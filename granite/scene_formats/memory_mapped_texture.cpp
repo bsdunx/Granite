@@ -42,19 +42,19 @@ struct MemoryMappedHeader
 	uint64_t payload_size;
 	uint64_t reserved1;
 };
-static const size_t header_size = 16 + 8 * 4 + 2 * 8;
+const size_t header_size = 16 + 8 * 4 + 2 * 8;
 static_assert(sizeof(MemoryMappedHeader) == header_size, "Header size is not properly packed.");
 
-static const char MAGIC[16] = "GRANITE TEXFMT1";
+const char MAGIC[16] = "GRANITE TEXFMT1";
 
-void MemoryMappedTexture::set_generate_mipmaps_on_load(bool enable)
+void MemoryMappedTexture::set_generate_mipmaps_on_load(const bool enable)
 {
 	mipgen_on_load = enable;
 }
 
-void MemoryMappedTexture::set_flags(MemoryMappedTextureFlags flags)
+void MemoryMappedTexture::set_flags(const MemoryMappedTextureFlags flags)
 {
-	bool new_cube = (flags & MEMORY_MAPPED_TEXTURE_CUBE_MAP_COMPATIBLE_BIT) != 0;
+	const bool new_cube = (flags & MEMORY_MAPPED_TEXTURE_CUBE_MAP_COMPATIBLE_BIT) != 0;
 	if (new_cube != cube)
 		abort();
 	set_generate_mipmaps_on_load((flags & MEMORY_MAPPED_TEXTURE_GENERATE_MIPMAP_ON_LOAD_BIT) != 0);
@@ -75,25 +75,25 @@ MemoryMappedTextureFlags MemoryMappedTexture::get_flags() const
 	return flags;
 }
 
-void MemoryMappedTexture::set_1d(VkFormat format, uint32_t width, uint32_t layers, uint32_t levels)
+void MemoryMappedTexture::set_1d(const VkFormat format, const uint32_t width, const uint32_t layers, const uint32_t levels)
 {
 	layout.set_1d(format, width, layers, levels);
 	cube = false;
 }
 
-void MemoryMappedTexture::set_2d(VkFormat format, uint32_t width, uint32_t height, uint32_t layers, uint32_t levels)
+void MemoryMappedTexture::set_2d(const VkFormat format, const uint32_t width, const uint32_t height, const uint32_t layers, const uint32_t levels)
 {
 	layout.set_2d(format, width, height, layers, levels);
 	cube = false;
 }
 
-void MemoryMappedTexture::set_3d(VkFormat format, uint32_t width, uint32_t height, uint32_t depth, uint32_t levels)
+void MemoryMappedTexture::set_3d(const VkFormat format, const uint32_t width, const uint32_t height, const uint32_t depth, const uint32_t levels)
 {
 	layout.set_3d(format, width, height, depth, levels);
 	cube = false;
 }
 
-void MemoryMappedTexture::set_cube(VkFormat format, uint32_t size, uint32_t cube_layers, uint32_t levels)
+void MemoryMappedTexture::set_cube(const VkFormat format, const uint32_t size, const uint32_t cube_layers, const uint32_t levels)
 {
 	layout.set_2d(format, size, size, cube_layers * 6, levels);
 	cube = true;
@@ -272,7 +272,7 @@ void MemoryMappedTexture::remap_swizzle(VkComponentMapping &mapping) const
 	mapping = new_mapping;
 }
 
-bool MemoryMappedTexture::map_copy(const void *mapped_, size_t size)
+bool MemoryMappedTexture::map_copy(const void *mapped_, const size_t size)
 {
 	auto new_file = std::make_unique<ScratchFile>(mapped_, size);
 	if (new_file->get_size() < sizeof(MemoryMappedHeader))
@@ -287,7 +287,7 @@ bool MemoryMappedTexture::map_read(std::unique_ptr<Granite::File> new_file, void
 	mapped = static_cast<uint8_t *>(mapped_);
 	file = std::move(new_file);
 
-	auto *header = reinterpret_cast<const MemoryMappedHeader *>(mapped);
+	const auto *header = reinterpret_cast<const MemoryMappedHeader *>(mapped);
 	switch (header->type)
 	{
 	case VK_IMAGE_TYPE_1D:
@@ -338,7 +338,7 @@ bool MemoryMappedTexture::map_read(const std::string &path)
 	return map_read(move(loaded_file), new_mapped);
 }
 
-bool MemoryMappedTexture::is_header(const void *mapped_, size_t size)
+bool MemoryMappedTexture::is_header(const void *mapped_, const size_t size)
 {
 	if (size < sizeof(MemoryMappedHeader))
 		return false;

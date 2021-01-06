@@ -22,7 +22,12 @@
 
 #pragma once
 
-#include "scene_formats/scene_formats.hpp"
+#include "math/muglm/muglm.hpp"
+
+#include <string>
+#include <vector>
+
+using namespace muglm;
 
 namespace Granite
 {
